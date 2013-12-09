@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Отчет для Слуцка" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="ec84a567-ea83-4359-8b2f-2df606fc5d5b">
+	<property name="ireport.zoom" value="1.8627639691774662"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="startMonth" class="java.lang.String"/>
+	<parameter name="endMonth" class="java.lang.String"/>
+	<parameter name="total" class="java.lang.Integer"/>
+	<parameter name="good" class="java.lang.Integer"/>
+	<parameter name="good2" class="java.lang.Integer"/>
+	<parameter name="owner_type" class="java.util.List"/>
+	<parameter name="test" class="java.lang.String"/>
+	<parameter name="num_ds" class="java.lang.Integer"/>
+	<parameter name="position" class="java.lang.String"/>
+	<parameter name="chiefDS" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT 
+                    bi.date_ot 'Дата',
+                    concat(b.seria,' ',LPAD(b.number,6,0)) 'Серия, номер',
+                    r.name 'Рег.знак',
+                    m.name 'Марка/модель',
+                    LEFT(c.name,2) 'Категория',
+                    tar.summa_oplaty 'Сумма оплаты',
+                    o.name 'Собственник',
+                    if(bi.id_blanc_repeat is null,"Первичная","Повторная") 'Проверка',
+                    CASE bi.id_conclusion WHEN 1 THEN "С" WHEN 2 THEN "X" WHEN 3 THEN "С с З" END 'Результат'
+                FROM  `to`.blanc_ts_info bi
+                    left join `to`.blanc b on bi.id_blanc=b.id_blanc
+                    left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info
+                    left join `to`.reg_number r on r.id_reg_number=i.id_reg_number
+                    left join `to`.s_ts_model m on m.id_ts_model=i.id_ts_marca
+                    left join `to`.s_ts_categ c on c.id_ts_categ=i.id_ts_categ
+                    left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc
+                    left join `to`.owner_info o on o.id_owner=i.id_owner_sobs
+                    left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion
+                WHERE
+                    bi.date_ot BETWEEN $P{startMonth} and $P{endMonth} and
+                    b.id_blanc_status=2 and b.id_blanc_type=1
+                    and $X{IN, o.id_owner_type, owner_type}
+                    $P!{test}
+                ORDER BY bi.date_ot]]>
+	</queryString>
+	<field name="Дата" class="java.sql.Timestamp"/>
+	<field name="Серия, номер" class="java.lang.String"/>
+	<field name="Рег.знак" class="java.lang.String"/>
+	<field name="Марка/модель" class="java.lang.String"/>
+	<field name="Категория" class="java.lang.String"/>
+	<field name="Сумма оплаты" class="java.lang.Long"/>
+	<field name="Собственник" class="java.lang.String"/>
+	<field name="Проверка" class="java.lang.String"/>
+	<field name="Результат" class="java.lang.String"/>
+	<variable name="Сумма оплаты_1" class="java.lang.Long" calculation="Sum">
+		<variableExpression><![CDATA[$F{Сумма оплаты}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="38" splitType="Stretch">
+			<elementGroup>
+				<textField>
+					<reportElement uuid="65841748-258e-4393-99e1-092e217e3d5d" x="406" y="26" width="70" height="12"/>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+						<topPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{good2}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="a8e61e23-7586-471e-8010-9a176f6c37a6" x="151" y="26" width="70" height="12"/>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+						<topPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{total}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="ebfa61e2-5114-4269-a464-050e27564428" x="221" y="26" width="55" height="12"/>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+						<topPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Первичных]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="b4acd043-5d46-4aa4-ba6d-4b8599c9128d" x="74" y="26" width="77" height="12"/>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Всего осмотров]]></text>
+				</staticText>
+				<textField>
+					<reportElement uuid="5b023931-b927-48bf-a243-8eaba0794832" x="276" y="26" width="70" height="12"/>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+						<topPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{good}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="7acc41e2-4365-43a6-8ed5-63138e484513" x="346" y="26" width="60" height="12"/>
+					<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+						<topPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Tahoma" size="8" isBold="false"/>
+					</textElement>
+					<text><![CDATA[Вторичных]]></text>
+				</staticText>
+			</elementGroup>
+			<textField>
+				<reportElement uuid="ca6e2aed-86c8-4df2-af8d-9a33dc8cc674" x="109" y="0" width="336" height="13"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Статистика прохождения технического осмотра на ДС №"+$P{num_ds}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy">
+				<reportElement uuid="8f8eead7-c23a-4100-b37b-82bfc7223ef2" x="158" y="13" width="239" height="13"/>
+				<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{startMonth}.substring(0, 10)+" - "+$P{endMonth}.substring(0, 10)]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="16" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="66f54e27-e3fe-4e7e-b622-326047b98c45" x="31" y="0" width="36" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Дата
+                
+                ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b1f89a2d-518f-444c-aed3-b5f4a8312b89" x="67" y="0" width="52" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Серия и № ДК]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="64a2a5e7-d931-4324-81c5-828834bb8635" x="267" y="0" width="18" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Кат]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="236cbfb5-953c-474b-aaad-ae36c70e2714" x="285" y="0" width="36" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Сумма]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="1e24ab08-d888-4e48-abd6-3ba6ebf21ec7" x="321" y="0" width="100" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Собственник]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="b112cfdb-c5ed-42aa-aa6a-c84ddc9a25f1" x="0" y="0" width="31" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[№ п/п]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="70617101-8e4f-4092-91e7-14d91eb7475f" x="421" y="0" width="45" height="16"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Проверка]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="3ff005f8-9617-462d-a0a7-468aee81c04b" x="466" y="0" width="24" height="16"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<topPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Рез]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="a9aa6ed1-6091-49e8-b723-0ff52d2e44c7" x="490" y="0" width="65" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Талон]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="8a8f8755-cbc6-41ed-bf60-a4313ab1dc09" x="119" y="0" width="48" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Рег.знак]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="ed5b7899-7b37-4b99-8b08-b8baf34890e6" x="167" y="0" width="100" height="16"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Марка/модель]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="dd.MM.yy">
+				<reportElement uuid="68f3fb34-6b6e-4354-b009-6f0b6f7fe013" stretchType="RelativeToBandHeight" x="31" y="0" width="36" height="10"/>
+				<box topPadding="0" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Дата}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="8b455361-b6b3-43a8-83cf-6b1feeaba37d" stretchType="RelativeToBandHeight" x="119" y="0" width="48" height="10"/>
+				<box topPadding="0" leftPadding="1" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Рег.знак}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="17f3cc55-098c-4a66-8587-8b769e604363" stretchType="RelativeToBandHeight" x="67" y="0" width="52" height="10"/>
+				<box topPadding="0" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Серия, номер}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement uuid="c2fcd246-c442-4a43-bf1e-4fd1781d7d07" stretchType="RelativeToBandHeight" x="167" y="0" width="100" height="10" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true"/>
+				<box topPadding="0" leftPadding="1" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Марка/модель}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="9643bcb9-2901-450d-a265-af6d1992fc96" stretchType="RelativeToBandHeight" x="267" y="0" width="18" height="10"/>
+				<box topPadding="0" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Категория}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0">
+				<reportElement uuid="ba61f07b-ca0f-4e82-92e9-47c49e5f615e" stretchType="RelativeToBandHeight" x="285" y="0" width="36" height="10"/>
+				<box topPadding="0" bottomPadding="0" rightPadding="2">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Сумма оплаты}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="57866351-1e25-45f9-aa38-facc1e163190" stretchType="RelativeToBandHeight" mode="Transparent" x="321" y="0" width="100" height="10"/>
+				<box topPadding="0" leftPadding="1" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle" rotation="None">
+					<font fontName="Tahoma" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1251"/>
+					<paragraph lineSpacing="Single" tabStopWidth="40"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Собственник}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0">
+				<reportElement uuid="93c0ece0-22d6-477d-b471-966e9844c292" stretchType="RelativeToBandHeight" x="0" y="0" width="31" height="10"/>
+				<box topPadding="0" bottomPadding="0">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="acc4ff7a-ef6e-49a4-900c-633d104c13df" stretchType="RelativeToBandHeight" x="421" y="0" width="45" height="10"/>
+				<box topPadding="0" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Проверка}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement uuid="6124c3af-3272-4231-bcbf-6c50333fed96" stretchType="RelativeToBandHeight" x="466" y="0" width="24" height="10"/>
+				<box topPadding="0" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{Результат}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="e051045d-cfa0-4845-aa32-2b783c31c7a8" stretchType="RelativeToBandHeight" x="490" y="0" width="65" height="10"/>
+				<box topPadding="0" bottomPadding="0">
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="14" splitType="Stretch">
+			<textField>
+				<reportElement uuid="408e39b9-fd7a-455d-8b07-9b4396518246" x="435" y="0" width="80" height="14"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement uuid="0b9a27fc-5f0b-4c42-803d-82a6d7d363b4" x="515" y="0" width="40" height="14"/>
+				<textElement>
+					<font fontName="Tahoma" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="5b75c11f-b1a8-4bf7-91b7-02f59f80e8a3" x="0" y="0" width="100" height="14"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="2"/>
+				</textElement>
+				<text><![CDATA[Шаблон отчета подготовлен Коско Александром]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="35" splitType="Stretch">
+			<textField pattern="#,##0">
+				<reportElement uuid="740f9da8-51f5-4dec-aaf2-4c9cfaf3a9d8" x="74" y="0" width="94" height="16"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Сумма оплаты_1}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="9a14df9e-5071-44da-9c83-cf86adaf4816" x="0" y="0" width="74" height="16"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Сумма всего:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="6cc45e57-7e39-406a-b7b4-44525a04603c" x="168" y="0" width="30" height="16"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<text><![CDATA[руб.]]></text>
+			</staticText>
+			<textField>
+				<reportElement uuid="35087846-3964-41b2-a251-4676ca75053e" x="405" y="20" width="150" height="15"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chiefDS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d" x="0" y="20" width="280" height="15"/>
+				<textElement>
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{position}+" ДС №"+$P{num_ds}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

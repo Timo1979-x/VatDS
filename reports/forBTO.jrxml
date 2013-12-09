@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Отчет за месяц" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="786ac81e-d432-48a8-9703-4b511ff69fcf">
+	<property name="ireport.zoom" value="1.927716447147658"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<parameter name="startMonth" class="java.lang.String"/>
+	<parameter name="endMonth" class="java.lang.String"/>
+	<parameter name="position" class="java.lang.String"/>
+	<parameter name="chiefDS" class="java.lang.String"/>
+	<parameter name="num_ds" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT
+	count(bi.id_blanc) AS "total",
+	(
+		SELECT
+			COUNT(bi2.id_blanc)
+		FROM
+			`to`.blanc_ts_info bi2
+		LEFT JOIN `to`.blanc b2 ON bi2.id_blanc = b2.id_blanc
+		WHERE
+			bi2.date_ot BETWEEN $P{startMonth} and $P{endMonth}
+		AND b2.id_blanc_status = 2
+		AND b2.id_blanc_type = 1
+		AND bi2.id_conclusion = 1
+	) AS "good",
+	(
+		SELECT
+			count(bi3.id_blanc)
+		FROM
+			`to`.blanc_ts_info bi3
+		LEFT JOIN `to`.blanc b3 ON bi3.id_blanc = b3.id_blanc
+		WHERE
+			bi3.date_ot BETWEEN $P{startMonth} and $P{endMonth}
+		AND b3.id_blanc_status = 2
+		AND b3.id_blanc_type = 1
+		AND bi3.id_conclusion = 3
+	) AS "good2",
+	(
+		SELECT
+			count(bi4.id_blanc)
+		FROM
+			`to`.blanc_ts_info bi4
+		LEFT JOIN `to`.blanc b4 ON bi4.id_blanc = b4.id_blanc
+		WHERE
+			bi4.date_ot BETWEEN $P{startMonth} and $P{endMonth}
+		AND b4.id_blanc_status = 2
+		AND b4.id_blanc_type = 1
+		AND bi4.id_conclusion = 2
+	) AS "bad",
+	SUM(tar.summa_oplaty) AS "summa"
+FROM
+	`to`.blanc_ts_info bi
+LEFT JOIN `to`.blanc b ON bi.id_blanc = b.id_blanc
+LEFT JOIN `to`.sd_tarifs_ts_info tar ON tar.id_ts_info = bi.id_ts_info
+AND tar.id_blanc = bi.id_blanc
+WHERE
+	bi.date_ot BETWEEN $P{startMonth} and $P{endMonth}
+AND b.id_blanc_status = 2
+and bi.id_conclusion  IS NOT NULL
+AND b.id_blanc_type = 1]]>
+	</queryString>
+	<field name="total" class="java.lang.Long"/>
+	<field name="good" class="java.lang.Long"/>
+	<field name="good2" class="java.lang.Long"/>
+	<field name="bad" class="java.lang.Long"/>
+	<field name="summa" class="java.lang.Long"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="9a1d498a-b261-4be8-a82c-aee52bdeb4fc" x="126" y="0" width="47" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Отчет с]]></text>
+			</staticText>
+			<textField pattern="dd MMMMM yyyy">
+				<reportElement uuid="1beab670-ef2a-4161-ae9c-d1eb48029097" x="173" y="0" width="118" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{startMonth}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="2e8e49c0-5905-4125-9103-8c96093cf63f" x="291" y="0" width="15" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<text><![CDATA[по]]></text>
+			</staticText>
+			<textField pattern="dd MMMMM yyyy">
+				<reportElement uuid="36193e05-87c7-4456-98c0-c33c53e45b0a" x="306" y="0" width="118" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{endMonth}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="9a1d498a-b261-4be8-a82c-aee52bdeb4fc" x="0" y="20" width="555" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["ДС № "+$P{num_ds}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="110" splitType="Stretch">
+			<elementGroup>
+				<textField>
+					<reportElement uuid="cf40fbd9-681d-431c-b43a-8c91948afecd" x="384" y="22" width="118" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{good}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="f3de2659-634b-426c-960b-415129144bb1" x="54" y="66" width="330" height="22"/>
+					<box>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Из них не соответствует:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="3700995f-f980-45a3-9f72-e3356763bc7c" x="54" y="22" width="330" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Из них соответствует:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="84a8371c-28f0-4b16-a59e-2bb6e4b26adc" x="54" y="44" width="330" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Из них соответствует с замечаниями:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement uuid="38467607-88c6-4182-8ab7-6fd31b1f8692" x="54" y="88" width="330" height="22"/>
+					<box>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Сумма бел. руб.:]]></text>
+				</staticText>
+				<textField>
+					<reportElement uuid="1191eb62-8be8-46ad-99e2-f2898ead485e" x="384" y="0" width="118" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="5e1c0299-c087-4c1f-9f4c-99e1cc3d59a9" x="384" y="44" width="118" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{good2}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement uuid="180bddc7-bd4c-4a75-a240-a3ff0cda629d" x="384" y="66" width="118" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{bad}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement uuid="d69bc770-7e54-4f02-9f1a-bd9b8eefe540" x="384" y="88" width="118" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{summa}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement uuid="6dda7905-01c8-4602-900c-1290c65a83a2" x="54" y="0" width="330" height="22"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Times New Roman" size="14" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Всего КДР:]]></text>
+				</staticText>
+			</elementGroup>
+		</band>
+	</detail>
+	<summary>
+		<band height="35" splitType="Stretch">
+			<textField>
+				<reportElement uuid="35087846-3964-41b2-a251-4676ca75053e" x="405" y="15" width="150" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{chiefDS}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d" x="0" y="15" width="280" height="20"/>
+				<textElement>
+					<font fontName="Tahoma" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{position}+" ДС №"+$P{num_ds}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>
