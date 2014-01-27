@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <config>
+        <host>localhost</host>
+        <port>33060</port>
+        <chiefDS>С.А. Булатовский</chiefDS>
+    </config>
+</configuration>
