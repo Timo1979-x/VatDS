@@ -1,14 +1,11 @@
 package by.gto.tools;
 
-import by.gto.jasperprintmysql.App;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 
@@ -17,7 +14,7 @@ import org.apache.commons.configuration.XMLConfiguration;
  * @author Aleks
  */
 public class ConfigReader {
-
+private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ConfigReader.class);
     private static volatile ConfigReader instance;
     private static String host = "localhost";
     private static String port = "33060";
@@ -25,7 +22,7 @@ public class ConfigReader {
     private static String position = "Должность";
     private static int NDS = 20;
     //private File configXml = new File("config.xml");
-    private static File configXml = new File("config.xml");
+    private static final File configXml = new File("config.xml");
 
     public static ConfigReader getInstance() {
         if (instance == null) {
@@ -47,7 +44,7 @@ public class ConfigReader {
         try {
             config = new XMLConfiguration("config.xml");
         } catch (ConfigurationException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            log.error(ex);
         }
         read();
     }
@@ -67,7 +64,7 @@ public class ConfigReader {
             wFile.write("</configuration>\n");
             wFile.flush();
         } catch (IOException ex) {
-            Logger.getLogger(ConfigReader.class.getName()).log(Level.SEVERE, null, ex);
+             log.error(ex);
         }
     }
 //    public void ConfigReader() {
@@ -118,7 +115,7 @@ public class ConfigReader {
             chiefDS = config.getString("config.chiefDS").trim();
             NDS = Integer.parseInt(config.getString("config.NDS").trim());
         } catch (ConfigurationException ex) {
-            Logger.getLogger(ConfigReader.class.getName()).log(Level.SEVERE, null, ex);
+             log.error(ex);
         }
     }
 
