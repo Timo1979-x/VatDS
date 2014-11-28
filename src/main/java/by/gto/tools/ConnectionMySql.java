@@ -5,6 +5,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import java.sql.SQLException;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
+import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
 /**
@@ -60,6 +61,7 @@ public class ConnectionMySql {
                 } catch (RuntimeException ex) {
                     log.error("RuntimeException ", ex);
                 } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Ошибка подключения к серверу.", "Ошибка", 0);
                     log.fatal("SQLException", ex);
                 }
             }

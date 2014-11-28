@@ -4,7 +4,7 @@
 
     <groupId>by.gto</groupId>
     <artifactId>btoReport</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
     <packaging>jar</packaging>
 
     <name>btoReport</name>
@@ -18,8 +18,8 @@
         <product.title>Статистические отчеты</product.title>
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2014</product.year>
-        <jdkVersion>1.7</jdkVersion>
-        <dateBuild>2014.10.08</dateBuild>
+        <jdkVersion>1.8</jdkVersion>
+        <dateBuild>2014.11.20</dateBuild>
     </properties>
     <build>
         <resources>
@@ -38,10 +38,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.2</version>
                 <configuration>
-                    <source>${jdkVersion}</source>
-                    <target>${jdkVersion}</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <showDeprecation>true</showDeprecation>
                 </configuration>
@@ -66,7 +66,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.7</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
@@ -115,7 +115,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.5.1</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -139,7 +139,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.5.1</version>
+                <version>1.7.1</version>
                 <executions>
                     <execution>
                         <id>l4j-clui</id>
@@ -173,7 +173,7 @@
                                 <fileVersion>${project.version}.0</fileVersion>
                                 <txtFileVersion>${project.version}</txtFileVersion>
                                 <fileDescription>Статистические отчеты</fileDescription>
-                                <copyright>Copyright © 2013 ${product.company}</copyright>
+                                <copyright>Copyright © 2014 ${product.company}</copyright>
                                 <productVersion>${project.version}.0</productVersion>
                                 <txtProductVersion>${project.version}</txtProductVersion>
                                 <companyName>${product.company}</companyName>
@@ -191,13 +191,13 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.33</version>
+            <version>5.1.34</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.4</version>
+            <version>2.5</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -219,7 +219,7 @@
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
-            <version>1.9</version><!--1.10  error-->
+            <version>1.10</version><!--1.10  error-->
         </dependency>
         <dependency>
             <groupId>net.java.dev.glazedlists</groupId>
@@ -258,5 +258,5 @@
             <version>1.0.3</version>
         </dependency>
     </dependencies>
-    <description>Обновления под новую версию БелТО 2.9.4;0.0.7 - в журнал добавлен заказчик если он отличается от собственника </description>
+    <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8</description>
 </project>
