@@ -436,7 +436,6 @@ public class MainView extends javax.swing.JFrame {
         String owner = null;
         String ownerUNP = null;
 
-
         if (jCBoxOwner.getSelectedItem() != null) {
             // int ownerNum = jCBoxOwner.getSelectedIndex();//   getSelectedItem().toString();//selectedItemReminder
             owner = (String) jCBoxOwner.getSelectedItem();//listOwner.get(ownerNum);
@@ -614,6 +613,7 @@ public class MainView extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        log.info("Start");
         /*
          * Set the Nimbus look and feel
          */ //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -635,7 +635,6 @@ public class MainView extends javax.swing.JFrame {
 //                }
 //            }
 
-
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(MainView.class
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
@@ -652,7 +651,7 @@ public class MainView extends javax.swing.JFrame {
             }
         });
 
-
+        log.info("Stop");
     }
     private Task task;
 
@@ -695,7 +694,6 @@ public class MainView extends javax.swing.JFrame {
 //                taskOutput.append("Указанная директория не содержит файлоы с расширением dxl.\n");
 //            }
 //            setProgress(100);
-
             return null;
         }
 
