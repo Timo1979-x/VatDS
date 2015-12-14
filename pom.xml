@@ -19,7 +19,7 @@
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2015</product.year>
         <jdkVersion>1.8</jdkVersion>
-        <dateBuild>2015.12.04</dateBuild>
+        <dateBuild>2015.12.14</dateBuild>
     </properties>
     <build> 
         <resources>
