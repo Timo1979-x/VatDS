@@ -1,5 +1,6 @@
 package by.gto.jasperprintmysql;
 
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,16 +31,17 @@ public class MyViewer extends JasperViewer {
      *
      * @param jasperPrint JasperPrint
      * @param isExitOnClose Выходить из приложения при закрытии
-     * @param saveContr  В каком формате сохранять (напр.: pdf, rtf, xml )pdf - JRPdfSaveContributor multipleXLS -
-     * JRMultipleSheetsXlsSaveContributor rtf - JRRtfSaveContributor odt -
-     * JROdtSaveContributor docx - new JRDocxSaveContributor html -
-     * JRHtmlSaveContributor singleXLS - JRSingleSheetXlsSaveContributor csv -
-     * JRCsvSaveContributor xml - JRXmlSaveContributor embImgXml -
-     * JREmbeddedImagesXmlSaveContributor print - JRPrintSaveContributor
+     * @param saveContr В каком формате сохранять (напр.: pdf, rtf, xml )pdf -
+     * JRPdfSaveContributor multipleXLS - JRMultipleSheetsXlsSaveContributor rtf
+     * - JRRtfSaveContributor odt - JROdtSaveContributor docx - new
+     * JRDocxSaveContributor html - JRHtmlSaveContributor singleXLS -
+     * JRSingleSheetXlsSaveContributor csv - JRCsvSaveContributor xml -
+     * JRXmlSaveContributor embImgXml - JREmbeddedImagesXmlSaveContributor print
+     * - JRPrintSaveContributor
      */
     public MyViewer(JasperPrint jasperPrint, boolean isExitOnClose, String saveContr) {
         super(jasperPrint, isExitOnClose);
-        Locale locale = viewer.getLocale();
+        Locale locale = this.viewer.getLocale();
         ResourceBundle resourceBundle = ResourceBundle.getBundle("net/sf/jasperreports/view/viewer", locale);
 
         StringTokenizer st = new StringTokenizer(saveContr, ",");
@@ -86,6 +88,7 @@ public class MyViewer extends JasperViewer {
                     break;
             }
         }
+
         /**
          * JRPrintSaveContributor JRPdfSaveContributor JRRtfSaveContributor
          * JROdtSaveContributor JRDocxSaveContributor JRHtmlSaveContributor
@@ -93,6 +96,10 @@ public class MyViewer extends JasperViewer {
          * JRCsvSaveContributor JRXmlSaveContributor
          * JREmbeddedImagesXmlSaveContributor
          */
-        viewer.setSaveContributors(save);
+//        for (JRSaveContributor contr : save) {
+//            this.viewer.tlbToolBar.addSaveContributor(contr);
+//        }
+//JRViewer viewer = new JRViewer(jrPrint);
+        //viewer.setSaveContributors(save);
     }
 }

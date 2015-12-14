@@ -13,6 +13,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UnsupportedLookAndFeelException;
 import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.view.JRSaveContributor;
+import net.sf.jasperreports.view.JasperViewer;
+import net.sf.jasperreports.view.save.JRPdfSaveContributor;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
@@ -26,7 +29,7 @@ public class App {
         JOptionPane.showMessageDialog(frame, message);
     }
 
-    public static void print(DateTime startMonth, DateTime endMonth, String report, List<Integer> owner_type, String owner, String ownerUNP) {
+    public static void print(DateTime startMonth, DateTime endMonth, String report, List<Integer> owner_type, String owner, String ownerUNP, byte bankTransfer) {
         DateTime dt;
         //// from Joda to JDK
         //   DateTime dt= new DateTime();
@@ -111,6 +114,7 @@ public class App {
                     map.put("chiefDS", ConfigReader.getInstance().getChiefDS());
                     map.put("owner_type", owner_type);
                     map.put("NDS", ConfigReader.getInstance().getNDS());
+                    map.put("bankTransfer", bankTransfer);
 
                     String sqlParam = " ";
                     if (owner != null) {
@@ -155,6 +159,7 @@ public class App {
                     }
                     rs.close();
                 }
+                
                 jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
             }
 //            JasperViewer jViewer = new JasperViewer(jasperPrint);
@@ -176,7 +181,8 @@ public class App {
 //            dialog.setResizable(true);
 //            dialog.setLocationByPlatform(true);
             //JRViewer JV = new JRViewer(jasperPrint);
-            MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS,csv,xml");
+            MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS, csv, xml");
+
             myViewer.setTitle("Предварительный просмотр");
             myViewer.setExtendedState(myViewer.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 //            //   myViewer.setVisible(true);
@@ -222,13 +228,10 @@ public class App {
 ////                dialog.add(JV);
 ////                dialog.setVisible(true);
 //            }
-
             //      JFrame fr = new JFrame("Предварительный просмотр");
-
             //   JFrame fr = new JFrame("Предварительный просмотр");
             //  JasperViewer.viewReport(jasperPrint);
             //       JRViewer JV = new JRViewer(jasperPrint);
-
             // JRViewer JV = new JRViewer("reports/UnicodeReport.jrprint", false);
             //            JFrame fr = new JFrame("UnicodeReport");
             //        fr.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -237,7 +240,6 @@ public class App {
             //          fr.add(JV);
             //          fr.pack();
             //          fr.setVisible(true);
-
         } catch (JRException | SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             showMessage("jasper JRException", ex.toString());
             log.error(ex);

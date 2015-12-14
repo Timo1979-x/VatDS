@@ -10,6 +10,7 @@
 	<parameter name="num_ds" class="java.lang.Integer"/>
 	<parameter name="position" class="java.lang.String"/>
 	<parameter name="chiefDS" class="java.lang.String"/>
+	<parameter name="bankTransfer" class="java.lang.Byte"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT 
   bi.date_ot 'Дата',
@@ -30,7 +31,7 @@ FROM  `to`.blanc_ts_info bi
   left join `to`.owner_info z on z.id_owner=i.id_owner_zakazch
   left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion
 WHERE bi.date_ot BETWEEN $P{startMonth} and $P{endMonth} and
-                    b.id_blanc_status=2 and b.id_blanc_type=1
+                    b.id_blanc_status=2 and b.id_blanc_type=1  AND `tar`.`bank_transfer` = $P{bankTransfer}
                     and $X{IN, o.id_owner_type, owner_type} $P!{test}
 ORDER BY bi.date_ot]]>
 	</queryString>
@@ -47,11 +48,11 @@ ORDER BY bi.date_ot]]>
 	<title>
 		<band height="30" splitType="Stretch">
 			<textField>
-				<reportElement x="95" y="0" width="364" height="13" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
+				<reportElement x="0" y="0" width="555" height="13" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
 				<textElement textAlignment="Center">
 					<font fontName="Tahoma" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Журнал учета оказания услуг на диагностической станции №"+$P{num_ds}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Журнал учета оказания услуг на диагностической станции №"+$P{num_ds}+"("+($P{bankTransfer}.byteValue()==(byte)1?"Безналичный расчет":"Наличный расчет")+")"]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
 				<reportElement x="206" y="13" width="142" height="13" uuid="c00b1916-61e5-4a83-94b8-21e4ec31b45b"/>

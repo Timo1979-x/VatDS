@@ -77,9 +77,10 @@ public class MainView extends javax.swing.JFrame {
         jChBoxCorparate = new javax.swing.JCheckBox();
         jChBoxIndividual = new javax.swing.JCheckBox();
         jChBoxOwner = new javax.swing.JCheckBox();
-        jCBoxOwner = new javax.swing.JComboBox<String>();
+        jCBoxOwner = new javax.swing.JComboBox<>();
         jLabUNP = new javax.swing.JLabel();
-        jCBoxUNP = new javax.swing.JComboBox<Integer>();
+        jCBoxUNP = new javax.swing.JComboBox<>();
+        jChBoxBankTransfer = new javax.swing.JCheckBox();
         jBtnShowReport = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
@@ -295,6 +296,9 @@ public class MainView extends javax.swing.JFrame {
         jCBoxUNP.setMinimumSize(new java.awt.Dimension(256, 20));
         jCBoxUNP.setPreferredSize(new java.awt.Dimension(256, 20));
 
+        jChBoxBankTransfer.setText("Безнал");
+        jChBoxBankTransfer.setActionCommand("Безнал");
+
         javax.swing.GroupLayout jPnlOptionsLayout = new javax.swing.GroupLayout(jPnlOptions);
         jPnlOptions.setLayout(jPnlOptionsLayout);
         jPnlOptionsLayout.setHorizontalGroup(
@@ -307,7 +311,9 @@ public class MainView extends javax.swing.JFrame {
                     .addGroup(jPnlOptionsLayout.createSequentialGroup()
                         .addComponent(jChBoxCorparate)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jChBoxIndividual))
+                        .addComponent(jChBoxIndividual)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jChBoxBankTransfer))
                     .addComponent(jCBoxOwner, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jChBoxOwner))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -317,7 +323,8 @@ public class MainView extends javax.swing.JFrame {
             .addGroup(jPnlOptionsLayout.createSequentialGroup()
                 .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jChBoxCorparate)
-                    .addComponent(jChBoxIndividual))
+                    .addComponent(jChBoxIndividual)
+                    .addComponent(jChBoxBankTransfer))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jChBoxOwner)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -475,13 +482,15 @@ public class MainView extends javax.swing.JFrame {
 //    // from JDK to Joda
 //    dt = new DateTime(jdkDate);
 //    
+        byte bankTransfer = (byte) (this.jChBoxBankTransfer.isSelected() ? 1 : 0);
+
         DateTime dtStart = new DateTime(datePickerStart.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
         DateTime dtEnd = new DateTime(datePickerEnd.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
         System.out.println(String.format("dtStart: %s", dtStart.millisOfDay().setCopy(1).plusDays(1).minusSeconds(1)));
         if (datePickerEnd.isEnabled()) {
-            App.print(dtStart, dtEnd, report, ownerType, owner, ownerUNP);
+            App.print(dtStart, dtEnd, report, ownerType, owner, ownerUNP, bankTransfer);
         } else {
-            App.print(dtStart, dtStart, report, ownerType, owner, ownerUNP);
+            App.print(dtStart, dtStart, report, ownerType, owner, ownerUNP, bankTransfer);
         }
         jBtnShowReport.setEnabled(true);
     }//GEN-LAST:event_jBtnShowReportActionPerformed
@@ -617,7 +626,7 @@ public class MainView extends javax.swing.JFrame {
         /*
          * Set the Nimbus look and feel
          */ //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-                /*
+        /*
          * If Nimbus (introduced in Java SE 6) is not available, stay with the
          * default look and feel. For details see
          * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
@@ -656,10 +665,10 @@ public class MainView extends javax.swing.JFrame {
     private Task task;
 
     class Task extends SwingWorker<Void, Void> {
+
         /*
          * Main task. Executed in background thread.
          */
-
         @Override
         public Void doInBackground() {
 
@@ -714,6 +723,7 @@ public class MainView extends javax.swing.JFrame {
     private javax.swing.JButton jBtnShowReport;
     private javax.swing.JComboBox<String> jCBoxOwner;
     private javax.swing.JComboBox<Integer> jCBoxUNP;
+    private javax.swing.JCheckBox jChBoxBankTransfer;
     private javax.swing.JCheckBox jChBoxCorparate;
     private javax.swing.JCheckBox jChBoxIndividual;
     private javax.swing.JCheckBox jChBoxOwner;

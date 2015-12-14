@@ -11,6 +11,7 @@
 	<parameter name="chiefDS" class="java.lang.String"/>
 	<parameter name="num_ds" class="java.lang.Integer"/>
 	<parameter name="NDS" class="java.lang.Integer"/>
+	<parameter name="bankTransfer" class="java.lang.Byte"/>
 	<queryString language="SQL">
 		<![CDATA[SELECT 
   bi.date_ot 'Дата',
@@ -30,7 +31,7 @@ FROM  `to`.blanc_ts_info bi
   left join `to`.owner_info o on o.id_owner=i.id_owner_sobs
   left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion
 WHERE bi.date_ot BETWEEN $P{startMonth} and $P{endMonth} and
-                    b.id_blanc_status=2 and b.id_blanc_type=1
+                    b.id_blanc_status=2 and b.id_blanc_type=1 AND `tar`.`bank_transfer` = $P{bankTransfer}
                     and $X{IN, o.id_owner_type, owner_type} $P!{test}
 ORDER BY bi.date_ot]]>
 	</queryString>
@@ -53,25 +54,25 @@ ORDER BY bi.date_ot]]>
 	<title>
 		<band height="41" splitType="Stretch">
 			<textField>
-				<reportElement uuid="c00b1916-61e5-4a83-94b8-21e4ec31b45b" x="206" y="28" width="142" height="13"/>
+				<reportElement x="206" y="28" width="142" height="13" uuid="c00b1916-61e5-4a83-94b8-21e4ec31b45b"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma"/>
 				</textElement>
 				<textFieldExpression><![CDATA["с "+$P{startMonth}.substring(8, 10)+$P{startMonth}.substring(4, 8)+$P{startMonth}.substring(0, 4)+" по "+$P{endMonth}.substring(8, 10)+$P{endMonth}.substring(4, 8)+$P{endMonth}.substring(0, 4)]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d" x="114" y="0" width="327" height="28"/>
+				<reportElement x="114" y="0" width="327" height="28" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
 				<textElement textAlignment="Center">
 					<font fontName="Tahoma" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Реестр оказанных услуг на ДС №"+$P{num_ds}+" юридическим лицам и индивидуальным предпринимателям"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Реестр оказанных услуг на ДС №"+$P{num_ds}+" юридическим лицам и индивидуальным предпринимателям. ("+($P{bankTransfer}.byteValue()==(byte)1?"Безналичный расчет":"Наличный расчет")+")"]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
 	<columnHeader>
 		<band height="30" splitType="Stretch">
 			<staticText>
-				<reportElement uuid="503709d0-dfd0-46ea-8033-beccce216c3c" x="67" y="0" width="62" height="30"/>
+				<reportElement x="67" y="0" width="62" height="30" uuid="503709d0-dfd0-46ea-8033-beccce216c3c"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -83,7 +84,7 @@ ORDER BY bi.date_ot]]>
 				<text><![CDATA[Серия и № ДК]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="dd449c03-2693-4a65-91eb-44364cdecbd9" x="129" y="0" width="268" height="30"/>
+				<reportElement x="129" y="0" width="268" height="30" uuid="dd449c03-2693-4a65-91eb-44364cdecbd9"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -95,7 +96,7 @@ ORDER BY bi.date_ot]]>
 				<text><![CDATA[Собственник]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="b7a2ceaa-175f-4431-b140-d95f4e02423d" x="31" y="0" width="36" height="30"/>
+				<reportElement x="31" y="0" width="36" height="30" uuid="b7a2ceaa-175f-4431-b140-d95f4e02423d"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -107,7 +108,7 @@ ORDER BY bi.date_ot]]>
 				<text><![CDATA[Дата]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="9fbc1900-7fe4-46e3-a6f2-69e3a34edd8a" x="397" y="0" width="50" height="30"/>
+				<reportElement x="397" y="0" width="50" height="30" uuid="9fbc1900-7fe4-46e3-a6f2-69e3a34edd8a"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -119,7 +120,7 @@ ORDER BY bi.date_ot]]>
 				<text><![CDATA[УНП]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="dae5c022-4dca-4ce0-8f64-1600eb3ce643" x="447" y="0" width="36" height="30"/>
+				<reportElement x="447" y="0" width="36" height="30" uuid="dae5c022-4dca-4ce0-8f64-1600eb3ce643"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -131,7 +132,7 @@ ORDER BY bi.date_ot]]>
 				<text><![CDATA[Услуги без НДС]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="a8ccc3c4-137a-4de3-a040-6703c020e6e1" x="519" y="0" width="36" height="30"/>
+				<reportElement x="519" y="0" width="36" height="30" uuid="a8ccc3c4-137a-4de3-a040-6703c020e6e1"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -145,7 +146,7 @@ ORDER BY bi.date_ot]]>
 НДС]]></text>
 			</staticText>
 			<staticText>
-				<reportElement uuid="fb6b1be8-9afc-4723-b8b0-43d5b6d0a4b4" x="0" y="0" width="31" height="30"/>
+				<reportElement x="0" y="0" width="31" height="30" uuid="fb6b1be8-9afc-4723-b8b0-43d5b6d0a4b4"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<leftPen lineWidth="0.25"/>
@@ -158,7 +159,7 @@ ORDER BY bi.date_ot]]>
 				<text><![CDATA[№ п/п]]></text>
 			</staticText>
 			<textField>
-				<reportElement uuid="0dbf2b94-81cf-4f68-869f-811a3943491c" x="483" y="0" width="36" height="30"/>
+				<reportElement x="483" y="0" width="36" height="30" uuid="0dbf2b94-81cf-4f68-869f-811a3943491c"/>
 				<box>
 					<topPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -174,7 +175,7 @@ ORDER BY bi.date_ot]]>
 	<detail>
 		<band height="10" splitType="Stretch">
 			<textField isStretchWithOverflow="true">
-				<reportElement uuid="59d6c569-7139-4a18-8e04-4e3e48420797" stretchType="RelativeToBandHeight" x="0" y="0" width="31" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="31" height="10" uuid="59d6c569-7139-4a18-8e04-4e3e48420797"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<leftPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>
@@ -186,7 +187,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="dd.MM.yy">
-				<reportElement uuid="bf7454d3-efb0-47a3-8178-1f685d552a26" stretchType="RelativeToBandHeight" x="31" y="0" width="36" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="31" y="0" width="36" height="10" uuid="bf7454d3-efb0-47a3-8178-1f685d552a26"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -197,7 +198,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$F{Дата}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement uuid="61fb512b-528d-4bce-8740-07bc3cf1a267" stretchType="RelativeToBandHeight" x="129" y="0" width="268" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="129" y="0" width="268" height="10" uuid="61fb512b-528d-4bce-8740-07bc3cf1a267"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -208,7 +209,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$F{Собственник}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement uuid="5e2b71c8-a735-4741-8a37-1faca9d8ee52" stretchType="RelativeToBandHeight" x="67" y="0" width="62" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="67" y="0" width="62" height="10" uuid="5e2b71c8-a735-4741-8a37-1faca9d8ee52"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -219,7 +220,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$F{Серия, номер}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement uuid="05ddc161-b95b-4f46-98e6-0e36df6d52f5" stretchType="RelativeToBandHeight" x="397" y="0" width="50" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="397" y="0" width="50" height="10" uuid="05ddc161-b95b-4f46-98e6-0e36df6d52f5"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -230,7 +231,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$F{УНП}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement uuid="84c8749f-958b-43ba-8c54-928c923801da" stretchType="RelativeToBandHeight" x="447" y="0" width="36" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="447" y="0" width="36" height="10" uuid="84c8749f-958b-43ba-8c54-928c923801da"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -241,7 +242,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$F{Услуги без НДС}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement uuid="3a440486-bdd2-4a26-a42b-ce97d8704597" stretchType="RelativeToBandHeight" x="483" y="0" width="36" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="483" y="0" width="36" height="10" uuid="3a440486-bdd2-4a26-a42b-ce97d8704597"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -252,7 +253,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$F{НДС 20%}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement uuid="dcdf191e-faad-4b06-a93c-9880df178ddd" stretchType="RelativeToBandHeight" x="519" y="0" width="36" height="10"/>
+				<reportElement stretchType="RelativeToBandHeight" x="519" y="0" width="36" height="10" uuid="dcdf191e-faad-4b06-a93c-9880df178ddd"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -267,21 +268,21 @@ ORDER BY bi.date_ot]]>
 	<pageFooter>
 		<band height="16">
 			<textField evaluationTime="Report">
-				<reportElement uuid="77fe6277-bc00-455a-88e5-4fc2bf12838e" x="515" y="0" width="40" height="16"/>
+				<reportElement x="515" y="0" width="40" height="16" uuid="77fe6277-bc00-455a-88e5-4fc2bf12838e"/>
 				<textElement>
 					<font fontName="Tahoma"/>
 				</textElement>
 				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="44fcb49a-6320-4961-8a0b-8d12e672ebec" x="0" y="0" width="116" height="6"/>
+				<reportElement x="0" y="0" width="116" height="6" uuid="44fcb49a-6320-4961-8a0b-8d12e672ebec"/>
 				<textElement>
 					<font fontName="Tahoma" size="2"/>
 				</textElement>
 				<text><![CDATA[Шаблон отчета подготовлен Коско Александром]]></text>
 			</staticText>
 			<textField>
-				<reportElement uuid="8ca66143-ccdf-44ef-8680-e3b718ab9e47" x="435" y="0" width="80" height="16"/>
+				<reportElement x="435" y="0" width="80" height="16" uuid="8ca66143-ccdf-44ef-8680-e3b718ab9e47"/>
 				<textElement textAlignment="Right">
 					<font fontName="Tahoma"/>
 				</textElement>
@@ -292,21 +293,21 @@ ORDER BY bi.date_ot]]>
 	<summary>
 		<band height="63" splitType="Stretch">
 			<textField>
-				<reportElement uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d" x="0" y="43" width="280" height="20"/>
+				<reportElement x="0" y="43" width="280" height="20" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
 				<textElement>
 					<font fontName="Tahoma" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{position}+" ДС №"+$P{num_ds}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement uuid="35087846-3964-41b2-a251-4676ca75053e" x="405" y="43" width="150" height="20"/>
+				<reportElement x="405" y="43" width="150" height="20" uuid="35087846-3964-41b2-a251-4676ca75053e"/>
 				<textElement textAlignment="Right">
 					<font fontName="Tahoma" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{chiefDS}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0">
-				<reportElement uuid="df456c72-69d6-46d8-8252-ec2dbebe283b" x="491" y="0" width="64" height="16"/>
+				<reportElement x="491" y="0" width="64" height="16" uuid="df456c72-69d6-46d8-8252-ec2dbebe283b"/>
 				<box rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -317,7 +318,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$V{С НДС}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0">
-				<reportElement uuid="2ba80f29-12ee-4d53-88b9-77c1e883821a" x="427" y="0" width="64" height="16"/>
+				<reportElement x="427" y="0" width="64" height="16" uuid="2ba80f29-12ee-4d53-88b9-77c1e883821a"/>
 				<box rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -328,7 +329,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$V{НДС}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0">
-				<reportElement uuid="89f98c91-692d-4b58-8be5-e40b227b441a" x="363" y="0" width="64" height="16"/>
+				<reportElement x="363" y="0" width="64" height="16" uuid="89f98c91-692d-4b58-8be5-e40b227b441a"/>
 				<box rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
 					<rightPen lineWidth="0.25"/>
@@ -339,7 +340,7 @@ ORDER BY bi.date_ot]]>
 				<textFieldExpression><![CDATA[$V{Без НДС}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement uuid="6929fe23-2273-4a9f-9864-ddb61592875e" x="0" y="0" width="363" height="16"/>
+				<reportElement x="0" y="0" width="363" height="16" uuid="6929fe23-2273-4a9f-9864-ddb61592875e"/>
 				<box rightPadding="1">
 					<leftPen lineWidth="0.25"/>
 					<bottomPen lineWidth="0.25"/>

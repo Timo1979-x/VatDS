@@ -383,6 +383,8 @@
                           <Component id="jChBoxCorparate" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jChBoxIndividual" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="jChBoxBankTransfer" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="jCBoxOwner" alignment="0" max="-2" attributes="0"/>
                       <Component id="jChBoxOwner" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -397,6 +399,7 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jChBoxCorparate" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jChBoxIndividual" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jChBoxBankTransfer" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jChBoxOwner" min="-2" max="-2" attributes="0"/>
@@ -478,6 +481,12 @@
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Integer&gt;"/>
           </AuxValues>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="jChBoxBankTransfer">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
+            <Property name="actionCommand" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>
