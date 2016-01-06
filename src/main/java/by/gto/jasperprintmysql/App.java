@@ -13,9 +13,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UnsupportedLookAndFeelException;
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.view.JRSaveContributor;
-import net.sf.jasperreports.view.JasperViewer;
-import net.sf.jasperreports.view.save.JRPdfSaveContributor;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
@@ -159,7 +156,7 @@ public class App {
                     }
                     rs.close();
                 }
-                
+
                 jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
             }
 //            JasperViewer jViewer = new JasperViewer(jasperPrint);
@@ -244,10 +241,6 @@ public class App {
             showMessage("jasper JRException", ex.toString());
             log.error(ex);
         }
-    }
-
-    private static String getRandomString() {
-        return UUID.randomUUID().toString();
     }
 
     private App() {
