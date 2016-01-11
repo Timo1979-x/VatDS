@@ -12,7 +12,7 @@
 	<parameter name="num_ds" class="java.lang.Integer"/>
 	<parameter name="NDS" class="java.lang.Integer"/>
 	<parameter name="bankTransfer" class="java.lang.Byte"/>
-	<queryString language="SQL">
+	<queryString>
 		<![CDATA[SELECT 
   bi.date_ot 'Дата',
 concat(b.seria,'  №', LPAD(b.number, 7, 0)) 'Серия, номер',
@@ -40,6 +40,7 @@ ORDER BY bi.date_ot]]>
 	<field name="Услуги без НДС" class="java.math.BigDecimal"/>
 	<field name="НДС 20%" class="java.math.BigDecimal"/>
 	<field name="Всего с НДС" class="java.lang.Long"/>
+	<field name="Заказчик" class="java.lang.String"/>
 	<variable name="Без НДС" class="java.lang.Long" calculation="Sum">
 		<variableExpression><![CDATA[$F{Услуги без НДС}]]></variableExpression>
 	</variable>

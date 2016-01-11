@@ -4,7 +4,7 @@
 
     <groupId>by.gto</groupId>
     <artifactId>btoReport</artifactId>
-    <version>0.0.10</version>
+    <version>0.0.11</version>
     <packaging>jar</packaging>
 
     <name>btoReport</name>
@@ -19,7 +19,7 @@
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2015</product.year>
         <jdkVersion>1.8</jdkVersion>
-        <dateBuild>2015.12.14</dateBuild>
+        <dateBuild>2016.01.11</dateBuild>
     </properties>
     <build> 
         <resources>
@@ -173,7 +173,7 @@
                                 <fileVersion>${project.version}.0</fileVersion>
                                 <txtFileVersion>${project.version}</txtFileVersion>
                                 <fileDescription>Статистические отчеты</fileDescription>
-                                <copyright>Copyright © 2015 ${product.company}</copyright>
+                                <copyright>Copyright © 2016 ${product.company}</copyright>
                                 <productVersion>${project.version}.0</productVersion>
                                 <txtProductVersion>${project.version}</txtProductVersion>
                                 <companyName>${product.company}</companyName>
@@ -191,7 +191,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.37</version>
+            <version>5.1.38</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -258,5 +258,5 @@
             <version>1.0.3</version>
         </dependency>
     </dependencies>
-    <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 - Нал/Безнал</description>
+    <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 - Нал/Безнал; 0.0.11 - Нал/Безнал исправлены отчеты</description>
 </project>
