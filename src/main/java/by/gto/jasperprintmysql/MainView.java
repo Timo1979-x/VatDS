@@ -13,6 +13,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -23,7 +25,7 @@ import org.joda.time.DateTimeZone;
 public class MainView extends javax.swing.JFrame {
 
     private static JFrame f;
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MainView.class);
+    private static final Logger log = LogManager.getLogger(MainView.class);
     private static final long serialVersionUID = 1L;
 
     public static JFrame getF() {

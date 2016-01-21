@@ -485,7 +485,6 @@
         <Component class="javax.swing.JCheckBox" name="jChBoxBankTransfer">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
-            <Property name="actionCommand" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
           </Properties>
         </Component>
       </SubComponents>

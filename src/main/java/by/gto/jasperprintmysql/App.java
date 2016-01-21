@@ -8,17 +8,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UnsupportedLookAndFeelException;
-import net.sf.jasperreports.engine.*;
-import org.apache.log4j.Logger;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 
 public class App {
 
-    private static final Logger log = Logger.getLogger(App.class);
+    private static final Logger log = LogManager.getLogger(App.class);
 
     public static void showMessage(String title, String message) {
         JFrame frame = new JFrame(title);

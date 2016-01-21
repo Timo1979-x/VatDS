@@ -6,7 +6,8 @@ import java.sql.SQLException;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
 import javax.swing.JOptionPane;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -18,7 +19,7 @@ public class ConnectionMySql {
     // private ConfigReader config = new ConfigReader();
     private static PooledConnection pool = null;
     //  private Connection conn = null;
-    private static final Logger log = Logger.getLogger(ConnectionMySql.class);
+    private static final Logger log = LogManager.getLogger(ConnectionMySql.class);
 
     public static ConnectionMySql getInstance() {
         if (instance == null) {
@@ -55,6 +56,10 @@ public class ConnectionMySql {
                 cpMySql.setURL(String.format("jdbc:mysql://%s:%s/to", ConfigReader.getInstance().getHost(), ConfigReader.getInstance().getPort()));
                 cpMySql.setUser("root");
                 cpMySql.setPassword("ghbdfnbpfwbz");
+                cpMySql.setConnectTimeout(28800);
+                cpMySql.setCharacterSetResults("utf8");
+                cpMySql.setUseCompression(true);
+                       
                 ConnectionPoolDataSource cp = cpMySql;
                 try {
                     pool = cp.getPooledConnection();

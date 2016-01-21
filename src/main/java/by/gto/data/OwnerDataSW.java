@@ -16,7 +16,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.SwingWorker;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,7 +25,7 @@ import org.apache.log4j.Logger;
  */
 public class OwnerDataSW extends SwingWorker {
 
-    private static final Logger log = Logger.getLogger(OwnerDataSW.class);
+    private static final Logger log = LogManager.getLogger(OwnerDataSW.class);
     private final List<String> listOwner = new ArrayList<>();
     private final List<String> listOwnerUNP = new ArrayList<>();
     private AutoCompleteSupport<String> support;

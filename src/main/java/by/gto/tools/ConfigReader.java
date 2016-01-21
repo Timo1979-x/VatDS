@@ -8,13 +8,15 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  * @author Aleks
  */
 public class ConfigReader {
-private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ConfigReader.class);
+private static final Logger log = LogManager.getLogger(ConfigReader.class);
     private static volatile ConfigReader instance;
     private static String host = "localhost";
     private static String port = "33060";
