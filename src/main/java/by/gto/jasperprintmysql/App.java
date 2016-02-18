@@ -163,15 +163,15 @@ public class App {
                         map.put("good", rs.getInt(2));
                         map.put("good2", rs.getInt(3));
                     }
-                    rs = st.executeQuery("SELECT s_ds.num_ds FROM `s_ds`");
+                    rs = st.executeQuery("SELECT s_ds.num_ds FROM `s_ds` WHERE `s_ds`.`Valid`=1;");
                     while (rs.next()) {
                         map.put("num_ds", rs.getInt(1));
                     }
                     rs.close();
                 }
-                String printFileName = JasperFillManager.fillReportToFile(String.format("reports/%s.jasper", report),
-                        map, conn);
-                JasperExportManager.exportReportToPdfFile(printFileName, "D:\\test\\1.pdf");
+//                String printFileName = JasperFillManager.fillReportToFile(String.format("reports/%s.jasper", report),
+//                        map, conn);
+//                JasperExportManager.exportReportToPdfFile(printFileName, "D:\\test\\1.pdf");
                 jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
             }
 //            JasperViewer jViewer = new JasperViewer(jasperPrint);
