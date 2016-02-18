@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UnsupportedLookAndFeelException;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +28,11 @@ public class App {
 
     private static final Logger log = LogManager.getLogger(App.class);
 
+    /**
+     *
+     * @param title
+     * @param message
+     */
     public static void showMessage(String title, String message) {
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -111,8 +118,8 @@ public class App {
                 Map<String, Object> map;
                 try (Statement st = conn.createStatement()) {
                     map = new HashMap<>();
-                    map.put("startMonth", startMonth.toString());
-                    map.put("endMonth", endMonth.toString());
+                    map.put("startMonth", startMonth.toDate());
+                    map.put("endMonth", endMonth.toDate());
                     map.put("position", ConfigReader.getInstance().getPosition());
                     map.put("chiefDS", ConfigReader.getInstance().getChiefDS());
                     map.put("owner_type", owner_type);
@@ -162,7 +169,9 @@ public class App {
                     }
                     rs.close();
                 }
-
+                String printFileName = JasperFillManager.fillReportToFile(String.format("reports/%s.jasper", report),
+                        map, conn);
+                JasperExportManager.exportReportToPdfFile(printFileName, "D:\\test\\1.pdf");
                 jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
             }
 //            JasperViewer jViewer = new JasperViewer(jasperPrint);

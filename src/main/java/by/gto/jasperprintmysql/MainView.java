@@ -1,6 +1,6 @@
 package by.gto.jasperprintmysql;
 
-import by.gto.data.OwnerDataSW;
+import by.gto.jasperprintmysql.data.OwnerDataSW;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.ModalFrameUtil;
 import java.io.File;

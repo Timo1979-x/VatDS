@@ -4,7 +4,7 @@
 
     <groupId>by.gto</groupId>
     <artifactId>btoReport</artifactId>
-    <version>0.0.11</version>
+    <version>0.0.12</version>
     <packaging>jar</packaging>
 
     <name>btoReport</name>
@@ -17,9 +17,9 @@
         <exeFileName>btoReport</exeFileName>
         <product.title>Статистические отчеты</product.title>
         <product.company>УП "Белтехосмотр"</product.company>
-        <product.year>2015</product.year>
+        <product.year>2016</product.year>
         <jdkVersion>1.8</jdkVersion>
-        <dateBuild>2016.01.11</dateBuild>
+        <dateBuild>2016.02.10</dateBuild>
     </properties>
     <build> 
         <resources>
@@ -35,10 +35,24 @@
             </resource>
         </resources>
         <plugins>
+            <!--    <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>auto-clean</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.5</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -114,6 +128,7 @@
                 </executions> 
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId> 
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
@@ -154,7 +169,7 @@
                             <errTitle>${product.title}</errTitle>
                             <icon>piggy-bank2.ico</icon>
                             <downloadUrl>http://java.com/download</downloadUrl>
-                            <customProcName>true</customProcName>
+                            <!--<customProcName>true</customProcName>-->
                             <classPath>
                                 <mainClass>${mainClass}</mainClass>
                                 <addDependencies>true</addDependencies>
@@ -215,6 +230,92 @@
             <artifactId>jasperreports</artifactId>
             <version>6.2.0</version>
             <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>aopalliance</groupId>
+                    <artifactId>aopalliance</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>bouncycastle</groupId>
+                    <artifactId>bcmail-jdk14</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcmail-jdk14</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>bouncycastle</groupId>
+                    <artifactId>bcprov-jdk14</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk14</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bctsp-jdk14</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.castor</groupId>
+                    <artifactId>castor-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.castor</groupId>
+                    <artifactId>castor-xml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.zxing</groupId>
+                    <artifactId>core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.jdt.core.compiler</groupId>
+                    <artifactId>ecj</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jakarta-regexp</groupId>
+                    <artifactId>jakarta-regexp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jfree</groupId>
+                    <artifactId>jcommon</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jfree</groupId>
+                    <artifactId>jfreechart</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-analyzers-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-queries</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-queryparser</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.olap4j</groupId>
+                    <artifactId>olap4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>
@@ -227,26 +328,6 @@
             <version>1.9.1</version>
             <type>jar</type>
         </dependency>
-        <!--  <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>apache-log4j-extras</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.jmx</groupId>
-                    <artifactId>jmxri</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.sun.jdmk</groupId>
-                    <artifactId>jmxtools</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -261,11 +342,12 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>3.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swing-layout</artifactId>
-            <version>1.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 - Нал/Безнал; 0.0.11 - Нал/Безнал исправлены отчеты</description>

@@ -2,7 +2,11 @@ package by.gto.jasperprintmysql;
 
 import by.gto.tools.ConfigReader;
 import java.net.URL;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -25,6 +29,62 @@ public class Settings extends javax.swing.JFrame {
         jSpinnerNDS.setValue(ConfigReader.getInstance().getNDS());
         //Отоброжение по центру экрана
         setLocationRelativeTo(null);
+    }
+
+    private static boolean verifyIP(String IPvalue) {
+        boolean res = false;
+        String errorString = "";
+        String theName = "IP адрес ";
+        Pattern ipPattern = Pattern.compile("(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})");
+        Matcher ipMatcher = ipPattern.matcher(IPvalue);
+        if (ipMatcher.matches()) {
+            StringTokenizer st = new StringTokenizer(IPvalue, ".");
+            int[] ipArray = new int[4];
+            int i = 0;
+            while (st.hasMoreElements()) {
+                String s = st.nextElement().toString();
+                ipArray[i] = Integer.parseInt(s);
+                i++;
+                System.out.println("s:" + s);
+            }
+            for (int j = 0; j < 4; j++) {
+                System.out.println("ipArray[i]:" + ipArray[j]);
+            }
+            switch (IPvalue) {
+                case "0.0.0.0":
+                    errorString += theName + ": " + IPvalue + " это специальный IP адрес и не может быть использован.";
+                    break;
+                case "255.255.255.255":
+                    errorString += theName + ": " + IPvalue + " это специальный IP адрес и не может быть использован.";
+                    break;
+            }
+            if (ipArray == null) {
+                errorString += theName + ": " + IPvalue + " не допустимый IP адрес.";
+            } else {
+
+                for (int k = 0; k < 4; k++) {
+                    int thisSegment = ipArray[k];
+                    if (thisSegment > 255) {
+                        errorString += theName + ": " + IPvalue + " не допустимый IP адрес.";
+                        k = 4;
+                    }
+                    if ((k == 0) && (thisSegment > 255)) {
+                        errorString += theName + ": " + IPvalue + " это специальный IP адрес и не может быть использован.";
+                        k = 4;
+                    }
+                }
+            }
+        } else {
+            errorString += theName + ": " + IPvalue + " не допустимый IP адрес.";
+        }
+
+        if (errorString.isEmpty()) {
+            res = true;
+            //   JOptionPane.showMessageDialog(null, "Введенный IP адрес - корректный!", "My custom dialog", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, errorString, "Ошибка", JOptionPane.ERROR_MESSAGE);
+        }
+        return res;
     }
 
     /**
@@ -131,12 +191,16 @@ public class Settings extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSaveActionPerformed
-        ConfigReader.getInstance().setHost(jTextFieldIP.getText().trim());
-        ConfigReader.getInstance().setPosition(jTextFieldPosition.getText().trim());
-        ConfigReader.getInstance().setChiefDS(jTextFieldСhiefDS.getText().trim());
-        ConfigReader.getInstance().setNDS((int) jSpinnerNDS.getValue());
-        ConfigReader.getInstance().setSave();
-        jLabelResult.setText("<html><div align='center'>Успешно сохранено</div>");
+        if (verifyIP(jTextFieldIP.getText().trim())) {
+            ConfigReader.getInstance().setHost(jTextFieldIP.getText().trim());
+            ConfigReader.getInstance().setPosition(jTextFieldPosition.getText().trim());
+            ConfigReader.getInstance().setChiefDS(jTextFieldСhiefDS.getText().trim());
+            ConfigReader.getInstance().setNDS((int) jSpinnerNDS.getValue());
+            ConfigReader.getInstance().setSave();
+            jLabelResult.setText("<html><div align='center'>Успешно сохранено</div>");
+        } else {
+            jLabelResult.setText("<html><div align='center'>Не допустимый IP адрес</div>");
+        }
     }//GEN-LAST:event_jButtonSaveActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonSave;

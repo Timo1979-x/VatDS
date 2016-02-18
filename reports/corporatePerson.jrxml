@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="corporate person" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="cf61574a-28b5-46ae-90d4-4bd10148baf5">
-	<property name="ireport.zoom" value="1.126972201352367"/>
+	<property name="ireport.zoom" value="1.650000000000001"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="startMonth" class="java.lang.String"/>
-	<parameter name="endMonth" class="java.lang.String"/>
+	<parameter name="startMonth" class="java.util.Date"/>
+	<parameter name="endMonth" class="java.util.Date"/>
 	<parameter name="owner_type" class="java.util.List"/>
 	<parameter name="test" class="java.lang.String"/>
 	<parameter name="position" class="java.lang.String"/>
@@ -57,7 +57,7 @@ ORDER BY bi.date_ot]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma"/>
 				</textElement>
-				<textFieldExpression><![CDATA["с "+$P{startMonth}.substring(8, 10)+$P{startMonth}.substring(4, 8)+$P{startMonth}.substring(0, 4)+" по "+$P{endMonth}.substring(8, 10)+$P{endMonth}.substring(4, 8)+$P{endMonth}.substring(0, 4)]]></textFieldExpression>
+				<textFieldExpression><![CDATA["с "+new SimpleDateFormat("dd-MM-yyyy").format($P{startMonth})+" по "+new SimpleDateFormat("dd-MM-yyyy").format($P{endMonth})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="114" y="0" width="327" height="28" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>

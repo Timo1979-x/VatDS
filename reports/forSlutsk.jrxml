@@ -3,8 +3,8 @@
 	<property name="ireport.zoom" value="1.5394743546921208"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="startMonth" class="java.lang.String"/>
-	<parameter name="endMonth" class="java.lang.String"/>
+	<parameter name="startMonth" class="java.util.Date"/>
+	<parameter name="endMonth" class="java.util.Date"/>
 	<parameter name="total" class="java.lang.Integer"/>
 	<parameter name="good" class="java.lang.Integer"/>
 	<parameter name="good2" class="java.lang.Integer"/>
@@ -143,7 +143,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{startMonth}.substring(0, 10)+" - "+$P{endMonth}.substring(0, 10)]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format($P{startMonth})+" - "+new SimpleDateFormat("dd-MM-yyyy").format($P{endMonth})]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>

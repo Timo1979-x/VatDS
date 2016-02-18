@@ -10,15 +10,17 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Aleks
  */
 public class ConfigReader {
-private static final Logger log = LogManager.getLogger(ConfigReader.class);
+
+    private static final Logger log = LogManager.getLogger(ConfigReader.class);
     private static volatile ConfigReader instance;
-    private static String host = "localhost";
+    private static String host = "127.0.0.1";
     private static String port = "33060";
     private static String chiefDS = "ФИО";
     private static String position = "Должность";
@@ -26,6 +28,10 @@ private static final Logger log = LogManager.getLogger(ConfigReader.class);
     //private File configXml = new File("config.xml");
     private static final File configXml = new File("config.xml");
 
+    /**
+     *
+     * @return
+     */
     public static ConfigReader getInstance() {
         if (instance == null) {
             synchronized (ConfigReader.class) {
@@ -47,6 +53,7 @@ private static final Logger log = LogManager.getLogger(ConfigReader.class);
             config = new XMLConfiguration("config.xml");
         } catch (ConfigurationException ex) {
             log.error(ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
         }
         read();
     }
@@ -65,8 +72,9 @@ private static final Logger log = LogManager.getLogger(ConfigReader.class);
             wFile.write("    </config>\n");
             wFile.write("</configuration>\n");
             wFile.flush();
-        } catch (IOException ex) {
-             log.error(ex);
+        } catch (Exception ex) {
+            log.error(ex);
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
         }
     }
 //    public void ConfigReader() {
@@ -111,13 +119,14 @@ private static final Logger log = LogManager.getLogger(ConfigReader.class);
     private void read() {
         try {
             config.load();
-            host = config.getString("config.host").trim();
-            port = config.getString("config.port").trim();
-            position = config.getString("config.position").trim();
-            chiefDS = config.getString("config.chiefDS").trim();
-            NDS = Integer.parseInt(config.getString("config.NDS").trim());
-        } catch (ConfigurationException ex) {
-             log.error(ex);
+            host = "localhost".equals(config.getString("config.host", host).trim()) ? "127.0.0.1" : config.getString("config.host", host).trim();
+            port = config.getString("config.port", port).trim();
+            position = config.getString("config.position", position).trim();
+            chiefDS = config.getString("config.chiefDS", chiefDS).trim();
+            NDS = config.getInt("config.NDS", NDS);
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
         }
     }
 
