@@ -110,7 +110,7 @@ public class App {
             endMonth = dt.millisOfDay().setCopy(1).plusDays(1).minusSeconds(1);
 
         }
-        System.out.print(String.format("%s %s %s", startMonth, relationship, endMonth));
+        System.out.println(String.format("%s %s %s", startMonth, relationship, endMonth));
         try {
             javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             JasperPrint jasperPrint;
@@ -119,7 +119,9 @@ public class App {
                 try (Statement st = conn.createStatement()) {
                     map = new HashMap<>();
                     map.put("startMonth", startMonth.toDate());
+                    System.out.println("startMonth.toDate():"+startMonth.toDate());
                     map.put("endMonth", endMonth.toDate());
+                    System.out.println("endMonth.toDate():"+endMonth.toDate());
                     map.put("position", ConfigReader.getInstance().getPosition());
                     map.put("chiefDS", ConfigReader.getInstance().getChiefDS());
                     map.put("owner_type", owner_type);

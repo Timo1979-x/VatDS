@@ -3,7 +3,9 @@
 	<property name="ireport.zoom" value="1.650000000000001"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="startMonth" class="java.util.Date"/>
+	<parameter name="startMonth" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
 	<parameter name="endMonth" class="java.util.Date"/>
 	<parameter name="owner_type" class="java.util.List"/>
 	<parameter name="test" class="java.lang.String"/>
@@ -49,6 +51,12 @@ ORDER BY bi.date_ot]]>
 	</variable>
 	<variable name="С НДС" class="java.lang.Long" calculation="Sum">
 		<variableExpression><![CDATA[$F{Всего с НДС}]]></variableExpression>
+	</variable>
+	<variable name="dateFormat" class="java.text.DateFormat" resetType="None">
+		<variableExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")]]></variableExpression>
+	</variable>
+	<variable name="dStart_" class="java.lang.String">
+		<variableExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format($P{startMonth})]]></variableExpression>
 	</variable>
 	<title>
 		<band height="41" splitType="Stretch">
@@ -315,11 +323,11 @@ ORDER BY bi.date_ot]]>
 	<summary>
 		<band height="63" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="43" width="280" height="20" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
+				<reportElement x="0" y="43" width="381" height="20" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
 				<textElement>
 					<font fontName="Tahoma" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{position}+" ДС №"+$P{num_ds}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{position}+" ДС №"+$P{num_ds} +"  - "+$V{dateFormat}.format($P{startMonth})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="405" y="43" width="150" height="20" uuid="35087846-3964-41b2-a251-4676ca75053e"/>
