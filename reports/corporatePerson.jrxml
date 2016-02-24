@@ -3,9 +3,7 @@
 	<property name="ireport.zoom" value="1.650000000000001"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="startMonth" class="java.util.Date">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
+	<parameter name="startMonth" class="java.util.Date"/>
 	<parameter name="endMonth" class="java.util.Date"/>
 	<parameter name="owner_type" class="java.util.List"/>
 	<parameter name="test" class="java.lang.String"/>

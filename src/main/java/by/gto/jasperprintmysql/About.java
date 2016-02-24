@@ -67,7 +67,7 @@ public final class About extends javax.swing.JFrame {
 
         jLabelVer.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabelVer.setForeground(new java.awt.Color(0, 51, 153));
-        jLabelVer.setText("Версия сборки: 0.0.5.0 от 2013.08.14");
+        jLabelVer.setText("Версия сборки: 0.0.13.0 от 2016.02.23");
 
         jLabelName.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabelName.setText("Статистические отчеты");
