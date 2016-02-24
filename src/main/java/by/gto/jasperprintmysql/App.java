@@ -4,7 +4,6 @@ import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.ModalFrameUtil;
 import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,8 +23,6 @@ import net.sf.jasperreports.engine.JasperPrint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
-import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class App {
 
@@ -134,14 +131,14 @@ public class App {
                 }
                 rs.close();
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append("SELECT bi.date_ot 'Дата', concat(b.seria,' №', LPAD(b.number, 7, 0)) 'Серия, номер', o.name 'Собственник', `oi`.`name` 'Заказчик', `oi`.`unp` 'УНП', ROUND((tar.summa_oplaty/1.");
+                stringBuilder.append("SELECT DATE_FORMAT(bi.date_ot, '%d.%m.%y') 'Дата', concat(b.seria,' №', LPAD(b.number, 7, 0)) 'Серия, номер', o.name 'Собственник', `oi`.`name` 'Заказчик', `oi`.`unp` 'УНП', ROUND((tar.summa_oplaty/1.");
                 stringBuilder.append(ConfigReader.getInstance().getNDS());
                 stringBuilder.append("),0) 'Услуги без НДС', ROUND((tar.summa_oplaty-(tar.summa_oplaty/1.");
                 stringBuilder.append(ConfigReader.getInstance().getNDS());
                 stringBuilder.append(")),0) 'НДС', tar.summa_oplaty 'Всего с НДС' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs LEFT JOIN `owner_info` AS `oi` ON `oi`.`id_owner` = `i`.`id_owner_zakazch` WHERE bi.date_ot BETWEEN '");
-                stringBuilder.append(startMonth.toString("yyyy-MM-dd hh:mm:ss"));
+                stringBuilder.append(startMonth.toString("yyyy-MM-dd HH:mm:ss"));
                 stringBuilder.append("' and '");
-                stringBuilder.append(endMonth.toString("yyyy-MM-dd hh:mm:ss"));
+                stringBuilder.append(endMonth.toString("yyyy-MM-dd HH:mm:ss"));
                 stringBuilder.append("' and b.id_blanc_status=2 and b.id_blanc_type=1 AND `tar`.`bank_transfer` = ");
                 stringBuilder.append(bankTransfer);
                 stringBuilder.append(" ORDER BY bi.date_ot;");
