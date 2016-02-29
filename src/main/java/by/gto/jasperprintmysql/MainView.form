@@ -180,7 +180,7 @@
         <Component class="com.michaelbaranov.microba.calendar.DatePicker" name="datePickerStart">
           <Properties>
             <Property name="date" type="java.util.Date" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="date.toDate()" type="code"/>
+              <Connection code="date" type="code"/>
             </Property>
           </Properties>
         </Component>
@@ -193,7 +193,7 @@
         <Component class="com.michaelbaranov.microba.calendar.DatePicker" name="datePickerEnd">
           <Properties>
             <Property name="date" type="java.util.Date" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="date.toDate()" type="code"/>
+              <Connection code="date" type="code"/>
             </Property>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>

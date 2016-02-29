@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.2.0.final using JasperReports Library version 6.2.0  -->
+<!-- 2016-02-28T12:43:46 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Журнал" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="def16ab6-5e4f-4429-8ebf-00b3123927d4">
 	<property name="ireport.zoom" value="1.331000000000001"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="startMonth" class="java.util.Date"/>
-	<parameter name="endMonth" class="java.util.Date"/>
+	<parameter name="startMonth" class="java.time.LocalDateTime"/>
+	<parameter name="endMonth" class="java.time.LocalDateTime"/>
 	<parameter name="owner_type" class="java.util.List"/>
 	<parameter name="test" class="java.lang.String"/>
 	<parameter name="num_ds" class="java.lang.Integer"/>
@@ -35,7 +37,7 @@ WHERE bi.date_ot BETWEEN $P{startMonth} and $P{endMonth} and
                     and $X{IN, o.id_owner_type, owner_type} $P!{test}
 ORDER BY bi.date_ot]]>
 	</queryString>
-	<field name="Дата" class="java.sql.Timestamp"/>
+	<field name="Дата" class="java.util.Date"/>
 	<field name="Собственник" class="java.lang.String"/>
 	<field name="Заказчик" class="java.lang.String"/>
 	<field name="Марка/модель" class="java.lang.String"/>
@@ -59,7 +61,7 @@ ORDER BY bi.date_ot]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma"/>
 				</textElement>
-				<textFieldExpression><![CDATA["с "+new SimpleDateFormat("dd-MM-yyyy").format($P{startMonth})+" по "+new SimpleDateFormat("dd-MM-yyyy").format($P{endMonth})]]></textFieldExpression>
+				<textFieldExpression><![CDATA["с " + $P{startMonth} + " по " + $P{endMonth}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>

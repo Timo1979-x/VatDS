@@ -5,7 +5,13 @@ import by.gto.tools.ConnectionMySql;
 import by.gto.tools.ModalFrameUtil;
 import java.io.File;
 import java.net.URL;
+import java.text.DateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import static java.time.temporal.TemporalQueries.localDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -15,8 +21,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 /**
  *
@@ -27,21 +31,19 @@ public class MainView extends javax.swing.JFrame {
     private static JFrame f;
     private static final Logger log = LogManager.getLogger(MainView.class);
     private static final long serialVersionUID = 1L;
+    private static Date date;
 
     public static JFrame getF() {
         return f;
     }
-    private final DateTime dtMinsk = new DateTime();
-    private final DateTime dt = dtMinsk.withZone(DateTimeZone.forID("Europe/Minsk"));
-    private final DateTime startMonth = dt.millisOfDay().setCopy(1).dayOfMonth().setCopy(1).minusMonths(1);
-    private final DateTime endMonth = startMonth.plusMonths(1).minusMillis(2);
-    private final DateTime date = new DateTime().withZone(DateTimeZone.forID("Europe/Minsk"));
 
     /**
      * Creates new form MainView
      */
     public MainView() {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Minsk"));
+        LocalDate localDate = LocalDate.now();
+        date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         initComponents();
         URL iconURL = getClass().getResource("/piggy-bank-icon.png");
         ImageIcon icon = new ImageIcon(iconURL);
@@ -115,7 +117,7 @@ public class MainView extends javax.swing.JFrame {
         jLOver.setText("за");
 
         try {
-            datePickerStart.setDate(date.toDate());
+            datePickerStart.setDate(date);
         } catch (java.beans.PropertyVetoException e1) {
             e1.printStackTrace();
         }
@@ -124,7 +126,7 @@ public class MainView extends javax.swing.JFrame {
         jLBefore.setEnabled(false);
 
         try {
-            datePickerEnd.setDate(date.toDate());
+            datePickerEnd.setDate(date);
         } catch (java.beans.PropertyVetoException e1) {
             e1.printStackTrace();
         }
@@ -299,7 +301,6 @@ public class MainView extends javax.swing.JFrame {
         jCBoxUNP.setPreferredSize(new java.awt.Dimension(256, 20));
 
         jChBoxBankTransfer.setText("Безнал");
-        jChBoxBankTransfer.setActionCommand("Безнал");
 
         javax.swing.GroupLayout jPnlOptionsLayout = new javax.swing.GroupLayout(jPnlOptions);
         jPnlOptions.setLayout(jPnlOptionsLayout);
@@ -418,15 +419,10 @@ public class MainView extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+  
     private String report = "recordBook";
 
     private void jBtnShowReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnShowReportActionPerformed
-        //  SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss Z");
-        //  datePicker4.setDateFormat(formatter);
-//        Date d = new Date();
-//        DateFormat df = new SimpleDateFormat("HH:mm:ss yyyy/MM/dd");
-//        df.setTimeZone(TimeZone.getTimeZone("Europe/Minsk"));
-//        System.out.println(df.format(d));
         jBtnShowReport.setEnabled(false);
 
         List<Integer> ownerType = new ArrayList<>();
@@ -459,17 +455,17 @@ public class MainView extends javax.swing.JFrame {
             ownerUNP = ownerUNP.trim();
             System.out.println(String.format("--------ownerUNP----------%s", ownerUNP));
         }
-        System.out.println(String.format("Date time: %s", dt));
-        System.out.println(String.format("Start: %s", startMonth));
-        System.out.println(String.format("End: %s", endMonth));
-        String monthName = dt.monthOfYear().getAsText();
-        String frenchShortName = dt.monthOfYear().getAsShortText(Locale.ROOT);
-        boolean isLeapYear = dt.year().isLeap();
-        DateTime rounded = dt.dayOfMonth().roundFloorCopy();
-        System.out.println(String.format("monthName: %s", monthName));
-        System.out.println(String.format("frenchShortName: %s", frenchShortName));
-        System.out.println(String.format("isLeapYear: %s", isLeapYear));
-        System.out.println(String.format("rounded: %s", rounded));
+//        System.out.println(String.format("Date time: %s", dt));
+//        System.out.println(String.format("Start: %s", startMonth));
+//        System.out.println(String.format("End: %s", endMonth));
+//        String monthName = dt.monthOfYear().getAsText();
+//        String frenchShortName = dt.monthOfYear().getAsShortText(Locale.ROOT);
+//        boolean isLeapYear = dt.year().isLeap();
+//        DateTime rounded = dt.dayOfMonth().roundFloorCopy();
+//        System.out.println(String.format("monthName: %s", monthName));
+//        System.out.println(String.format("frenchShortName: %s", frenchShortName));
+//        System.out.println(String.format("isLeapYear: %s", isLeapYear));
+//        System.out.println(String.format("rounded: %s", rounded));
 //        try {
 //            datePicker1.setDate(startMonth.toDate());
 //            datePicker2.setDate(endMonth.toDate());
@@ -477,22 +473,17 @@ public class MainView extends javax.swing.JFrame {
 //            Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 
-//// from Joda to JDK
-//    DateTime dt = new DateTime();
-//    Date jdkDate = dt.toDate();
-//
-//    // from JDK to Joda
-//    dt = new DateTime(jdkDate);
-//    
         byte bankTransfer = (byte) (this.jChBoxBankTransfer.isSelected() ? 1 : 0);
 
-        DateTime dtStart = new DateTime(datePickerStart.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
-        DateTime dtEnd = new DateTime(datePickerEnd.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
-        System.out.println(String.format("dtStart: %s", dtStart.millisOfDay().setCopy(1).plusDays(1).minusSeconds(1)));
+        LocalDateTime localDateStart = LocalDateTime.ofInstant(datePickerStart.getDate().toInstant(), ZoneId.systemDefault());
+        LocalDateTime localDateStop = LocalDateTime.ofInstant(datePickerEnd.getDate().toInstant(), ZoneId.systemDefault());
+        //  DateTime dtStart = new DateTime(datePickerStart.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
+        // DateTime dtEnd = new DateTime(datePickerEnd.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
+        //System.out.println(String.format("dtStart: %s", dtStart.millisOfDay().setCopy(1).plusDays(1).minusSeconds(1)));
         if (datePickerEnd.isEnabled()) {
-            App.print(dtStart, dtEnd, report, ownerType, owner, ownerUNP, bankTransfer);
+            App.print(localDateStart, localDateStop, report, ownerType, owner, ownerUNP, bankTransfer);
         } else {
-            App.print(dtStart, dtStart, report, ownerType, owner, ownerUNP, bankTransfer);
+            App.print(localDateStart, localDateStart, report, ownerType, owner, ownerUNP, bankTransfer);
         }
         jBtnShowReport.setEnabled(true);
     }//GEN-LAST:event_jBtnShowReportActionPerformed
@@ -625,48 +616,25 @@ public class MainView extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         log.info("Start");
-        /*
-         * Set the Nimbus look and feel
-         */ //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /*
-         * If Nimbus (introduced in Java SE 6) is not available, stay with the
-         * default look and feel. For details see
-         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-//  try {
-//      UIManager.setLookAndFeel(new com.jgoodies.looks.plastic.Plastic3DLookAndFeel());
-//   } catch (Exception e) {}
         try {
-            // javax.swing.UIManager.setLookAndFeel("com.jgoodies.looks.plastic.Plastic3DLookAndFeel");
-            javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-
+            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainView.class
-                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
+
         /*
          * Create and display the form
          */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                f = new MainView();
-                getF().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            f = new MainView();
+            getF().setVisible(true);
         });
 
         log.info("Stop");
     }
     private Task task;
 
-    class Task extends SwingWorker<Void, Void> {
+    private class Task extends SwingWorker<Void, Void> {
 
         /*
          * Main task. Executed in background thread.

@@ -210,12 +210,6 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>2.9.2</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>microba</groupId>
             <artifactId>microba</artifactId>
             <version>0.4.4.3</version>
@@ -234,7 +228,7 @@
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
-            <version>1.10</version><!--1.10  error-->
+            <version>1.10</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.glazedlists</groupId>
@@ -268,12 +262,6 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>2.4.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>4.2.4.RELEASE</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
     <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 - Нал/Безнал; 0.0.11 - Нал/Безнал исправлены отчеты</description>
