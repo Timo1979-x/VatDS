@@ -4,7 +4,7 @@
 
     <groupId>by.gto</groupId>
     <artifactId>btoReport</artifactId>
-    <version>0.0.12</version>
+    <version>0.0.13</version>
     <packaging>jar</packaging>
 
     <name>btoReport</name>
@@ -19,10 +19,10 @@
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2016</product.year>
         <jdkVersion>1.8</jdkVersion>
-        <dateBuild>2016.02.10</dateBuild>
+        <dateBuild>2016.03.01</dateBuild>
     </properties>
     <build> 
-        <resources>
+<!--        <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -31,9 +31,10 @@
                     <include>**/*.png</include>
                     <include>**/*.xml</include>
                     <include>**/*.properties</include>
+                    <include>**/*.jasper</include>
                 </includes>
             </resource>
-        </resources>
+        </resources>-->
         <plugins>
             <!--    <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -75,9 +76,17 @@
                             <Version>${buildNumber}</Version>
                         </manifestEntries>
                     </archive>
+                    <includes>
+                        <include>**/*.prop</include>
+                        <include>**/*.png</include>
+                        <include>**/*.xml</include>
+                        <include>**/*.properties</include>
+                        <include>**/*.jasper</include>
+                        <include>**/*.class</include>
+                    </includes>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.7</version>
@@ -106,7 +115,7 @@
                         </configuration>            
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
             <plugin> 
                 <groupId>org.apache.maven.plugins</groupId> 
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -127,7 +136,7 @@
                     </execution> 
                 </executions> 
             </plugin>
-<!--            <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId> 
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.6</version>
@@ -143,14 +152,14 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>  this is used for inheritance merges 
-                        <phase>package</phase>  bind to the packaging phase 
+                        <id>make-assembly</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
@@ -165,7 +174,7 @@
                         <configuration>
                             <headerType>gui</headerType>
                             <outfile>target/${exeFileName}.exe</outfile>
-                            <jar>target/${project.artifactId}-${project.version}.jar</jar>
+                            <jar>target/${project.artifactId}-${project.version}-jar-with-dependencies.jar</jar>
                             <errTitle>${product.title}</errTitle>
                             <icon>piggy-bank2.ico</icon>
                             <downloadUrl>http://java.com/download</downloadUrl>
@@ -261,7 +270,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>2.4.5</version>
+            <version>2.4.6</version>
         </dependency>
     </dependencies>
     <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 - Нал/Безнал; 0.0.11 - Нал/Безнал исправлены отчеты</description>

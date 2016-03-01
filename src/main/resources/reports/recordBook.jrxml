@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.2.0.final using JasperReports Library version 6.2.0  -->
+<!-- 2016-03-01T17:34:29 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Журнал" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="def16ab6-5e4f-4429-8ebf-00b3123927d4">
 	<property name="ireport.zoom" value="1.331000000000001"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<parameter name="startMonth" class="java.time.LocalDateTime"/>
-	<parameter name="endMonth" class="java.time.LocalDateTime"/>
 	<parameter name="owner_type" class="java.util.List"/>
 	<parameter name="test" class="java.lang.String"/>
 	<parameter name="num_ds" class="java.lang.Integer"/>
 	<parameter name="position" class="java.lang.String"/>
 	<parameter name="chiefDS" class="java.lang.String"/>
 	<parameter name="bankTransfer" class="java.lang.Byte"/>
-	<queryString language="SQL">
+	<parameter name="fromDate" class="java.time.LocalDateTime"/>
+	<parameter name="beforeDate" class="java.time.LocalDateTime"/>
+	<queryString>
 		<![CDATA[SELECT 
-  bi.date_ot 'Дата',
-  o.name 'Собственник',
-  z.name 'Заказчик',
-  m.name 'Марка/модель',
-  r.name 'Рег.знак',
-	concat(b.seria,'  №', LPAD(b.number,6,0)) 'Серия, номер',
-	tar.summa_oplaty 'Сумма оплаты'
+  bi.date_ot AS "Дата",
+  o.name AS "Собственник",
+  z.name AS "Заказчик",
+  m.name AS "Марка/модель",
+  r.name AS "Рег.знак",
+	concat(b.seria,'  №', LPAD(b.number,6,0)) AS "Серия, номер",
+	tar.summa_oplaty AS "Сумма оплаты"
 FROM  `to`.blanc_ts_info bi
   left join `to`.blanc b on bi.id_blanc=b.id_blanc
   left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info
@@ -30,7 +32,7 @@ FROM  `to`.blanc_ts_info bi
   left join `to`.owner_info o on o.id_owner=i.id_owner_sobs
   left join `to`.owner_info z on z.id_owner=i.id_owner_zakazch
   left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion
-WHERE bi.date_ot BETWEEN $P{startMonth} and $P{endMonth} and
+WHERE bi.date_ot BETWEEN $P{fromDate} and $P{beforeDate} and
                     b.id_blanc_status=2 and b.id_blanc_type=1  AND `tar`.`bank_transfer` = $P{bankTransfer}
                     and $X{IN, o.id_owner_type, owner_type} $P!{test}
 ORDER BY bi.date_ot]]>
@@ -59,7 +61,7 @@ ORDER BY bi.date_ot]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma"/>
 				</textElement>
-				<textFieldExpression><![CDATA["с " + $P{startMonth} + " по " + $P{endMonth}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["с " + $P{fromDate} + " по " + $P{beforeDate}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>

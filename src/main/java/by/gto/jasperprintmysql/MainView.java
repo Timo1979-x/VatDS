@@ -5,15 +5,12 @@ import by.gto.tools.ConnectionMySql;
 import by.gto.tools.ModalFrameUtil;
 import java.io.File;
 import java.net.URL;
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import static java.time.temporal.TemporalQueries.localDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -419,7 +416,7 @@ public class MainView extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-  
+
     private String report = "recordBook";
 
     private void jBtnShowReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnShowReportActionPerformed
@@ -480,6 +477,7 @@ public class MainView extends javax.swing.JFrame {
         //  DateTime dtStart = new DateTime(datePickerStart.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
         // DateTime dtEnd = new DateTime(datePickerEnd.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
         //System.out.println(String.format("dtStart: %s", dtStart.millisOfDay().setCopy(1).plusDays(1).minusSeconds(1)));
+
         if (datePickerEnd.isEnabled()) {
             App.print(localDateStart, localDateStop, report, ownerType, owner, ownerUNP, bankTransfer);
         } else {
