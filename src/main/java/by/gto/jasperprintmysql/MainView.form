@@ -4,6 +4,8 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="btnGroupTypeReport">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="btnGroupBankTransfer">
+    </Component>
     <Menu class="javax.swing.JMenuBar" name="jMenuBar1">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="jMenuFile">
@@ -89,16 +91,14 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="jPnlOptions" max="32767" attributes="0"/>
-                      <Group type="102" attributes="0">
-                          <Component id="jPnlDate" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jPnlTypeReport" min="-2" max="-2" attributes="0"/>
-                      </Group>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jPnlDate" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jPnlTypeReport" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jBtnShowReport" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jPnlOptions" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -228,7 +228,7 @@
                       <Component id="jRBIndividual" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jRBActiv" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="56" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -377,8 +377,6 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jLabUNP" min="-2" max="-2" attributes="0"/>
-                      <Component id="jCBoxUNP" max="-2" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jChBoxCorparate" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -386,10 +384,18 @@
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="jChBoxBankTransfer" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jCBoxOwner" alignment="0" max="-2" attributes="0"/>
                       <Component id="jChBoxOwner" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="jCBoxOwner" alignment="0" max="-2" attributes="0"/>
+                      <Component id="jLabUNP" min="-2" max="-2" attributes="0"/>
+                      <Component id="jCBoxUNP" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jRBtnBBankTransferFalse" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBBankTransferAll" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBBankTransferTrue" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -400,11 +406,18 @@
                       <Component id="jChBoxCorparate" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jChBoxIndividual" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jChBoxBankTransfer" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBBankTransferAll" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jChBoxOwner" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jChBoxOwner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBBankTransferFalse" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jCBoxOwner" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="jCBoxOwner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBBankTransferTrue" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabUNP" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -484,6 +497,31 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="jChBoxBankTransfer">
           <Properties>
+            <Property name="text" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="jRBtnBBankTransferAll">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="btnGroupBankTransfer"/>
+            </Property>
+            <Property name="selected" type="boolean" value="true"/>
+            <Property name="text" type="java.lang.String" value="&#x41d;&#x430;&#x43b;/&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="jRBtnBBankTransferFalse">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="btnGroupBankTransfer"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="&#x41d;&#x430;&#x43b;"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="jRBtnBBankTransferTrue">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="btnGroupBankTransfer"/>
+            </Property>
             <Property name="text" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
           </Properties>
         </Component>

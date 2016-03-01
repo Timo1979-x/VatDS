@@ -58,6 +58,7 @@ public class MainView extends javax.swing.JFrame {
     private void initComponents() {
 
         btnGroupTypeReport = new javax.swing.ButtonGroup();
+        btnGroupBankTransfer = new javax.swing.ButtonGroup();
         jPnlDate = new javax.swing.JPanel();
         jChBoxPeriod = new javax.swing.JCheckBox();
         jLOver = new javax.swing.JLabel();
@@ -82,6 +83,9 @@ public class MainView extends javax.swing.JFrame {
         jLabUNP = new javax.swing.JLabel();
         jCBoxUNP = new javax.swing.JComboBox<>();
         jChBoxBankTransfer = new javax.swing.JCheckBox();
+        jRBtnBBankTransferAll = new javax.swing.JRadioButton();
+        jRBtnBBankTransferFalse = new javax.swing.JRadioButton();
+        jRBtnBBankTransferTrue = new javax.swing.JRadioButton();
         jBtnShowReport = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
@@ -243,7 +247,7 @@ public class MainView extends javax.swing.JFrame {
                     .addComponent(jRBRecordBook)
                     .addComponent(jRBIndividual)
                     .addComponent(jRBActiv))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(56, Short.MAX_VALUE))
         );
         jPnlTypeReportLayout.setVerticalGroup(
             jPnlTypeReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -299,6 +303,16 @@ public class MainView extends javax.swing.JFrame {
 
         jChBoxBankTransfer.setText("Безнал");
 
+        btnGroupBankTransfer.add(jRBtnBBankTransferAll);
+        jRBtnBBankTransferAll.setSelected(true);
+        jRBtnBBankTransferAll.setText("Нал/Безнал");
+
+        btnGroupBankTransfer.add(jRBtnBBankTransferFalse);
+        jRBtnBBankTransferFalse.setText("Нал");
+
+        btnGroupBankTransfer.add(jRBtnBBankTransferTrue);
+        jRBtnBBankTransferTrue.setText("Безнал");
+
         javax.swing.GroupLayout jPnlOptionsLayout = new javax.swing.GroupLayout(jPnlOptions);
         jPnlOptions.setLayout(jPnlOptionsLayout);
         jPnlOptionsLayout.setHorizontalGroup(
@@ -306,17 +320,22 @@ public class MainView extends javax.swing.JFrame {
             .addGroup(jPnlOptionsLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabUNP)
-                    .addComponent(jCBoxUNP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPnlOptionsLayout.createSequentialGroup()
                         .addComponent(jChBoxCorparate)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jChBoxIndividual)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jChBoxBankTransfer))
+                    .addComponent(jChBoxOwner)
                     .addComponent(jCBoxOwner, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jChBoxOwner))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabUNP)
+                    .addComponent(jCBoxUNP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jRBtnBBankTransferFalse)
+                    .addComponent(jRBtnBBankTransferAll)
+                    .addComponent(jRBtnBBankTransferTrue))
+                .addContainerGap())
         );
         jPnlOptionsLayout.setVerticalGroup(
             jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -324,11 +343,16 @@ public class MainView extends javax.swing.JFrame {
                 .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jChBoxCorparate)
                     .addComponent(jChBoxIndividual)
-                    .addComponent(jChBoxBankTransfer))
+                    .addComponent(jChBoxBankTransfer)
+                    .addComponent(jRBtnBBankTransferAll))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jChBoxOwner)
+                .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jChBoxOwner)
+                    .addComponent(jRBtnBBankTransferFalse))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jCBoxOwner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jCBoxOwner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jRBtnBBankTransferTrue))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabUNP)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -391,14 +415,13 @@ public class MainView extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPnlOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jPnlDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jPnlTypeReport, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jBtnShowReport))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPnlDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPnlTypeReport, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jBtnShowReport)
+                    .addComponent(jPnlOptions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -437,20 +460,22 @@ public class MainView extends javax.swing.JFrame {
         }
         String owner = null;
         String ownerUNP = null;
-
-        if (jCBoxOwner.getSelectedItem() != null) {
-            // int ownerNum = jCBoxOwner.getSelectedIndex();//   getSelectedItem().toString();//selectedItemReminder
-            owner = (String) jCBoxOwner.getSelectedItem();//listOwner.get(ownerNum);
-            owner = owner.trim().replaceAll("(^.*\")(.+)(\".*$)", "$2");
-            owner = owner.replaceAll("\"", "_");
-            owner = owner.replaceAll("\\s+", "%");
-            System.out.println(String.format("----------owner--------%s", owner));
-        }
-        if (jCBoxUNP.getSelectedItem() != null) {
-            // int ownerNumUNP = jCBoxUNP.getSelectedIndex();
-            ownerUNP = (String) jCBoxUNP.getSelectedItem(); //listOwnerUNP.get(ownerNumUNP);
-            ownerUNP = ownerUNP.trim();
-            System.out.println(String.format("--------ownerUNP----------%s", ownerUNP));
+        
+        if (jChBoxOwner.isSelected()) {
+            if (jCBoxOwner.getSelectedItem() != null) {
+                // int ownerNum = jCBoxOwner.getSelectedIndex();//   getSelectedItem().toString();//selectedItemReminder
+                owner = (String) jCBoxOwner.getSelectedItem();//listOwner.get(ownerNum);
+                owner = owner.trim().replaceAll("(^.*\")(.+)(\".*$)", "$2");
+                owner = owner.replaceAll("\"", "_");
+                owner = owner.replaceAll("\\s+", "%");
+                System.out.println(String.format("----------owner--------%s", owner));
+            }
+            if (jCBoxUNP.getSelectedItem() != null) {
+                // int ownerNumUNP = jCBoxUNP.getSelectedIndex();
+                ownerUNP = (String) jCBoxUNP.getSelectedItem(); //listOwnerUNP.get(ownerNumUNP);
+                ownerUNP = ownerUNP.trim();
+                System.out.println(String.format("--------ownerUNP----------%s", ownerUNP));
+            }
         }
 //        System.out.println(String.format("Date time: %s", dt));
 //        System.out.println(String.format("Start: %s", startMonth));
@@ -685,6 +710,7 @@ public class MainView extends javax.swing.JFrame {
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup btnGroupBankTransfer;
     private javax.swing.ButtonGroup btnGroupTypeReport;
     private com.michaelbaranov.microba.calendar.DatePicker datePickerEnd;
     private com.michaelbaranov.microba.calendar.DatePicker datePickerStart;
@@ -715,6 +741,9 @@ public class MainView extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRBRecordBook;
     private javax.swing.JRadioButton jRBforBTO;
     private javax.swing.JRadioButton jRBforSlutsk;
+    private javax.swing.JRadioButton jRBtnBBankTransferAll;
+    private javax.swing.JRadioButton jRBtnBBankTransferFalse;
+    private javax.swing.JRadioButton jRBtnBBankTransferTrue;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton5;

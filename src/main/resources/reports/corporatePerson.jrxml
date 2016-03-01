@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.2.0.final using JasperReports Library version 6.2.0  -->
-<!-- 2016-03-01T16:36:22 -->
+<!-- 2016-03-01T20:31:41 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="corporate person" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="cf61574a-28b5-46ae-90d4-4bd10148baf5">
 	<property name="ireport.zoom" value="1.650000000000001"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<parameter name="fromDate" class="java.time.LocalDateTime"/>
 	<parameter name="beforeDate" class="java.time.LocalDateTime"/>
-	<parameter name="owner_type" class="java.util.List"/>
-	<parameter name="test" class="java.lang.String"/>
 	<parameter name="position" class="java.lang.String"/>
 	<parameter name="chiefDS" class="java.lang.String"/>
 	<parameter name="num_ds" class="java.lang.Integer"/>

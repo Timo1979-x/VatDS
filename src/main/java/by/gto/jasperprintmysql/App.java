@@ -13,6 +13,7 @@ import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -127,13 +128,49 @@ public class App {
                 }
                 rs.close();
 
-                StringBuilder stringBuilder = CorporatePersonQuery();
+                StringBuilder stringBuilder;
+
+                switch (report) {
+                    case "corporatePerson": {
+                        stringBuilder = CorporatePersonQuery();
+                    }
+                    break;
+                    case "forBTO": {
+                        stringBuilder = CorporatePersonQuery();
+                    }
+                    break;
+                    case "forDS210": {
+                        stringBuilder = CorporatePersonQuery();
+                    }
+                    break;
+                    case "forSlutsk": {
+                        stringBuilder = ForSlutskQuery();
+                    }
+                    break;
+                    case "listIndividual": {
+                        stringBuilder = ListIndividualQuery();
+                    }
+                    break;
+                    case "orderDK": {
+                        stringBuilder = CorporatePersonQuery();
+                    }
+                    break;
+                    case "recordBook": {
+                        stringBuilder = RecordBookQuery();
+                    }
+                    break;
+                    default: {
+                        stringBuilder = new StringBuilder();
+                    }
+                    break;
+                }
 
                 stringBuilder.append(fromDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 stringBuilder.append("' and '");
                 stringBuilder.append(beforeDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 stringBuilder.append("' and b.id_blanc_status=2 and b.id_blanc_type=1 AND `tar`.`bank_transfer` = ");
                 stringBuilder.append(bankTransfer);
+                stringBuilder.append(" and o.id_owner_type in (").append(sb).append(") ");
                 if (owner != null) {
                     stringBuilder.append(" and o.name like \"%").append(owner).append("%\"");
                 }
@@ -166,8 +203,11 @@ public class App {
                     }
                 }
             }
-        } catch (ClassCastException | JRException | SQLException | IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            showMessage("jasper JRException", ex.getMessage());
+        } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException | UnsupportedLookAndFeelException | JRException | NullPointerException ex) {
+            showMessage("jasper JRException", ex.toString());
+            for (StackTraceElement str : ex.getStackTrace()) {
+                System.out.println(str);
+            }
             log.error(ex);
         }
     }
@@ -179,6 +219,24 @@ public class App {
         stringBuilder.append("),0) 'Услуги без НДС', ROUND((tar.summa_oplaty-(tar.summa_oplaty/1.");
         stringBuilder.append(ConfigReader.getInstance().getNDS());
         stringBuilder.append(")),0) 'НДС', tar.summa_oplaty 'Всего с НДС' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs LEFT JOIN `owner_info` AS `oi` ON `oi`.`id_owner` = `i`.`id_owner_zakazch` WHERE bi.date_ot BETWEEN '");
+        return stringBuilder;
+    }
+
+    private static StringBuilder RecordBookQuery() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT bi.date_ot 'Дата', o.name 'Собственник', z.name 'Заказчик', m.name 'Марка/модель', r.name 'Рег.знак', concat(b.seria,' №', LPAD(b.number,7,0)) 'Серия, номер', tar.summa_oplaty 'Сумма оплаты' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.reg_number r on r.id_reg_number=i.id_reg_number left join `to`.s_ts_model m on m.id_ts_model=i.id_ts_marca left join `to`.s_ts_categ c on c.id_ts_categ=i.id_ts_categ left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs left join `to`.owner_info z on z.id_owner=i.id_owner_zakazch left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion WHERE bi.date_ot BETWEEN '");
+        return stringBuilder;
+    }
+
+    private static StringBuilder ListIndividualQuery() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT bi.date_ot 'Дата', o.name 'Собственник', concat(b.seria,' № ', LPAD(b.number,7,0)) 'Серия, номер', tar.summa_oplaty 'Сумма оплаты' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.reg_number r on r.id_reg_number=i.id_reg_number left join `to`.s_ts_model m on m.id_ts_model=i.id_ts_marca left join `to`.s_ts_categ c on c.id_ts_categ=i.id_ts_categ left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion WHERE bi.date_ot BETWEEN '");
+        return stringBuilder;
+    }
+
+    private static StringBuilder ForSlutskQuery() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT bi.date_ot 'Дата', concat(b.seria,' ',LPAD(b.number,7,0)) 'Серия, номер', r.name 'Рег.знак', m.name 'Марка/модель', LEFT(c.name,2) 'Категория', tar.summa_oplaty 'Сумма оплаты', o.name 'Собственник', if(bi.id_blanc_repeat is null,\"Первичная\",\"Повторная\") 'Проверка', CASE bi.id_conclusion WHEN 1 THEN \"С\" WHEN 2 THEN \"X\" WHEN 3 THEN \"С с З\" END 'Результат' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.reg_number r on r.id_reg_number=i.id_reg_number left join `to`.s_ts_model m on m.id_ts_model=i.id_ts_marca left join `to`.s_ts_categ c on c.id_ts_categ=i.id_ts_categ left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion WHERE bi.date_ot BETWEEN '");
         return stringBuilder;
     }
 
