@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
+<!-- 2016-03-28T12:19:05 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Для ДС 210" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="276b3615-8177-436e-bdce-e201d836849a">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<parameter name="bankTransfer" class="java.lang.Byte"/>
-	<queryString language="SQL">
-		<![CDATA[SELECT r.`name` AS 'Рег. знак', LEFT (c.`name`, 2) AS 'Категория', tm.`name` AS 'Тип двигателя', m.`name` AS 'Марка/Модель', o1.`name` AS 'Владелец', o2.`name` AS 'Собственник', o3.`name` AS 'Заказчик', ROUND((tar.summa_oplaty / 1.2), 0) AS `Услуги без НДС`, ROUND(( tar.summa_oplaty - (tar.summa_oplaty / 1.2)), 0 ) AS `НДС 20%`, tar.summa_oplaty AS `Всего с НДС` FROM ts_info i LEFT JOIN owner_info o1 ON i.id_owner_vlad = o1.id_owner LEFT JOIN owner_info o2 ON i.id_owner_sobs = o2.id_owner LEFT JOIN owner_info o3 ON i.id_owner_zakazch = o3.id_owner LEFT JOIN s_ts_model m ON m.id_ts_model = i.id_ts_marca LEFT JOIN s_ts_categ c ON c.id_ts_categ = i.id_ts_categ LEFT JOIN sd_tarifs_ts_info tar ON tar.id_ts_info = i.id_ts_info LEFT JOIN reg_number r ON i.id_reg_number = r.id_reg_number LEFT JOIN s_ts_type_motor tm ON i.id_ts_type_motor = tm.id_ts_type_motor WHERE i.for_gto = 1 AND i.is_active = 1 AND tar.id_blanc IS NULL AND `tar`.`bank_transfer` = $P{bankTransfer} ORDER BY r.`name`]]>
-	</queryString>
 	<field name="Рег. знак" class="java.lang.String"/>
 	<field name="Категория" class="java.lang.String"/>
 	<field name="Тип двигателя" class="java.lang.String"/>
@@ -25,7 +25,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Список активных ТС для ГТО ("+($P{bankTransfer}.byteValue()==(byte)1?"Безналичный расчет":"Наличный расчет")+")"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Список активных ТС для ГТО ("+($P{bankTransfer}.byteValue()==(byte)1?"Безналичный расчет": ($P{bankTransfer}.byteValue()==(byte)0?"Наличный расчет":"Наличный и безналичный расчет"))+")"]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>

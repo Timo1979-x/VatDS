@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.2.0.final using JasperReports Library version 6.2.0  -->
-<!-- 2016-03-01T20:31:42 -->
+<!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
+<!-- 2016-03-28T12:03:04 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Физ лица" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="e197b686-5f7c-46cf-9d3a-ceabe51a08c8">
 	<property name="ireport.zoom" value="1.1000000000000008"/>
 	<property name="ireport.x" value="0"/>
@@ -21,14 +21,14 @@
 	<title>
 		<band height="26" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="0" width="555" height="13" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="555" height="13" uuid="ef2ceaf1-ac3e-41a8-bcec-dabf1db2622d"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["Реестр оказанных услуг на ДС № "+$P{num_ds}+" физическим лицам ("+($P{bankTransfer}.byteValue()==(byte)1?"Безналичный расчет":"Наличный расчет")+")"]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Реестр оказанных услуг на ДС № "+$P{num_ds}+" физическим лицам ("+($P{bankTransfer}.byteValue()==(byte)1?"Безналичный расчет": ($P{bankTransfer}.byteValue()==(byte)0?"Наличный расчет":"Наличный и безналичный расчет"))+")"]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="206" y="13" width="142" height="13" uuid="c00b1916-61e5-4a83-94b8-21e4ec31b45b"/>
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="13" width="555" height="13" uuid="c00b1916-61e5-4a83-94b8-21e4ec31b45b"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma"/>
 				</textElement>

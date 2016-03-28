@@ -30,21 +30,23 @@ public final class About extends javax.swing.JFrame {
     }
 
     public void getAPIVersion() {
-        String path = "/version.prop";
-        InputStream stream = getClass().getResourceAsStream(path);
-        if (stream == null) {
-            //  return "UNKNOWN";
-        }
-        Properties props = new Properties();
-        try {
-            props.load(stream);
-            stream.close();
-            jLabelVer.setText("Версия сборки: " + (String) props.get("version") + ".0 от " + (String) props.get("dateBuild"));
+//        String path = "/version.prop";
+//        InputStream stream = getClass().getResourceAsStream(path);
+//        if (stream == null) {
+//            //  return "UNKNOWN";
+//        }
+//        Properties props = new Properties();
+//        try {
+//            props.load(stream);
+//            stream.close();
+//            jLabelVer.setText("Версия сборки: " + (String) props.get("version") + ".0 от " + (String) props.get("dateBuild"));
+            //Version.getVERSION()
+            jLabelVer.setText("Версия сборки: " + Version.getVERSION() + ".0 от " + Version.getDATEBUILD());
 //            jLabelName.setText((String) props.get("title"));
 //            jLabelCompany.setText((String) props.get("company"));
-        } catch (IOException e) {
-            //   return "UNKNOWN";
-        }
+//        } catch (IOException e) {
+//            //   return "UNKNOWN";
+//        }
     }
 
     /**

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -31,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 public class App {
 
-    private static final Logger log = LogManager.getLogger(App.class);
+    private static final Logger Log = LogManager.getLogger(App.class);
 
     /**
      *
@@ -49,16 +50,16 @@ public class App {
         //   report = "report1";
 
         int result = fromDate.compareTo(beforeDate);
-        String relationship;
+//        String relationship;
 
         if (result < 0) {
-            relationship = "is earlier than";
+//            relationship = "is earlier than";
             beforeDate = beforeDate.plusDays(1).minusSeconds(1);
         } else if (result == 0) {
-            relationship = "is the same time as";
+//            relationship = "is the same time as";
             beforeDate = beforeDate.plusDays(1).minusSeconds(1);
         } else {
-            relationship = "is later than";
+//            relationship = "is later than";
             LocalDateTime dt = fromDate;
             fromDate = beforeDate;
             beforeDate = dt.plusDays(1).minusSeconds(1);
@@ -73,26 +74,11 @@ public class App {
                 Map<String, Object> map = new HashMap<>();
                 map.put("fromDate", fromDate);
                 map.put("beforeDate", beforeDate);
-//                map.put("fromDate", Date.from(fromDate.atZone(ZoneId.systemDefault()).toInstant()));
-//                map.put("beforeDate", Date.from(beforeDate.atZone(ZoneId.systemDefault()).toInstant()));
                 map.put("position", ConfigReader.getInstance().getPosition());
                 map.put("chiefDS", ConfigReader.getInstance().getChiefDS());
                 map.put("owner_type", owner_type);
                 map.put("NDS", ConfigReader.getInstance().getNDS());
                 map.put("bankTransfer", bankTransfer);
-
-                String sqlParam = " ";
-                if (owner != null) {
-                    sqlParam += MessageFormat.format("and o.name like \"%{0}%\"", owner);
-                    System.out.println("sqlParam: " + sqlParam);
-                    //sqlParam += "and o.name like \"%" + owner + "%\"";
-                }
-
-                if (ownerUNP != null) {
-                    sqlParam += String.format("and o.unp=%s", ownerUNP);
-                }
-
-                map.put("test", sqlParam);
 
                 Iterator<Integer> it = owner_type.iterator();
                 StringBuilder sb = new StringBuilder();
@@ -102,31 +88,11 @@ public class App {
                         sb.append(",");
                     }
                 }
-
-                String Query = null;
-                if (owner != null) {
-                    Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s) and o.name = \"%s\") good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s) and o.name = \"%s\") good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s) and o.name = \"%s\"", fromDate.toString(), beforeDate.toString(), sb.toString(), owner, fromDate.toString(), beforeDate.toString(), sb.toString(), owner, fromDate.toString(), beforeDate.toString(), sb.toString(), owner);
+                try (ResultSet rs = st.executeQuery("SELECT s_ds.num_ds FROM `s_ds` WHERE `s_ds`.`Valid`=1;")) {
+                    while (rs.next()) {
+                        map.put("num_ds", rs.getInt(1));
+                    }
                 }
-                if (ownerUNP != null) {
-                    Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s) and o.unp = \"%s\") good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s) and o.unp = \"%s\") good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s) and o.unp = \"%s\"", fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP);
-                }
-                if (ownerUNP != null && owner != null) {
-                    Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s) and o.unp = \"%s\" and o.name = \"%s\") good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s) and o.unp = \"%s\" and o.name = \"%s\") good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s) and o.unp = \"%s\" and o.name = \"%s\"", fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, owner, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, owner, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, owner);
-                }
-                if (Query == null) {
-                    Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s)) good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s)) good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s)", fromDate.toString(), beforeDate.toString(), sb.toString(), fromDate.toString(), beforeDate.toString(), sb.toString(), fromDate.toString(), beforeDate.toString(), sb.toString());
-                }
-                ResultSet rs = st.executeQuery(Query);
-                while (rs.next()) { //обязательная проверка, в начальном состоянии вылетит Exception при взятии какого-либо значения
-                    map.put("total", rs.getInt(1)); // нумерация столбцов начинается с 1
-                    map.put("good", rs.getInt(2));
-                    map.put("good2", rs.getInt(3));
-                }
-                rs = st.executeQuery("SELECT s_ds.num_ds FROM `s_ds` WHERE `s_ds`.`Valid`=1;");
-                while (rs.next()) {
-                    map.put("num_ds", rs.getInt(1));
-                }
-                rs.close();
 
                 StringBuilder stringBuilder;
 
@@ -136,25 +102,46 @@ public class App {
                     }
                     break;
                     case "forBTO": {
-                        stringBuilder = CorporatePersonQuery();
+                        stringBuilder = ForBTOQuery(fromDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), beforeDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                     }
                     break;
                     case "forDS210": {
-                        stringBuilder = CorporatePersonQuery();
+                        stringBuilder = ActiveListQuery();
                     }
                     break;
                     case "forSlutsk": {
                         stringBuilder = ForSlutskQuery();
+                        String Query = null;
+                        if (owner != null) {
+                            Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s) and o.name = \"%s\") good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s) and o.name = \"%s\") good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s) and o.name = \"%s\"", fromDate.toString(), beforeDate.toString(), sb.toString(), owner, fromDate.toString(), beforeDate.toString(), sb.toString(), owner, fromDate.toString(), beforeDate.toString(), sb.toString(), owner);
+                        }
+                        if (ownerUNP != null) {
+                            Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s) and o.unp = \"%s\") good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s) and o.unp = \"%s\") good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s) and o.unp = \"%s\"", fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP);
+                        }
+                        if (ownerUNP != null && owner != null) {
+                            Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s) and o.unp = \"%s\" and o.name = \"%s\") good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s) and o.unp = \"%s\" and o.name = \"%s\") good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s) and o.unp = \"%s\" and o.name = \"%s\"", fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, owner, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, owner, fromDate.toString(), beforeDate.toString(), sb.toString(), ownerUNP, owner);
+                        }
+                        if (Query == null) {
+                            Query = String.format("select count(dk.id_blanc) total,(select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is null and o.id_owner_type in (%s)) good, (select count(dk2.id_blanc) from blanc_ts_info dk2 left join `to`.blanc b on dk2.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk2.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs where b.id_blanc_status=2 and b.id_blanc_type=1 and dk2.date_ot between '%s' and '%s' and dk2.id_blanc_repeat is not null and o.id_owner_type in (%s)) good2 from blanc_ts_info dk left join `to`.blanc b on dk.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=dk.id_ts_info left join `to`.owner_info o on o.id_owner=i.id_owner_sobs WHERE b.id_blanc_status=2 and b.id_blanc_type=1 and dk.`date_ot` BETWEEN '%s' and '%s' and o.id_owner_type in (%s)", fromDate.toString(), beforeDate.toString(), sb.toString(), fromDate.toString(), beforeDate.toString(), sb.toString(), fromDate.toString(), beforeDate.toString(), sb.toString());
+                        }
+
+                        try (ResultSet resultSet = st.executeQuery(Query)) {
+                            while (resultSet.next()) { //обязательная проверка, в начальном состоянии вылетит Exception при взятии какого-либо значения
+                                map.put("total", resultSet.getInt(1)); // нумерация столбцов начинается с 1
+                                map.put("good", resultSet.getInt(2));
+                                map.put("good2", resultSet.getInt(3));
+                            }
+                        }
                     }
                     break;
                     case "listIndividual": {
                         stringBuilder = ListIndividualQuery();
                     }
                     break;
-                    case "orderDK": {
-                        stringBuilder = CorporatePersonQuery();
-                    }
-                    break;
+//                    case "orderDK": {
+//                        stringBuilder = CorporatePersonQuery();
+//                    }
+//                    break;
                     case "recordBook": {
                         stringBuilder = RecordBookQuery();
                     }
@@ -164,51 +151,70 @@ public class App {
                     }
                     break;
                 }
+                if (!report.equals("forBTO")) {
+                    if (!report.equals("forDS210")) {
+                        stringBuilder.append(fromDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        stringBuilder.append("' and '");
+                        stringBuilder.append(beforeDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        stringBuilder.append("' and b.id_blanc_status=2 and b.id_blanc_type=1");
+                    }
 
-                stringBuilder.append(fromDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                stringBuilder.append("' and '");
-                stringBuilder.append(beforeDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                stringBuilder.append("' and b.id_blanc_status=2 and b.id_blanc_type=1 AND `tar`.`bank_transfer` = ");
-                stringBuilder.append(bankTransfer);
-                stringBuilder.append(" and o.id_owner_type in (").append(sb).append(") ");
-                if (owner != null) {
-                    stringBuilder.append(" and o.name like \"%").append(owner).append("%\"");
+                    if (bankTransfer != 2) {
+                        stringBuilder.append(" AND `tar`.`bank_transfer` = ");
+                        stringBuilder.append(bankTransfer);
+                    }
+
+                    stringBuilder.append(" and o.id_owner_type in (").append(sb).append(") ");
+
+                    if (owner != null) {
+                        stringBuilder.append(" and o.name like \"%").append(owner).append("%\"");
+                    }
+
+                    if (ownerUNP != null) {
+                        stringBuilder.append(" and o.unp=").append(ownerUNP);
+                    }
+                    if (report.equals("forDS210")) {
+                        stringBuilder.append(" ORDER BY r.`name`");
+                    } else {
+                        stringBuilder.append(" ORDER BY bi.date_ot;");
+                    }
                 }
-
-                if (ownerUNP != null) {
-                    stringBuilder.append(" and o.unp=").append(ownerUNP);
-                }
-
-                stringBuilder.append(" ORDER BY bi.date_ot;");
-
                 System.out.println("Query: " + stringBuilder);
                 ResultSet rsTest = st.executeQuery(stringBuilder.toString());
-
+                System.out.println("rsTest");
                 //  map.put("TableDataSource", jrDataSource);
                 // jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, jrDataSource);
                 //  rsTest.close();
                 // String printFileName = JasperFillManager.fillReportToFile(String.format("reports/%s.jasper", report), map, conn);
 //                JasperExportManager.exportReportToPdfFile(printFileName, "D:\\test\\1.pdf");
                 try (InputStream inputStream = App.class.getClassLoader().getResourceAsStream(String.format("reports/%s.jasper", report));) {
-                    jasperPrint = JasperFillManager.fillReport(inputStream, map, new JRResultSetDataSource(rsTest));
+                    System.out.println("fillReport1");
+                    try {
+                        jasperPrint = JasperFillManager.fillReport(inputStream, map, new JRResultSetDataSource(rsTest));
+
+                        System.out.println("fillReport2");
 //                    jasperPrint = JasperFillManager.fillReport(inputStream, map, conn);
 
-                    //jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
-                    MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS, csv, xml");
-                    myViewer.setTitle("Предварительный просмотр");
-                    myViewer.setExtendedState(myViewer.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-                    if (!jasperPrint.getPages().isEmpty()) {
-                        ModalFrameUtil.showAsModal(myViewer, MainView.getF(), JFrame.MAXIMIZED_BOTH);
-                        MainView.getF().toFront();
+                        //jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
+                        MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS, csv, xml");
+                        myViewer.setTitle("Предварительный просмотр");
+                        myViewer.setExtendedState(myViewer.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+                        if (!jasperPrint.getPages().isEmpty()) {
+                            ModalFrameUtil.showAsModal(myViewer, MainView.getF(), JFrame.MAXIMIZED_BOTH);
+                            MainView.getF().toFront();
+                        }
+                    } catch (JRException | ExceptionInInitializerError e) {
+                        showMessage("Ошибка", "Ошибка подключения к серверу.");
+                        Log.fatal(e.fillInStackTrace());
                     }
                 }
             }
-        } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException | UnsupportedLookAndFeelException | JRException | NullPointerException ex) {
+        } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException | UnsupportedLookAndFeelException | NullPointerException ex) {
             showMessage("jasper JRException", ex.toString());
             for (StackTraceElement str : ex.getStackTrace()) {
                 System.out.println(str);
             }
-            log.error(ex);
+            Log.error(ex);
         }
     }
 
@@ -237,6 +243,34 @@ public class App {
     private static StringBuilder ForSlutskQuery() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("SELECT bi.date_ot 'Дата', concat(b.seria,' ',LPAD(b.number,7,0)) 'Серия, номер', r.name 'Рег.знак', m.name 'Марка/модель', LEFT(c.name,2) 'Категория', tar.summa_oplaty 'Сумма оплаты', o.name 'Собственник', if(bi.id_blanc_repeat is null,\"Первичная\",\"Повторная\") 'Проверка', CASE bi.id_conclusion WHEN 1 THEN \"С\" WHEN 2 THEN \"X\" WHEN 3 THEN \"С с З\" END 'Результат' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.reg_number r on r.id_reg_number=i.id_reg_number left join `to`.s_ts_model m on m.id_ts_model=i.id_ts_marca left join `to`.s_ts_categ c on c.id_ts_categ=i.id_ts_categ left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs left join `to`.s_conclusion con on con.id_conclusion=bi.id_conclusion WHERE bi.date_ot BETWEEN '");
+        return stringBuilder;
+    }
+
+    private static StringBuilder ActiveListQuery() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT r.`name` AS 'Рег. знак', LEFT(c.`name`, 2) AS 'Категория', tm.`name` AS 'Тип двигателя', m.`name` AS 'Марка/Модель', o1.`name` AS 'Владелец', o.`name` AS 'Собственник', o3.`name` AS 'Заказчик', ROUND((tar.summa_oplaty / 1.2), 0) AS `Услуги без НДС`, ROUND((tar.summa_oplaty - (tar.summa_oplaty / 1.2)), 0) AS `НДС 20%`, tar.summa_oplaty AS `Всего с НДС` FROM ts_info i LEFT JOIN owner_info o1 ON i.id_owner_vlad = o1.id_owner LEFT JOIN owner_info o ON i.id_owner_sobs = o.id_owner LEFT JOIN owner_info o3 ON i.id_owner_zakazch = o3.id_owner LEFT JOIN s_ts_model m ON m.id_ts_model = i.id_ts_marca LEFT JOIN s_ts_categ c ON c.id_ts_categ = i.id_ts_categ LEFT JOIN sd_tarifs_ts_info tar ON tar.id_ts_info = i.id_ts_info LEFT JOIN reg_number r ON i.id_reg_number = r.id_reg_number LEFT JOIN s_ts_type_motor tm ON i.id_ts_type_motor = tm.id_ts_type_motor WHERE i.for_gto = 1 AND i.is_active = 1 AND tar.id_blanc IS NULL ");
+        return stringBuilder;
+    }
+
+    private static StringBuilder ForBTOQuery(String fromDate, String beforeDate) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT COUNT(`bti`.`id_blanc_ts_info`) AS \"total\", (SELECT COUNT(`bti`.`id_blanc_ts_info`) FROM `blanc_ts_info` AS `bti` LEFT JOIN `blanc` AS `b` ON `bti`.`id_blanc` = `b`.`id_blanc` WHERE `b`.`id_blanc_status` = 2 AND `b`.`id_blanc_type` = 1 AND `bti`.`id_conclusion` = 1 AND `bti`.`date_ot` BETWEEN '");
+        stringBuilder.append(fromDate);
+        stringBuilder.append("' AND '");
+        stringBuilder.append(beforeDate);
+        stringBuilder.append("') AS \"good\", (SELECT COUNT(`bti`.`id_blanc_ts_info`) FROM `blanc_ts_info` AS `bti` LEFT JOIN `blanc` AS `b` ON `bti`.`id_blanc` = `b`.`id_blanc` WHERE `b`.`id_blanc_status` = 2 AND `b`.`id_blanc_type` = 1 AND `bti`.`id_conclusion` = 3 AND `bti`.`date_ot` BETWEEN '");
+        stringBuilder.append(fromDate);
+        stringBuilder.append("' AND '");
+        stringBuilder.append(beforeDate);
+        stringBuilder.append("') AS \"good2\", (SELECT COUNT(`bti`.`id_blanc_ts_info`) FROM `blanc_ts_info` AS `bti` LEFT JOIN `blanc` AS `b` ON `bti`.`id_blanc` = `b`.`id_blanc` WHERE `b`.`id_blanc_status` = 2 AND `b`.`id_blanc_type` = 1 AND `bti`.`id_conclusion` = 2 AND `bti`.`date_ot` BETWEEN '");
+        stringBuilder.append(fromDate);
+        stringBuilder.append("' AND '");
+        stringBuilder.append(beforeDate);
+        stringBuilder.append("') AS \"bad\", `stti`.`summa_oplaty` AS \"summa\" FROM `blanc_ts_info` AS `bti` LEFT JOIN `blanc` AS `b` ON `bti`.`id_blanc` = `b`.`id_blanc` LEFT JOIN `sd_tarifs_ts_info` AS `stti` ON `bti`.`id_blanc` = `stti`.`id_blanc` AND `bti`.`id_ts_info` = `stti`.`id_ts_info` WHERE `bti`.`date_ot` BETWEEN '");
+        stringBuilder.append(fromDate);
+        stringBuilder.append("' AND '");
+        stringBuilder.append(beforeDate);
+        stringBuilder.append("' AND `bti`.`id_conclusion` IS NOT NULL AND `b`.`id_blanc_status` = 2 AND `b`.`id_blanc_type` = 1;");
         return stringBuilder;
     }
 

@@ -381,8 +381,6 @@
                           <Component id="jChBoxCorparate" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jChBoxIndividual" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="jChBoxBankTransfer" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="jChBoxOwner" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jCBoxOwner" alignment="0" max="-2" attributes="0"/>
@@ -391,11 +389,18 @@
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jRBtnBBankTransferFalse" min="-2" max="-2" attributes="0"/>
-                      <Component id="jRBtnBBankTransferAll" min="-2" max="-2" attributes="0"/>
-                      <Component id="jRBtnBBankTransferTrue" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jRBtnBankTransferFalse" min="-2" max="-2" attributes="0"/>
+                              <Component id="jRBtnBankTransferTrue" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="jRBtnBankTransferAll" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -405,18 +410,17 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jChBoxCorparate" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jChBoxIndividual" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jChBoxBankTransfer" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jRBtnBBankTransferAll" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBankTransferAll" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jChBoxOwner" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jRBtnBBankTransferFalse" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBankTransferFalse" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jCBoxOwner" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jRBtnBBankTransferTrue" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jRBtnBankTransferTrue" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabUNP" min="-2" max="-2" attributes="0"/>
@@ -495,12 +499,7 @@
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;Integer&gt;"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JCheckBox" name="jChBoxBankTransfer">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="jRBtnBBankTransferAll">
+        <Component class="javax.swing.JRadioButton" name="jRBtnBankTransferAll">
           <Properties>
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="btnGroupBankTransfer"/>
@@ -508,22 +507,31 @@
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="&#x41d;&#x430;&#x43b;/&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRBtnBankTransferAllActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="javax.swing.JRadioButton" name="jRBtnBBankTransferFalse">
+        <Component class="javax.swing.JRadioButton" name="jRBtnBankTransferFalse">
           <Properties>
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="btnGroupBankTransfer"/>
             </Property>
             <Property name="text" type="java.lang.String" value="&#x41d;&#x430;&#x43b;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRBtnBankTransferFalseActionPerformed"/>
+          </Events>
         </Component>
-        <Component class="javax.swing.JRadioButton" name="jRBtnBBankTransferTrue">
+        <Component class="javax.swing.JRadioButton" name="jRBtnBankTransferTrue">
           <Properties>
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="btnGroupBankTransfer"/>
             </Property>
             <Property name="text" type="java.lang.String" value="&#x411;&#x435;&#x437;&#x43d;&#x430;&#x43b;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jRBtnBankTransferTrueActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

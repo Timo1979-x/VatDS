@@ -82,10 +82,9 @@ public class MainView extends javax.swing.JFrame {
         jCBoxOwner = new javax.swing.JComboBox<>();
         jLabUNP = new javax.swing.JLabel();
         jCBoxUNP = new javax.swing.JComboBox<>();
-        jChBoxBankTransfer = new javax.swing.JCheckBox();
-        jRBtnBBankTransferAll = new javax.swing.JRadioButton();
-        jRBtnBBankTransferFalse = new javax.swing.JRadioButton();
-        jRBtnBBankTransferTrue = new javax.swing.JRadioButton();
+        jRBtnBankTransferAll = new javax.swing.JRadioButton();
+        jRBtnBankTransferFalse = new javax.swing.JRadioButton();
+        jRBtnBankTransferTrue = new javax.swing.JRadioButton();
         jBtnShowReport = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
@@ -301,17 +300,30 @@ public class MainView extends javax.swing.JFrame {
         jCBoxUNP.setMinimumSize(new java.awt.Dimension(256, 20));
         jCBoxUNP.setPreferredSize(new java.awt.Dimension(256, 20));
 
-        jChBoxBankTransfer.setText("Безнал");
+        btnGroupBankTransfer.add(jRBtnBankTransferAll);
+        jRBtnBankTransferAll.setSelected(true);
+        jRBtnBankTransferAll.setText("Нал/Безнал");
+        jRBtnBankTransferAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRBtnBankTransferAllActionPerformed(evt);
+            }
+        });
 
-        btnGroupBankTransfer.add(jRBtnBBankTransferAll);
-        jRBtnBBankTransferAll.setSelected(true);
-        jRBtnBBankTransferAll.setText("Нал/Безнал");
+        btnGroupBankTransfer.add(jRBtnBankTransferFalse);
+        jRBtnBankTransferFalse.setText("Нал");
+        jRBtnBankTransferFalse.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRBtnBankTransferFalseActionPerformed(evt);
+            }
+        });
 
-        btnGroupBankTransfer.add(jRBtnBBankTransferFalse);
-        jRBtnBBankTransferFalse.setText("Нал");
-
-        btnGroupBankTransfer.add(jRBtnBBankTransferTrue);
-        jRBtnBBankTransferTrue.setText("Безнал");
+        btnGroupBankTransfer.add(jRBtnBankTransferTrue);
+        jRBtnBankTransferTrue.setText("Безнал");
+        jRBtnBankTransferTrue.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRBtnBankTransferTrueActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPnlOptionsLayout = new javax.swing.GroupLayout(jPnlOptions);
         jPnlOptions.setLayout(jPnlOptionsLayout);
@@ -323,19 +335,21 @@ public class MainView extends javax.swing.JFrame {
                     .addGroup(jPnlOptionsLayout.createSequentialGroup()
                         .addComponent(jChBoxCorparate)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jChBoxIndividual)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jChBoxBankTransfer))
+                        .addComponent(jChBoxIndividual))
                     .addComponent(jChBoxOwner)
                     .addComponent(jCBoxOwner, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabUNP)
                     .addComponent(jCBoxUNP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jRBtnBBankTransferFalse)
-                    .addComponent(jRBtnBBankTransferAll)
-                    .addComponent(jRBtnBBankTransferTrue))
-                .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPnlOptionsLayout.createSequentialGroup()
+                        .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jRBtnBankTransferFalse)
+                            .addComponent(jRBtnBankTransferTrue))
+                        .addGap(28, 28, 28))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPnlOptionsLayout.createSequentialGroup()
+                        .addComponent(jRBtnBankTransferAll)
+                        .addContainerGap())))
         );
         jPnlOptionsLayout.setVerticalGroup(
             jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -343,16 +357,15 @@ public class MainView extends javax.swing.JFrame {
                 .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jChBoxCorparate)
                     .addComponent(jChBoxIndividual)
-                    .addComponent(jChBoxBankTransfer)
-                    .addComponent(jRBtnBBankTransferAll))
+                    .addComponent(jRBtnBankTransferAll))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jChBoxOwner)
-                    .addComponent(jRBtnBBankTransferFalse))
+                    .addComponent(jRBtnBankTransferFalse))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPnlOptionsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCBoxOwner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jRBtnBBankTransferTrue))
+                    .addComponent(jRBtnBankTransferTrue))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabUNP)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -441,6 +454,7 @@ public class MainView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private String report = "recordBook";
+    private byte bankTransfer = 2;
 
     private void jBtnShowReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBtnShowReportActionPerformed
         jBtnShowReport.setEnabled(false);
@@ -460,7 +474,7 @@ public class MainView extends javax.swing.JFrame {
         }
         String owner = null;
         String ownerUNP = null;
-        
+
         if (jChBoxOwner.isSelected()) {
             if (jCBoxOwner.getSelectedItem() != null) {
                 // int ownerNum = jCBoxOwner.getSelectedIndex();//   getSelectedItem().toString();//selectedItemReminder
@@ -495,22 +509,30 @@ public class MainView extends javax.swing.JFrame {
 //            Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 
-        byte bankTransfer = (byte) (this.jChBoxBankTransfer.isSelected() ? 1 : 0);
-
+//        byte bankTransfer = (byte) (this.jChBoxBankTransfer.isSelected() ? 1 : 0);
         LocalDateTime localDateStart = LocalDateTime.ofInstant(datePickerStart.getDate().toInstant(), ZoneId.systemDefault());
         LocalDateTime localDateStop = LocalDateTime.ofInstant(datePickerEnd.getDate().toInstant(), ZoneId.systemDefault());
         //  DateTime dtStart = new DateTime(datePickerStart.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
         // DateTime dtEnd = new DateTime(datePickerEnd.getDate()).withZone(DateTimeZone.forID("Europe/Minsk"));
         //System.out.println(String.format("dtStart: %s", dtStart.millisOfDay().setCopy(1).plusDays(1).minusSeconds(1)));
-
-        if (datePickerEnd.isEnabled()) {
-            App.print(localDateStart, localDateStop, report, ownerType, owner, ownerUNP, bankTransfer);
-        } else {
-            App.print(localDateStart, localDateStart, report, ownerType, owner, ownerUNP, bankTransfer);
+        try {
+            if (datePickerEnd.isEnabled()) {
+                App.print(localDateStart, localDateStop, report, ownerType, owner, ownerUNP, bankTransfer);
+            } else {
+                App.print(localDateStart, localDateStart, report, ownerType, owner, ownerUNP, bankTransfer);
+            }
+        } catch (Exception e) {
+            log.fatal(e.getMessage());
+            showMessage("Ошибка", e.getMessage());
         }
         jBtnShowReport.setEnabled(true);
     }//GEN-LAST:event_jBtnShowReportActionPerformed
-
+    public static void showMessage(String title, String message) {
+        JFrame frame = new JFrame(title);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //JOptionPane.showMessageDialog(frame, message);
+        JOptionPane.showMessageDialog(frame, message, title, 0);
+    }
     private void jChBoxPeriodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jChBoxPeriodActionPerformed
         if (jChBoxPeriod.isSelected()) {
             jLOver.setText("c");
@@ -634,6 +656,18 @@ public class MainView extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_jMenuIExitActionPerformed
 
+    private void jRBtnBankTransferAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRBtnBankTransferAllActionPerformed
+        bankTransfer = 2;
+    }//GEN-LAST:event_jRBtnBankTransferAllActionPerformed
+
+    private void jRBtnBankTransferFalseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRBtnBankTransferFalseActionPerformed
+        bankTransfer = 0;
+    }//GEN-LAST:event_jRBtnBankTransferFalseActionPerformed
+
+    private void jRBtnBankTransferTrueActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRBtnBankTransferTrueActionPerformed
+        bankTransfer = 1;
+    }//GEN-LAST:event_jRBtnBankTransferTrueActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -717,7 +751,6 @@ public class MainView extends javax.swing.JFrame {
     private javax.swing.JButton jBtnShowReport;
     private javax.swing.JComboBox<String> jCBoxOwner;
     private javax.swing.JComboBox<Integer> jCBoxUNP;
-    private javax.swing.JCheckBox jChBoxBankTransfer;
     private javax.swing.JCheckBox jChBoxCorparate;
     private javax.swing.JCheckBox jChBoxIndividual;
     private javax.swing.JCheckBox jChBoxOwner;
@@ -741,9 +774,9 @@ public class MainView extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRBRecordBook;
     private javax.swing.JRadioButton jRBforBTO;
     private javax.swing.JRadioButton jRBforSlutsk;
-    private javax.swing.JRadioButton jRBtnBBankTransferAll;
-    private javax.swing.JRadioButton jRBtnBBankTransferFalse;
-    private javax.swing.JRadioButton jRBtnBBankTransferTrue;
+    private javax.swing.JRadioButton jRBtnBankTransferAll;
+    private javax.swing.JRadioButton jRBtnBankTransferFalse;
+    private javax.swing.JRadioButton jRBtnBankTransferTrue;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton5;
