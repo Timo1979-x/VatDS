@@ -72,7 +72,7 @@ public class MainView extends javax.swing.JFrame {
         jRBIndividual = new javax.swing.JRadioButton();
         jRBCorparate = new javax.swing.JRadioButton();
         jRBActiv = new javax.swing.JRadioButton();
-        jRadioButton1 = new javax.swing.JRadioButton();
+        jRBOrderByTariff = new javax.swing.JRadioButton();
         jRadioButton3 = new javax.swing.JRadioButton();
         jRadioButton5 = new javax.swing.JRadioButton();
         jPnlOptions = new javax.swing.JPanel();
@@ -216,9 +216,13 @@ public class MainView extends javax.swing.JFrame {
             }
         });
 
-        btnGroupTypeReport.add(jRadioButton1);
-        jRadioButton1.setText("по ДК");
-        jRadioButton1.setEnabled(false);
+        btnGroupTypeReport.add(jRBOrderByTariff);
+        jRBOrderByTariff.setText("по Тарифам");
+        jRBOrderByTariff.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRBOrderByTariffActionPerformed(evt);
+            }
+        });
 
         btnGroupTypeReport.add(jRadioButton3);
         jRadioButton3.setText("для БТО??");
@@ -239,7 +243,7 @@ public class MainView extends javax.swing.JFrame {
                     .addComponent(jRadioButton3)
                     .addComponent(jRBforSlutsk)
                     .addComponent(jRadioButton5)
-                    .addComponent(jRadioButton1))
+                    .addComponent(jRBOrderByTariff))
                 .addGap(18, 18, 18)
                 .addGroup(jPnlTypeReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jRBCorparate)
@@ -261,7 +265,7 @@ public class MainView extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPnlTypeReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRBCorparate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jRadioButton1))
+                    .addComponent(jRBOrderByTariff))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPnlTypeReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRBActiv, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -668,6 +672,12 @@ public class MainView extends javax.swing.JFrame {
         bankTransfer = 1;
     }//GEN-LAST:event_jRBtnBankTransferTrueActionPerformed
 
+    private void jRBOrderByTariffActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRBOrderByTariffActionPerformed
+        report = "OrderByTariff";
+        jChBoxCorparate.setSelected(true);
+        jChBoxIndividual.setSelected(true);
+    }//GEN-LAST:event_jRBOrderByTariffActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -771,13 +781,13 @@ public class MainView extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRBActiv;
     private javax.swing.JRadioButton jRBCorparate;
     private javax.swing.JRadioButton jRBIndividual;
+    private javax.swing.JRadioButton jRBOrderByTariff;
     private javax.swing.JRadioButton jRBRecordBook;
     private javax.swing.JRadioButton jRBforBTO;
     private javax.swing.JRadioButton jRBforSlutsk;
     private javax.swing.JRadioButton jRBtnBankTransferAll;
     private javax.swing.JRadioButton jRBtnBankTransferFalse;
     private javax.swing.JRadioButton jRBtnBankTransferTrue;
-    private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton5;
     // End of variables declaration//GEN-END:variables

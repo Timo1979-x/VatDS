@@ -138,10 +138,10 @@ public class App {
                         stringBuilder = ListIndividualQuery();
                     }
                     break;
-//                    case "orderDK": {
-//                        stringBuilder = CorporatePersonQuery();
-//                    }
-//                    break;
+                    case "OrderByTariff": {
+                        stringBuilder = OrderByTariffQuery();
+                    }
+                    break;
                     case "recordBook": {
                         stringBuilder = RecordBookQuery();
                     }
@@ -159,9 +159,11 @@ public class App {
                         stringBuilder.append("' and b.id_blanc_status=2 and b.id_blanc_type=1");
                     }
 
-                    if (bankTransfer != 2) {
-                        stringBuilder.append(" AND `tar`.`bank_transfer` = ");
-                        stringBuilder.append(bankTransfer);
+                    if (!report.equals("OrderByTariff")) {
+                        if (bankTransfer != 2) {
+                            stringBuilder.append(" AND `tar`.`bank_transfer` = ");
+                            stringBuilder.append(bankTransfer);
+                        }
                     }
 
                     stringBuilder.append(" and o.id_owner_type in (").append(sb).append(") ");
@@ -173,11 +175,17 @@ public class App {
                     if (ownerUNP != null) {
                         stringBuilder.append(" and o.unp=").append(ownerUNP);
                     }
+
+                    if (report.equals("OrderByTariff")) {
+                        stringBuilder.append(" GROUP BY `sttt`.`name`");
+                    }
+
                     if (report.equals("forDS210")) {
                         stringBuilder.append(" ORDER BY r.`name`");
                     } else {
                         stringBuilder.append(" ORDER BY bi.date_ot;");
                     }
+
                 }
                 System.out.println("Query: " + stringBuilder);
                 ResultSet rsTest = st.executeQuery(stringBuilder.toString());
@@ -191,21 +199,31 @@ public class App {
                     System.out.println("fillReport1");
                     try {
                         jasperPrint = JasperFillManager.fillReport(inputStream, map, new JRResultSetDataSource(rsTest));
-
                         System.out.println("fillReport2");
 //                    jasperPrint = JasperFillManager.fillReport(inputStream, map, conn);
 
                         //jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
                         MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS, csv, xml");
+                        System.out.println("1");
                         myViewer.setTitle("Предварительный просмотр");
+                        System.out.println("2");
                         myViewer.setExtendedState(myViewer.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+                        System.out.println("3");
                         if (!jasperPrint.getPages().isEmpty()) {
+                            System.out.println("4");
                             ModalFrameUtil.showAsModal(myViewer, MainView.getF(), JFrame.MAXIMIZED_BOTH);
+                            System.out.println("5");
                             MainView.getF().toFront();
                         }
+
                     } catch (JRException | ExceptionInInitializerError e) {
                         showMessage("Ошибка", "Ошибка подключения к серверу.");
                         Log.fatal(e.fillInStackTrace());
+                        Throwable e1 = e;
+                        while (e1 != null) {
+                            e1.printStackTrace();
+                            e1 = e1.getCause();
+                        }
                     }
                 }
             }
@@ -271,6 +289,12 @@ public class App {
         stringBuilder.append("' AND '");
         stringBuilder.append(beforeDate);
         stringBuilder.append("' AND `bti`.`id_conclusion` IS NOT NULL AND `b`.`id_blanc_status` = 2 AND `b`.`id_blanc_type` = 1;");
+        return stringBuilder;
+    }
+
+    private static StringBuilder OrderByTariffQuery() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT `sttt`.`name`, COUNT(`tit`.`id_ts_info_tarifs`) AS \"count\", SUM(`tit`.`summa`) AS 'sum' FROM `sd_tarifs_ts_type` AS `sttt` LEFT JOIN `ts_info_tarifs` AS `tit` ON `sttt`.`id_tarifs_ts_type` = `tit`.`id_tarifs_ts_type` LEFT JOIN `ts_info` AS `ti` ON `tit`.`id_ts_info` = `ti`.`id_ts_info` LEFT JOIN `blanc_ts_info` AS `bi` ON `ti`.`id_ts_info` = `bi`.`id_ts_info` LEFT JOIN `blanc` AS `b` ON `bi`.`id_blanc` = `b`.`id_blanc` LEFT JOIN `owner_info` AS `o` ON `ti`.`id_owner_sobs` = `o`.`id_owner` WHERE `bi`.`id_blanc` IS NOT NULL AND `bi`.`id_ts_info` IS NOT NULL AND `b`.`id_blanc_type` = 1 AND `b`.`id_blanc_status` = 2 AND `bi`.`date_ot` BETWEEN '");
         return stringBuilder;
     }
 
