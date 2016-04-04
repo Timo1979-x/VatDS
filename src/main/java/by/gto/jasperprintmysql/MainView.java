@@ -3,7 +3,13 @@ package by.gto.jasperprintmysql;
 import by.gto.jasperprintmysql.data.OwnerDataSW;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.ModalFrameUtil;
+import by.gto.tools.Util;
+import java.awt.Desktop;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,12 +18,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import javax.swing.ImageIcon;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 /**
  *
@@ -653,7 +664,49 @@ public class MainView extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuISettingsActionPerformed
 
     private void jMenuItemUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemUpdateActionPerformed
-        JOptionPane.showMessageDialog(null, new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(), "Path", JOptionPane.INFORMATION_MESSAGE);
+        //JOptionPane.showMessageDialog(null, new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(), "Path", JOptionPane.INFORMATION_MESSAGE);
+        try {
+            URL url = new URL("http://gto.by/api/check.updates.php?name=btoReport");
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+            String strTemp = "";
+            while (null != (strTemp = br.readLine())) {
+                JSONObject obj = new JSONObject(strTemp);
+                String name = obj.getString("name");
+                String version = obj.getString("version");
+                String url_ = obj.getString("url");
+                int verCompere = Util.versionCompare(Version.getVERSION(), version);
+                if (verCompere < 0) {
+                    // JOptionPane optionPane = new JOptionPane();
+                    JEditorPane html = new JEditorPane();
+                    html.addHyperlinkListener((HyperlinkEvent e) -> {
+                        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                            // Do something with e.getURL() here
+                            if (Desktop.isDesktopSupported()) {
+                                try {
+                                    Desktop.getDesktop().browse(e.getURL().toURI());
+                                } catch (URISyntaxException | IOException ex) {
+                                    log.error(ex);
+                                }
+                            }
+                        }
+                    });
+                    html.setContentType("text/html;Content-Type=windows-1251");
+                    html.setText("<html><body>Доступно обновление для  " + name + ".<br />Установлена версия: " + Version.getVERSION() + "<br />Версия обновления: " + version + "<br /><a href=\"" + url_ + "\" target=\"_blank\"><strong>Загрузить</strong></a></body></html>");
+                    html.setEditable(false);
+                    //optionPane.add(html);
+                    JOptionPane.showMessageDialog(this, html);
+                    //optionPane.setVisible(true);
+                    //optionPane.showMessageDialog(null, "Доступно обновление для  " + name + ".\n\rУстановлена версия: " + Version.getVERSION() + "\n\rВерсия обновления: " + version + "\n\r" + url_, "Обновление", JOptionPane.INFORMATION_MESSAGE);
+                    //Desktop.getDesktop().browse(new URI(url_));
+                } else {
+                    JOptionPane.showMessageDialog(null, "Установлена последняя версия btoReport", "Обновление", JOptionPane.INFORMATION_MESSAGE);
+                }
+                System.out.println(strTemp);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Ошибка проверки версии", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            log.error(ex.getMessage());
+        }
     }//GEN-LAST:event_jMenuItemUpdateActionPerformed
 
     private void jMenuIExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIExitActionPerformed

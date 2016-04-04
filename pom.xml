@@ -4,7 +4,7 @@
 
     <groupId>by.gto</groupId>
     <artifactId>btoReport</artifactId>
-    <version>0.0.16</version>
+    <version>0.0.17</version>
     <packaging>jar</packaging>
 
     <name>btoReport</name>
@@ -19,7 +19,7 @@
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2016</product.year>
         <jdkVersion>1.8</jdkVersion>
-        <dateBuild>2016.03.29</dateBuild>
+        <dateBuild>2016.04.04</dateBuild>
     </properties>
     <build> 
         <!--        <resources>
@@ -416,6 +416,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20151123</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
-    <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 - Нал/Безнал; 0.0.11 - Нал/Безнал исправлены отчеты; 0.0.12-16 - Нал и Безнал/Нал/Безнал исправлены отчеты. Отчет по тарифам; </description>
+    <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 - Нал/Безнал; 0.0.11 - Нал/Безнал исправлены отчеты; 0.0.12-16 - Нал и Безнал/Нал/Безнал исправлены отчеты. Отчет по тарифам; 0.0.17 - проверка обновлений </description>
 </project>
