@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-03-28T11:57:33 -->
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2016-07-01T12:27:04 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Журнал" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="def16ab6-5e4f-4429-8ebf-00b3123927d4">
 	<property name="ireport.zoom" value="1.331000000000001"/>
 	<property name="ireport.x" value="0"/>
@@ -17,7 +17,7 @@
 	<field name="Марка/модель" class="java.lang.String"/>
 	<field name="Рег.знак" class="java.lang.String"/>
 	<field name="Серия, номер" class="java.lang.String"/>
-	<field name="Сумма оплаты" class="java.lang.Long"/>
+	<field name="Сумма оплаты" class="java.lang.Double"/>
 	<variable name="Сумма оплаты_1" class="java.lang.Long" calculation="Sum">
 		<variableExpression><![CDATA[$F{Сумма оплаты}]]></variableExpression>
 	</variable>
@@ -202,7 +202,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Серия, номер}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="#,##0">
+			<textField isStretchWithOverflow="true" pattern="#,#00.00">
 				<reportElement stretchType="RelativeToBandHeight" x="518" y="0" width="37" height="10" uuid="40381400-08b3-49a8-8ea8-a1150a848625"/>
 				<box topPadding="0" leftPadding="1" bottomPadding="0" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
@@ -269,7 +269,7 @@
 	</pageFooter>
 	<summary>
 		<band height="48" splitType="Stretch">
-			<textField pattern="#,##0" isBlankWhenNull="true">
+			<textField pattern="#,#00.00" isBlankWhenNull="true">
 				<reportElement x="72" y="0" width="134" height="20" uuid="e0719df0-1527-4b6f-a64c-d0269015d3a2"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Tahoma" isBold="true"/>

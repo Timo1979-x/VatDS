@@ -5,7 +5,7 @@ public final class Version {
     private static final String GROUPID = "by.gto";
     private static final String ARTIFACTID = "btoReport";
     private static final String REVISION = "0.0.17";
-    private static final String DATEBUILD = "2016.04.04";
+    private static final String DATEBUILD = "2016.07.01";
 
     public static String getDATEBUILD() {
         return DATEBUILD;

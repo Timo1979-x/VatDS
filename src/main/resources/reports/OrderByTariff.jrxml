@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-03-29T13:48:12 -->
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2016-07-01T12:47:45 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="OrderByTariff" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="def16ab6-5e4f-4429-8ebf-00b3123927d4">
 	<property name="ireport.zoom" value="1.331000000000001"/>
 	<property name="ireport.x" value="0"/>
@@ -13,8 +13,8 @@
 	<parameter name="beforeDate" class="java.time.LocalDateTime"/>
 	<field name="name" class="java.lang.String"/>
 	<field name="count" class="java.lang.Integer"/>
-	<field name="sum" class="java.lang.Integer"/>
-	<variable name="Сумма оплаты_1" class="java.lang.Long" calculation="Sum">
+	<field name="sum" class="java.lang.Double"/>
+	<variable name="Сумма оплаты_1" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{sum}]]></variableExpression>
 	</variable>
 	<title>
@@ -107,7 +107,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+			<textField isStretchWithOverflow="true" pattern="#,#00.00" isBlankWhenNull="true">
 				<reportElement stretchType="RelativeToBandHeight" x="428" y="0" width="127" height="10" uuid="c50b396e-e7f2-46cb-9f70-3c4747f0197d"/>
 				<box topPadding="0" leftPadding="1" bottomPadding="0" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
@@ -177,7 +177,7 @@
 	</pageFooter>
 	<summary>
 		<band height="48" splitType="Stretch">
-			<textField pattern="#,##0" isBlankWhenNull="true">
+			<textField pattern="#,#00.00" isBlankWhenNull="true">
 				<reportElement x="72" y="0" width="134" height="20" uuid="e0719df0-1527-4b6f-a64c-d0269015d3a2"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Tahoma" isBold="true"/>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2016-07-01T12:46:40 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Отчет за месяц" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1a8fcfbd-a8e5-400a-9668-01e4138ca76c">
 	<property name="ireport.zoom" value="1.927716447147658"/>
 	<property name="ireport.x" value="134"/>
@@ -26,36 +28,36 @@ WHERE
 	<field name="dso_diagn_card_seria" class="java.lang.String"/>
 	<field name="dso_diagn_card_number" class="java.lang.String"/>
 	<field name="dso_diagn_card_reg_znak" class="java.lang.String"/>
-	<field name="dso_diagn_card_symma_s_nds" class="java.math.BigDecimal"/>
-	<field name="dso_diagn_card_symma_nds" class="java.math.BigDecimal"/>
-	<field name="dso_diagn_card_symma_bez_nds" class="java.math.BigDecimal"/>
+	<field name="dso_diagn_card_symma_s_nds" class="java.lang.Double"/>
+	<field name="dso_diagn_card_symma_nds" class="java.lang.Double"/>
+	<field name="dso_diagn_card_symma_bez_nds" class="java.lang.Double"/>
 	<field name="dso_diagn_card_Category" class="java.lang.String"/>
 	<field name="dso_diagn_card_urid" class="java.lang.String"/>
-	<variable name="dso_diagn_card_symma_s_nds_1" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_s_nds_1" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_s_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_nds_1" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_nds_1" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_bez_nds_1" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_bez_nds_1" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_bez_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_s_nds_2" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_s_nds_2" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_s_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_nds_2" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_nds_2" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_s_nds_3" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_s_nds_3" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_s_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_bez_nds_2" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_bez_nds_2" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_bez_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_nds_3" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_nds_3" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_nds}]]></variableExpression>
 	</variable>
-	<variable name="dso_diagn_card_symma_s_nds_4" class="java.math.BigDecimal" calculation="Sum">
+	<variable name="dso_diagn_card_symma_s_nds_4" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{dso_diagn_card_symma_s_nds}]]></variableExpression>
 	</variable>
 	<background>
@@ -294,7 +296,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$F{dso_diagn_card_number}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,##0">
+			<textField pattern="#,#00.00">
 				<reportElement x="439" y="0" width="58" height="18" uuid="75382739-7e71-4471-b8ff-16d2663e46ef"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -305,7 +307,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$F{dso_diagn_card_symma_nds}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,##0">
+			<textField pattern="#,#00.00">
 				<reportElement x="381" y="0" width="58" height="18" uuid="089a5856-b9ba-410b-aa04-8c8f90b6b063"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -316,7 +318,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$F{dso_diagn_card_symma_bez_nds}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,##0">
+			<textField pattern="#,#00.00">
 				<reportElement x="497" y="0" width="58" height="18" uuid="4e48c517-943e-44fc-be9b-111b3b803c60"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -364,7 +366,7 @@ WHERE
 	</pageFooter>
 	<summary>
 		<band height="21" splitType="Stretch">
-			<textField pattern="#,##0">
+			<textField pattern="#,#00.00">
 				<reportElement x="381" y="0" width="58" height="20" uuid="5c4eaad2-d16e-4fd1-a38c-34ef895228ce"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -375,7 +377,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$V{dso_diagn_card_symma_bez_nds_2}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,##0">
+			<textField pattern="#,#00.00">
 				<reportElement x="439" y="0" width="58" height="20" uuid="4a335c07-8846-4a08-9ce2-00226e7b3d37"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -386,7 +388,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$V{dso_diagn_card_symma_nds_3}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,##0">
+			<textField pattern="#,#00.00">
 				<reportElement x="497" y="0" width="58" height="20" uuid="0e194667-b94a-47eb-a122-1fbd12ecc2d6"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>

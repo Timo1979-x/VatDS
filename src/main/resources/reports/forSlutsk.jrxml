@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.2.1.final using JasperReports Library version 6.2.1  -->
-<!-- 2016-03-28T12:26:38 -->
+<!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
+<!-- 2016-07-01T12:55:40 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Отчет для Слуцка" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="ec84a567-ea83-4359-8b2f-2df606fc5d5b">
 	<property name="ireport.zoom" value="1.5394743546921208"/>
 	<property name="ireport.x" value="0"/>
@@ -21,11 +21,11 @@
 	<field name="Рег.знак" class="java.lang.String"/>
 	<field name="Марка/модель" class="java.lang.String"/>
 	<field name="Категория" class="java.lang.String"/>
-	<field name="Сумма оплаты" class="java.lang.Long"/>
+	<field name="Сумма оплаты" class="java.lang.Double"/>
 	<field name="Собственник" class="java.lang.String"/>
 	<field name="Проверка" class="java.lang.String"/>
 	<field name="Результат" class="java.lang.String"/>
-	<variable name="Сумма оплаты_1" class="java.lang.Long" calculation="Sum">
+	<variable name="Сумма оплаты_1" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{Сумма оплаты}]]></variableExpression>
 	</variable>
 	<title>
@@ -333,7 +333,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Категория}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="#,##0">
+			<textField isStretchWithOverflow="true" pattern="#,#00.00">
 				<reportElement stretchType="RelativeToBandHeight" x="285" y="0" width="36" height="10" uuid="ba61f07b-ca0f-4e82-92e9-47c49e5f615e"/>
 				<box topPadding="0" bottomPadding="0" rightPadding="2">
 					<bottomPen lineWidth="0.25"/>
@@ -431,7 +431,7 @@
 	</pageFooter>
 	<summary>
 		<band height="35" splitType="Stretch">
-			<textField pattern="#,##0">
+			<textField pattern="#,#00.00">
 				<reportElement x="74" y="0" width="94" height="16" uuid="740f9da8-51f5-4dec-aaf2-4c9cfaf3a9d8"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Tahoma" isBold="true"/>
