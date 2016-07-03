@@ -296,7 +296,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$F{dso_diagn_card_number}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,#00.00">
+			<textField pattern="#,#0.00">
 				<reportElement x="439" y="0" width="58" height="18" uuid="75382739-7e71-4471-b8ff-16d2663e46ef"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -307,7 +307,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$F{dso_diagn_card_symma_nds}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,#00.00">
+			<textField pattern="#,#0.00">
 				<reportElement x="381" y="0" width="58" height="18" uuid="089a5856-b9ba-410b-aa04-8c8f90b6b063"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -318,7 +318,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$F{dso_diagn_card_symma_bez_nds}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,#00.00">
+			<textField pattern="#,#0.00">
 				<reportElement x="497" y="0" width="58" height="18" uuid="4e48c517-943e-44fc-be9b-111b3b803c60"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -366,7 +366,7 @@ WHERE
 	</pageFooter>
 	<summary>
 		<band height="21" splitType="Stretch">
-			<textField pattern="#,#00.00">
+			<textField pattern="#,#0.00">
 				<reportElement x="381" y="0" width="58" height="20" uuid="5c4eaad2-d16e-4fd1-a38c-34ef895228ce"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -377,7 +377,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$V{dso_diagn_card_symma_bez_nds_2}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,#00.00">
+			<textField pattern="#,#0.00">
 				<reportElement x="439" y="0" width="58" height="20" uuid="4a335c07-8846-4a08-9ce2-00226e7b3d37"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>
@@ -388,7 +388,7 @@ WHERE
 				</textElement>
 				<textFieldExpression><![CDATA[$V{dso_diagn_card_symma_nds_3}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,#00.00">
+			<textField pattern="#,#0.00">
 				<reportElement x="497" y="0" width="58" height="20" uuid="0e194667-b94a-47eb-a122-1fbd12ecc2d6"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<leftPen lineWidth="0.25"/>

@@ -18,7 +18,7 @@
 	<field name="Рег.знак" class="java.lang.String"/>
 	<field name="Серия, номер" class="java.lang.String"/>
 	<field name="Сумма оплаты" class="java.lang.Double"/>
-	<variable name="Сумма оплаты_1" class="java.lang.Long" calculation="Sum">
+	<variable name="Сумма оплаты_1" class="java.lang.Double" calculation="Sum">
 		<variableExpression><![CDATA[$F{Сумма оплаты}]]></variableExpression>
 	</variable>
 	<title>
@@ -202,7 +202,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Серия, номер}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="#,#00.00">
+			<textField isStretchWithOverflow="true" pattern="#,#0.00">
 				<reportElement stretchType="RelativeToBandHeight" x="518" y="0" width="37" height="10" uuid="40381400-08b3-49a8-8ea8-a1150a848625"/>
 				<box topPadding="0" leftPadding="1" bottomPadding="0" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
@@ -269,7 +269,7 @@
 	</pageFooter>
 	<summary>
 		<band height="48" splitType="Stretch">
-			<textField pattern="#,#00.00" isBlankWhenNull="true">
+			<textField pattern="#,#0.00" isBlankWhenNull="true">
 				<reportElement x="72" y="0" width="134" height="20" uuid="e0719df0-1527-4b6f-a64c-d0269015d3a2"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Tahoma" isBold="true"/>

@@ -238,9 +238,9 @@ public class App {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("SELECT DATE_FORMAT(bi.date_ot, '%d.%m.%y') 'Дата', concat(b.seria,' №', LPAD(b.number, 7, 0)) 'Серия, номер', o.name 'Собственник', `oi`.`name` 'Заказчик', `oi`.`unp` 'УНП', ROUND((tar.summa_oplaty/1.");
         stringBuilder.append(ConfigReader.getInstance().getNDS());
-        stringBuilder.append("),0) 'Услуги без НДС', ROUND((tar.summa_oplaty-(tar.summa_oplaty/1.");
+        stringBuilder.append("),2) 'Услуги без НДС', ROUND((tar.summa_oplaty-(tar.summa_oplaty/1.");
         stringBuilder.append(ConfigReader.getInstance().getNDS());
-        stringBuilder.append(")),0) 'НДС', tar.summa_oplaty 'Всего с НДС' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs LEFT JOIN `owner_info` AS `oi` ON `oi`.`id_owner` = `i`.`id_owner_zakazch` WHERE bi.date_ot BETWEEN '");
+        stringBuilder.append(")),2) 'НДС', tar.summa_oplaty 'Всего с НДС' FROM `to`.blanc_ts_info bi left join `to`.blanc b on bi.id_blanc=b.id_blanc left join `to`.ts_info i on i.id_ts_info=bi.id_ts_info left join `to`.sd_tarifs_ts_info tar on tar.id_ts_info=bi.id_ts_info and tar.id_blanc=bi.id_blanc left join `to`.owner_info o on o.id_owner=i.id_owner_sobs LEFT JOIN `owner_info` AS `oi` ON `oi`.`id_owner` = `i`.`id_owner_zakazch` WHERE bi.date_ot BETWEEN '");
         return stringBuilder;
     }
 
@@ -264,7 +264,7 @@ public class App {
 
     private static StringBuilder ActiveListQuery() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("SELECT r.`name` AS 'Рег. знак', LEFT(c.`name`, 2) AS 'Категория', tm.`name` AS 'Тип двигателя', m.`name` AS 'Марка/Модель', o1.`name` AS 'Владелец', o.`name` AS 'Собственник', o3.`name` AS 'Заказчик', ROUND((tar.summa_oplaty / 1.2), 0) AS `Услуги без НДС`, ROUND((tar.summa_oplaty - (tar.summa_oplaty / 1.2)), 0) AS `НДС 20%`, tar.summa_oplaty AS `Всего с НДС` FROM ts_info i LEFT JOIN owner_info o1 ON i.id_owner_vlad = o1.id_owner LEFT JOIN owner_info o ON i.id_owner_sobs = o.id_owner LEFT JOIN owner_info o3 ON i.id_owner_zakazch = o3.id_owner LEFT JOIN s_ts_model m ON m.id_ts_model = i.id_ts_marca LEFT JOIN s_ts_categ c ON c.id_ts_categ = i.id_ts_categ LEFT JOIN sd_tarifs_ts_info tar ON tar.id_ts_info = i.id_ts_info LEFT JOIN reg_number r ON i.id_reg_number = r.id_reg_number LEFT JOIN s_ts_type_motor tm ON i.id_ts_type_motor = tm.id_ts_type_motor WHERE i.for_gto = 1 AND i.is_active = 1 AND tar.id_blanc IS NULL ");
+        stringBuilder.append("SELECT r.`name` AS 'Рег. знак', LEFT(c.`name`, 2) AS 'Категория', tm.`name` AS 'Тип двигателя', m.`name` AS 'Марка/Модель', o1.`name` AS 'Владелец', o.`name` AS 'Собственник', o3.`name` AS 'Заказчик', ROUND((tar.summa_oplaty / 1.2), 2) AS `Услуги без НДС`, ROUND((tar.summa_oplaty - (tar.summa_oplaty / 1.2)), 2) AS `НДС 20%`, tar.summa_oplaty AS `Всего с НДС` FROM ts_info i LEFT JOIN owner_info o1 ON i.id_owner_vlad = o1.id_owner LEFT JOIN owner_info o ON i.id_owner_sobs = o.id_owner LEFT JOIN owner_info o3 ON i.id_owner_zakazch = o3.id_owner LEFT JOIN s_ts_model m ON m.id_ts_model = i.id_ts_marca LEFT JOIN s_ts_categ c ON c.id_ts_categ = i.id_ts_categ LEFT JOIN sd_tarifs_ts_info tar ON tar.id_ts_info = i.id_ts_info LEFT JOIN reg_number r ON i.id_reg_number = r.id_reg_number LEFT JOIN s_ts_type_motor tm ON i.id_ts_type_motor = tm.id_ts_type_motor WHERE i.for_gto = 1 AND i.is_active = 1 AND tar.id_blanc IS NULL ");
         return stringBuilder;
     }
 

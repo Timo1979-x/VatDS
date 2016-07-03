@@ -58,6 +58,8 @@ public class MainView extends javax.swing.JFrame {
         setIconImage(icon.getImage());
         //Отоброжение по центру экрана
         setLocationRelativeTo(null);
+
+        CheckUpdate(false);
     }
 
     /**
@@ -664,8 +666,12 @@ public class MainView extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuISettingsActionPerformed
 
     private void jMenuItemUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemUpdateActionPerformed
-        //JOptionPane.showMessageDialog(null, new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(), "Path", JOptionPane.INFORMATION_MESSAGE);
+        CheckUpdate(true);
+    }//GEN-LAST:event_jMenuItemUpdateActionPerformed
+
+    private void CheckUpdate(boolean showMessage) {
         try {
+            //JOptionPane.showMessageDialog(null, new File(MainView.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(), "Path", JOptionPane.INFORMATION_MESSAGE);
             URL url = new URL("http://gto.by/api/check.updates.php?name=btoReport");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
             String strTemp = "";
@@ -698,7 +704,7 @@ public class MainView extends javax.swing.JFrame {
                     //optionPane.setVisible(true);
                     //optionPane.showMessageDialog(null, "Доступно обновление для  " + name + ".\n\rУстановлена версия: " + Version.getVERSION() + "\n\rВерсия обновления: " + version + "\n\r" + url_, "Обновление", JOptionPane.INFORMATION_MESSAGE);
                     //Desktop.getDesktop().browse(new URI(url_));
-                } else {
+                } else if (showMessage) {
                     JOptionPane.showMessageDialog(null, "Установлена последняя версия btoReport", "Обновление", JOptionPane.INFORMATION_MESSAGE);
                 }
                 System.out.println(strTemp);
@@ -707,7 +713,7 @@ public class MainView extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Ошибка проверки версии", "Ошибка", JOptionPane.ERROR_MESSAGE);
             log.error(ex.getMessage());
         }
-    }//GEN-LAST:event_jMenuItemUpdateActionPerformed
+    }
 
     private void jMenuIExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuIExitActionPerformed
         System.exit(0);
