@@ -710,7 +710,10 @@ public class MainView extends javax.swing.JFrame {
                 System.out.println(strTemp);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Ошибка проверки версии", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            if (showMessage) {
+                JOptionPane.showMessageDialog(null, "Ошибка проверки версии", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+            
             log.error(ex.getMessage());
         }
     }

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>by.gto</groupId>
     <artifactId>btoReport</artifactId>
-    <version>0.0.19</version>
+    <version>0.0.20</version>
     <packaging>jar</packaging>
     <name>btoReport</name>
     <url>http://maven.apache.org</url>
@@ -16,7 +16,7 @@
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2016</product.year>
         <jdkVersion>1.8</jdkVersion>
-        <dateBuild>2016.07.03</dateBuild>
+        <dateBuild>2016.07.04</dateBuild>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <image.name>splash_2.gif</image.name>
