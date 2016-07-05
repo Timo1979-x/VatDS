@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-07-03T19:01:59 -->
+<!-- 2016-07-05T20:14:53 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="corporate person" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="cf61574a-28b5-46ae-90d4-4bd10148baf5">
 	<property name="ireport.zoom" value="1.650000000000001"/>
 	<property name="ireport.x" value="0"/>
@@ -220,7 +220,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{УНП}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="#,#0.00" isBlankWhenNull="true">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
 				<reportElement stretchType="RelativeToBandHeight" x="447" y="0" width="36" height="10" uuid="84c8749f-958b-43ba-8c54-928c923801da"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
@@ -231,7 +231,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Услуги без НДС}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="#,#0.00" isBlankWhenNull="true">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
 				<reportElement stretchType="RelativeToBandHeight" x="483" y="0" width="36" height="10" uuid="3a440486-bdd2-4a26-a42b-ce97d8704597"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
@@ -242,7 +242,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{НДС}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="#,#0.00" isBlankWhenNull="true">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
 				<reportElement stretchType="RelativeToBandHeight" x="519" y="0" width="36" height="10" uuid="dcdf191e-faad-4b06-a93c-9880df178ddd"/>
 				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
 					<bottomPen lineWidth="0.25"/>
