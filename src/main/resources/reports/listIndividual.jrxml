@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-07-01T12:22:30 -->
+<!-- 2016-07-06T11:17:15 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Физ лица" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="e197b686-5f7c-46cf-9d3a-ceabe51a08c8">
 	<property name="ireport.zoom" value="1.1000000000000008"/>
 	<property name="ireport.x" value="0"/>
@@ -136,7 +136,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{Серия, номер}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="#,#0.00">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
 				<reportElement stretchType="RelativeToBandHeight" x="455" y="0" width="100" height="10" uuid="bcb45da1-5ee4-4774-8e68-d114bfd0b565"/>
 				<box>
 					<bottomPen lineWidth="0.25"/>
@@ -195,7 +195,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$P{position}+" ДС №"+$P{num_ds}]]></textFieldExpression>
 			</textField>
-			<textField pattern="#,#0.00">
+			<textField pattern="#,##0.00">
 				<reportElement x="455" y="2" width="100" height="20" uuid="54b360bd-936d-4998-8821-68c0837d068a"/>
 				<textElement textAlignment="Right">
 					<font fontName="Tahoma" isBold="true"/>

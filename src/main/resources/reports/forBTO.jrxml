@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.3.0.final using JasperReports Library version 6.3.0  -->
-<!-- 2016-07-01T13:08:19 -->
+<!-- 2016-07-06T11:15:24 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Отчет за месяц" pageWidth="595" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Empty" uuid="786ac81e-d432-48a8-9703-4b511ff69fcf">
 	<property name="ireport.zoom" value="1.927716447147658"/>
 	<property name="ireport.x" value="0"/>
@@ -152,7 +152,7 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{bad}]]></textFieldExpression>
 				</textField>
-				<textField pattern="#,#0.00" isBlankWhenNull="true">
+				<textField pattern="#,##0.00" isBlankWhenNull="true">
 					<reportElement x="384" y="88" width="118" height="22" uuid="d69bc770-7e54-4f02-9f1a-bd9b8eefe540"/>
 					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 						<leftPen lineWidth="0.25"/>
