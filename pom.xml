@@ -10,17 +10,18 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>by.gto.jasperprintmysql.MainView</mainClass>
-        <buildNumber>${project.version}</buildNumber>
         <exeFileName>btoReport</exeFileName>
         <product.title>Статистические отчеты</product.title>
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2016</product.year>
         <jdkVersion>1.8</jdkVersion>
-        <dateBuild>2016.07.06</dateBuild>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <image.name>splash_2.gif</image.name>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <buildDateTime>${maven.build.timestamp}</buildDateTime>
     </properties>
+   
     <build> 
         <plugins>
             <!--            <plugin>
@@ -75,7 +76,7 @@
                             <mainClass>${mainClass}</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Version>${buildNumber}</Version>
+                            <Version>${project.version}</Version>
                             <splashscreen-image>${image.name}</splashscreen-image>
                         </manifestEntries>
                     </archive>
@@ -159,7 +160,7 @@
                     </execution> 
                 </executions> 
             </plugin>
-<!--            <plugin>
+            <!--            <plugin>
                 <groupId>org.apache.maven.plugins</groupId> 
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.6</version>
@@ -349,10 +350,6 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>com.lowagie</groupId>
-                    <artifactId>itext</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -369,13 +366,13 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.6.1</version>
+            <version>2.6.2</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.6.1</version>
+            <version>2.6.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -393,7 +390,7 @@
             <artifactId>groovy</artifactId>
             <version>2.4.6</version>
         </dependency>-->
-        <dependency>
+<!--        <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
             <version>2.1.7</version>
@@ -419,7 +416,7 @@
                     <artifactId>bctsp-jdk14</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>

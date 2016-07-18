@@ -2,11 +2,9 @@ package by.gto.jasperprintmysql;
 
 import java.awt.Desktop;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Properties;
 import javax.swing.ImageIcon;
 
 /**
