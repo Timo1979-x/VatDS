@@ -8,6 +8,8 @@ import by.avest.net.tls.AvTLSProvider;
 import by.gto.btoreport.gui.Main;
 
 import java.io.*;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.Provider;
@@ -30,10 +32,12 @@ public class VatTool {
     private boolean delete = false;
 
     public void run(Map<String, String> vatXmls, StringCallback callback) throws Exception {
+
         AvestProvider prov = null;
         AvTLSProvider tlsProvider = null;
         AvCertStoreProvider storeProvider = null;
         try {
+            final Provider[] providers = Security.getProviders();
             prov = ProviderFactory.addAvUniversalProvider();
 
             tlsProvider = new AvTLSProvider();
@@ -41,7 +45,7 @@ public class VatTool {
             storeProvider = new AvCertStoreProvider();
             Security.addProvider(storeProvider);
 
-            final Provider[] providers = Security.getProviders();
+            final Provider[] providers1 = Security.getProviders();
             doSignAndUploadStrings(vatXmls, callback);
         } finally {
             Security.removeProvider("AvUniversal");
@@ -49,9 +53,15 @@ public class VatTool {
             Security.removeProvider("AvTLSProvider");
             final Provider[] providers = Security.getProviders();
             if (storeProvider != null) {
+                for (Object o : storeProvider.values()) {
+                    System.out.println(o + ": " + o.getClass().getCanonicalName());
+                }
                 storeProvider.clear();
             }
             if (tlsProvider != null) {
+                for (Object o : tlsProvider.values()) {
+                    System.out.println(o);
+                }
                 tlsProvider.clear();
             }
             if (prov != null) {
