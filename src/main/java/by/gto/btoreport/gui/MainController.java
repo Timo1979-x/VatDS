@@ -1,0 +1,1016 @@
+package by.gto.btoreport.gui;
+
+import by.gto.jasperprintmysql.App;
+import by.gto.jasperprintmysql.Version;
+import by.gto.jasperprintmysql.data.OwnerDataSW2;
+import by.gto.tools.*;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
+
+@SuppressWarnings("SqlDialectInspection")
+public class MainController implements Initializable {
+
+    private static final Logger log = LogManager.getLogger(MainController.class);
+
+    @FXML
+    public CheckBox cbPeriod;
+    @FXML
+    public Label lOver;
+    @FXML
+    public DatePicker dtpEnd;
+    @FXML
+    public DatePicker dtpStart;
+    @FXML
+    public Label lBefore;
+    @FXML
+    public CheckBox cbCorporate;
+    @FXML
+    public CheckBox cbIndividual;
+    @FXML
+    public ComboBox comboBoxOwner;
+    @FXML
+    public ComboBox comboBoxUNP;
+    @FXML
+    public Label lUNP;
+    @FXML
+    public CheckBox cbOwner;
+    @FXML
+    public Button bShowReport;
+    @FXML
+    public ComboBox comboBoxYear;
+    @FXML
+    public ComboBox comboBoxMonth;
+    @FXML
+    public TableColumn colContractorName;
+    @FXML
+    public TableColumn colContractorUNP;
+    @FXML
+    public TableColumn colDate;
+    @FXML
+    public TableColumn colWithoutVAT;
+    @FXML
+    public TableColumn colVAT;
+    @FXML
+    public TableColumn colWithVAT;
+    @FXML
+    public TableView vatTableView;
+    @FXML
+    public TableColumn colVATFullNumber;
+    public Label lMessage;
+    private String report = "recordBook";
+    private byte bankTransfer = 2;
+
+    private ObservableList<VatData> vatData = FXCollections.observableArrayList();
+    private ObservableList<Integer> years = FXCollections.observableArrayList(
+            2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
+            2020, 2021, 2022, 2024, 2024, 2025, 2026, 2027, 2028, 2029,
+            2030, 2031
+    );
+    private int selectedYear;
+    private int selectedMonth;
+
+    private ObservableList<String> months = FXCollections.observableArrayList(
+            "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+            "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    );
+
+    public static void showErrorMessage(String title, String message) {
+        Alert a = new Alert(Alert.AlertType.ERROR, message, ButtonType.CLOSE);
+        a.showAndWait();
+    }
+
+    public static void showInfoMessage(String title, String message) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.CLOSE);
+        a.showAndWait();
+    }
+
+    public static String passwordPrompt(String title, int minLength) throws IOException {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/passwordPrompt.fxml"));
+        try {
+            Parent root = loader.load();
+
+            PasswordPromptController controller = loader.<PasswordPromptController>getController();
+            newStage.initModality(Modality.APPLICATION_MODAL);
+            newStage.setTitle(title);
+            newStage.setScene(new Scene(root));
+            newStage.setResizable(false);
+            controller = (PasswordPromptController) loader.getController();
+            controller.setCaption(title);
+            String result;
+            do {
+                newStage.showAndWait();
+                result = controller.getResult();
+                if (null != result && result.length() < minLength) {
+                    controller.setMessage("Минимальная длина пароля " + minLength + " символов");
+                } else {
+                    break;
+                }
+            } while (true);
+            return result;
+
+        } catch (Exception e) {
+            if (Main.verbose) {
+                e.printStackTrace(System.out);
+            }
+            if (Main.debug) {
+                throw e;
+            }
+            return null;
+        }
+    }
+
+    public static Object[] chooseFromList(String title, String[] items) throws IOException {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/chooseFromList.fxml"));
+        Object[] result = new Object[]{-1, null};
+        try {
+            Parent root = loader.load();
+
+            ChooseFromListController controller = loader.<ChooseFromListController>getController();
+            newStage.initModality(Modality.APPLICATION_MODAL);
+            newStage.setTitle(title);
+            newStage.setScene(new Scene(root));
+            newStage.setResizable(false);
+            controller = loader.getController();
+            controller.setListItems(items);
+            newStage.showAndWait();
+            result[0] = controller.getKeyIndex();
+            result[1] = controller.getPassword();
+        } catch (IOException e) {
+            if (Main.verbose) {
+                e.printStackTrace(System.out);
+            }
+            if (Main.debug) {
+                throw e;
+            }
+        }
+        return result;
+    }
+
+    public void miAboutClick(ActionEvent actionEvent) throws IOException {
+        showInfoMessage("", Main.message);
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/about.fxml"));
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.setTitle("О программе");
+        newStage.setScene(new Scene(root));
+        newStage.setResizable(false);
+        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
+        newStage.getIcons().add(i);
+        newStage.show();
+    }
+
+    public void miSettingsClick(ActionEvent actionEvent) throws IOException {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/settings.fxml"));
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.setTitle("Настройки");
+        newStage.setScene(new Scene(root));
+        newStage.setResizable(false);
+        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
+        newStage.getIcons().add(i);
+        newStage.show();
+    }
+
+    public void miQuitClick(ActionEvent actionEvent) {
+
+    }
+
+    public void miCheckUpdatesClick(ActionEvent actionEvent) {
+        CheckUpdate(true);
+    }
+
+    private void CheckUpdate(boolean showMessage) {
+        try {
+            URL url = new URL("http://gto.by/api/check.updates.php?name=btoReport");
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+            String strTemp = "";
+            while (null != (strTemp = br.readLine())) {
+                JSONObject obj = new JSONObject(strTemp);
+                String name = obj.getString("name");
+                String version = obj.getString("version");
+                String url_ = obj.getString("url");
+                int verCompere = Util.versionCompare(Version.getVERSION(), version);
+                if (verCompere < 0) {
+                    Stage newStage = new Stage();
+                    FXMLLoader loader = new FXMLLoader(Main.class.getClassLoader().getResource("fxml/UpdateMessage.fxml"));
+                    Parent root = loader.load();
+
+                    UpdateMessageController controller = loader.<UpdateMessageController>getController();
+                    newStage.initModality(Modality.APPLICATION_MODAL);
+                    newStage.setTitle("Новая версия");
+                    newStage.setScene(new Scene(root));
+                    newStage.setResizable(false);
+//                    Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
+//                    newStage.getIcons().add(i);
+                    controller = (UpdateMessageController) loader.getController();
+                    controller.loadContent("<html><body>Доступно обновление для  "
+                            + name + ".<br />Установлена версия: "
+                            + Version.getVERSION() + "<br />Версия обновления: "
+                            + version + "<br /><a href=\"" + url_
+                            + "\" target=\"_blank\"><strong>Загрузить</strong></a></body></html>");
+                    newStage.show();
+
+
+                } else if (showMessage) {
+                    showInfoMessage("", "Установлена последняя версия btoReport");
+                }
+                System.out.println(strTemp);
+            }
+        } catch (Exception ex) {
+            if (showMessage) {
+                showErrorMessage("", "Ошибка проверки версии");
+            }
+
+            log.error(ex.getMessage());
+        }
+    }
+
+    public void cbPeriodAction(ActionEvent actionEvent) {
+        if (cbPeriod.isSelected()) {
+            lOver.setText("c");
+            dtpEnd.setDisable(false);
+            lBefore.setDisable(false);
+
+        } else {
+            lOver.setText("за");
+            dtpEnd.setDisable(true);
+            lBefore.setDisable(true);
+        }
+    }
+
+    public void rbForBtoAction(ActionEvent actionEvent) {
+        cbCorporate.setSelected(true);
+        cbIndividual.setSelected(true);
+        report = "forBTO";
+    }
+
+    public void rbForSlutskAction(ActionEvent actionEvent) {
+        cbCorporate.setSelected(true);
+        cbIndividual.setSelected(true);
+        report = "forSlutsk";
+    }
+
+    public void rbOrderbyTariffAction(ActionEvent actionEvent) {
+        report = "OrderByTariff";
+        cbCorporate.setSelected(true);
+        cbIndividual.setSelected(true);
+    }
+
+    public void rbRecordBookAction(ActionEvent actionEvent) {
+        cbCorporate.setSelected(true);
+        cbIndividual.setSelected(true);
+        report = "recordBook";
+    }
+
+    public void rbIndividualAction(ActionEvent actionEvent) {
+        cbCorporate.setSelected(false);
+        cbIndividual.setSelected(true);
+        report = "listIndividual";
+
+    }
+
+    public void rbCorporateAction(ActionEvent actionEvent) {
+        cbIndividual.setSelected(false);
+        cbCorporate.setSelected(true);
+        report = "corporatePerson";
+
+    }
+
+    public void rbActiveAction(ActionEvent actionEvent) {
+        report = "forDS210";
+        cbCorporate.setSelected(true);
+        cbIndividual.setSelected(true);
+
+    }
+
+    public void rbBankTransferAllAction(ActionEvent actionEvent) {
+        bankTransfer = 2;
+    }
+
+    public void rbBankTransferFalseAction(ActionEvent actionEvent) {
+        bankTransfer = 0;
+    }
+
+    public void rbBankTransferTrueAction(ActionEvent actionEvent) {
+        bankTransfer = 1;
+    }
+
+    public void cbOwnerAction(ActionEvent actionEvent) {
+        OwnerDataSW2 ownerDataSW2 = new OwnerDataSW2(comboBoxOwner, comboBoxUNP, cbOwner.isSelected(), lUNP);
+        ownerDataSW2.execute();
+    }
+
+    public void bShowReportClick(ActionEvent actionEvent) {
+        bShowReport.setDisable(true);
+
+        List<Integer> ownerType = new ArrayList<>();
+        if (cbCorporate.isSelected()) {
+            ownerType.add(2);
+            ownerType.add(3);
+        }
+        if (cbIndividual.isSelected()) {
+            ownerType.add(1);
+        }
+        if (ownerType.isEmpty()) {
+            ownerType.add(1);
+            ownerType.add(2);
+            ownerType.add(3);
+        }
+        String owner = null;
+        String ownerUNP = null;
+        if (cbOwner.isSelected()) {
+            owner = (String) comboBoxOwner.getSelectionModel().getSelectedItem();
+            if (!StringUtils.isEmpty(owner)) {
+                owner = owner.trim().replaceAll("(^.*\")(.+)(\".*$)", "$2");
+                owner = owner.replaceAll("\"", "_");
+                owner = owner.replaceAll("\\s+", "%");
+                System.out.println(String.format("----------owner--------%s", owner));
+            }
+            ownerUNP = (String) comboBoxUNP.getSelectionModel().getSelectedItem();
+            if (!StringUtils.isEmpty(ownerUNP)) {
+                ownerUNP = ownerUNP.trim();
+                System.out.println(String.format("--------ownerUNP----------%s", ownerUNP));
+            }
+        }
+
+        LocalDateTime localDateStart = LocalDateTime.of(dtpStart.getValue(), LocalTime.of(0, 0, 0, 0));
+        LocalDateTime localDateStop = LocalDateTime.of(dtpEnd.getValue(), LocalTime.of(23, 59, 59, 999999999));
+        try {
+
+            if (!dtpEnd.isDisable()) {
+                App.print(localDateStart, localDateStop, report, ownerType, owner, ownerUNP, bankTransfer);
+            } else {
+                App.print(localDateStart, localDateStart, report, ownerType, owner, ownerUNP, bankTransfer);
+            }
+        } catch (Exception e) {
+            log.fatal(e.getMessage());
+
+            showErrorMessage("Ошибка", e.getMessage());
+        }
+        bShowReport.setDisable(false);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        dtpEnd.setValue(LocalDate.now());
+        dtpStart.setValue(LocalDate.now());
+
+        comboBoxMonth.setItems(months);
+        comboBoxYear.setItems(years);
+
+
+        colContractorName.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("contractorName"));
+        colVATFullNumber.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("vatFullNumber"));
+        colDate.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("date"));
+        colContractorUNP.setCellValueFactory(
+                new PropertyValueFactory<VatData, Integer>("contractorUnp"));
+        colWithoutVAT.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("withoutVAT"));
+        colWithVAT.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("withVAT"));
+        colVAT.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("VAT"));
+
+//        vatData.add(new VatData(1, 1, (short) 200, 10l, new Date(), 123123123, " Рога и",
+//                new BigDecimal("10.1"), new BigDecimal("12.2"), new BigDecimal("2.05")));
+//        vatData.add(new VatData(1, 1, (short) 200, 10l, new Date(), 123123123, " Рога и хвосты",
+//                new BigDecimal("10.1"), new BigDecimal("12.2"), new BigDecimal("2.05")));
+        vatTableView.setItems(vatData);
+        vatTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        vatTableView.setItems(vatData);
+
+
+        // загрузим данные за прошлый месяц
+        Date d = new Date();
+        int y = d.getYear() + 1900;
+        int m = d.getMonth();
+
+
+        comboBoxMonth.getSelectionModel().select(m);
+        comboBoxYear.getSelectionModel().select(years.indexOf(y));
+        try {
+            refreshVats();
+        } catch (Exception e) {
+        }
+    }
+
+//    public void showUpdate(String url) throws IOException {
+//        Stage newStage = new Stage();
+//        FXMLLoader loader = new FXMLLoader();
+//        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/UpdateMessage.fxml"));
+//        newStage.initModality(Modality.APPLICATION_MODAL);
+//        newStage.setTitle("Обновление");
+//        newStage.setScene(new Scene(root));
+//        newStage.setResizable(false);
+//        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
+//        newStage.getIcons().add(i);
+//        newStage.show();
+//
+//    }
+
+    public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader();
+        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/settingsVAT.fxml"));
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.setTitle("Настройка диапазонов номеров ЭСЧФ");
+        newStage.setScene(new Scene(root));
+        newStage.setResizable(false);
+        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
+        newStage.getIcons().add(i);
+        newStage.show();
+    }
+
+    private void refreshVats() {
+        int idxYear = comboBoxYear.getSelectionModel().getSelectedIndex();
+        int idxMonth = comboBoxMonth.getSelectionModel().getSelectedIndex();
+        if (idxYear < 0 || idxMonth < 0) {
+            return;
+        }
+        selectedMonth = idxMonth + 1;
+        selectedYear = years.get(idxYear);
+
+        String query = "SELECT  \n" +
+                "bti.id_blanc_ts_info bti_id, vats.id vats_id, \n" +
+                "vats.unp v_unp, vats.year v_year, vats.number v_number, \n" +
+                "bti.date_ot date1, \n" +
+                "oi.name, oi.unp, \n" +
+                "stti.summa_no_tax withoutVAT, \n" +
+                "stti.summa_oplaty withVAT, \n" +
+                "stti.summa_oplaty - stti.summa_no_tax VAT,\n" +
+                "b.seria blankSeries,\n" +
+                "b.number blankNumber" +
+                "\n" +
+                "FROM o_vats vats RIGHT JOIN  blanc_ts_info bti ON bti.id_blanc_ts_info = vats.id_blank_ts_info \n" +
+                "INNER JOIN ts_info ti ON bti.id_ts_info = ti.id_ts_info \n" +
+                "\n" +
+                "INNER JOIN owner_info oi ON ti.id_owner_sobs = oi.id_owner \n" +
+                "INNER JOIN sd_tarifs_ts_info stti ON (ti.id_ts_info = stti.id_ts_info AND bti.id_blanc = stti.id_blanc)\n" +
+                "INNER JOIN blanc b ON bti.id_blanc = b.id_blanc\n" +
+                "\n" +
+                "WHERE oi.id_owner_type = 2 \n" +
+                "AND EXTRACT(MONTH FROM bti.date_ot) = ?\n" +
+                "AND EXTRACT(YEAR FROM bti.date_ot) = ?\n" +
+                "AND b.id_blanc_type = 1\n" +
+                "AND b.id_blanc_status = 2";
+        try (Connection conn = ConnectionMySql.getInstance().getConn();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, selectedMonth);
+            ps.setInt(2, selectedYear);
+            try (ResultSet rs = ps.executeQuery()) {
+                vatData.clear();
+                while (rs.next()) {
+                    Integer vatUNP;
+                    Integer vatId;
+                    Integer blankNumber;
+
+                    Short vatYear;
+                    Long vatNumber;
+                    int iTemp;
+
+                    iTemp = rs.getInt("v_unp");
+                    vatUNP = (rs.wasNull() ? null : iTemp);
+
+                    iTemp = rs.getInt("blankNumber");
+                    blankNumber = (rs.wasNull() ? null : iTemp);
+
+                    iTemp = rs.getInt("vats_id");
+                    vatId = (rs.wasNull() ? null : iTemp);
+
+                    short sTemp = rs.getShort("v_year");
+                    vatYear = (rs.wasNull() ? null : sTemp);
+
+                    long lTemp = rs.getLong("v_number");
+                    vatNumber = (rs.wasNull() ? null : lTemp);
+                    vatData.add(
+                            new VatData(
+                                    rs.getInt("bti_id"), vatId,
+                                    rs.getString("blankSeries"),
+                                    blankNumber,
+                                    vatUNP, vatYear,
+                                    vatNumber, rs.getDate("date1"),
+                                    rs.getInt("unp"), rs.getString("name"),
+                                    rs.getBigDecimal("withoutVAT"),
+                                    rs.getBigDecimal("withVAT"),
+                                    rs.getBigDecimal("VAT")
+                            )
+                    );
+                }
+            }
+            vatTableView.getSelectionModel().selectAll();
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    public void comboBoxYearAction(ActionEvent actionEvent) {
+        try {
+            refreshVats();
+        } catch (Exception e) {
+            MainController.showErrorMessage("", e.getMessage());
+        }
+
+    }
+
+    public void comboBoxMonthAction(ActionEvent actionEvent) {
+        try {
+            refreshVats();
+        } catch (Exception e) {
+            MainController.showErrorMessage("", e.getMessage());
+        }
+    }
+
+    public void miTestAction(ActionEvent actionEvent) {
+        final URL xsd = MainController.class.getClassLoader().getResource("xsd");
+        final String path = xsd.getPath();
+        final File file = new File(path);
+
+        System.out.println(file.exists());
+        System.out.println(file.isDirectory());
+//        AvestProvider prov = null;
+//
+//        try {
+//            prov = ProviderFactory.addAvUniversalProvider();
+//            Security.addProvider(new AvTLSProvider());
+//            Security.addProvider(new AvCertStoreProvider());
+//            VatTool vt = new VatTool();
+//            vt.run(new HashMap<String, String>(), new StringCallback() {
+//                @Override
+//                public void call(String msg) {
+//
+//                }
+//            });
+//        } catch (Exception e) {
+//            showErrorMessage("", e.getMessage());
+//        } finally {
+//            if (prov != null) {
+//                prov.close();
+//            }
+//        }
+    }
+
+    public void bIssueAction(ActionEvent actionEvent) {
+        issueVATS(false);
+    }
+
+    private void issueVATS(boolean upload) {
+        if (vatTableView.getSelectionModel().getSelectedIndex() == -1) {
+            MainController.showInfoMessage("", "Не выделено ни одной строки");
+            return;
+        }
+        ObservableList<Integer> selectedIndices = vatTableView.getSelectionModel().getSelectedIndices();
+
+        int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
+        int unp = ConfigReader.getInstance().getUNP();
+        long begin, end;
+        long counter;
+        List<Long> usedNumbers = new ArrayList<>();
+        Map<String, String> vatXmls = new HashMap<>();
+        String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM o_vat_settings ovs WHERE ovs.`year` = ?";
+        String qUsedVatNumbers = "SELECT ov.`number` FROM o_vats ov\n" +
+                "  WHERE ov.`number` >= ? AND ov.`number` <= ? AND ov.unp = ?  AND ov.`year` = ?\n" +
+                "\n" +
+                "  ORDER BY ov.`number`";
+        String qIssueVat = "INSERT o_vats(id_blank_ts_info, unp, `year`, `number`)\n" +
+                "  VALUES (?, ?, ?, ?);";
+        try (Connection conn = ConnectionMySql.getInstance().getConn();
+             PreparedStatement psGetNumberRange = conn.prepareStatement(qGetNumberRange);
+             PreparedStatement psUsedVatNumbers = conn.prepareStatement(qUsedVatNumbers);
+             PreparedStatement psIssueVat = conn.prepareStatement(qIssueVat);
+        ) {
+            conn.setAutoCommit(false);
+            psGetNumberRange.setInt(1, year);
+            try (ResultSet rs = psGetNumberRange.executeQuery()) {
+                if (!rs.next()) {
+                    throw new Exception("Не заданы номера счетов-фактур на требуемый год");
+                } else {
+                    counter = begin = rs.getLong(1);
+                    end = rs.getLong(2);
+                }
+            }
+
+            psUsedVatNumbers.setLong(1, begin);
+            psUsedVatNumbers.setLong(2, end);
+            psUsedVatNumbers.setInt(3, unp);
+            psUsedVatNumbers.setInt(4, year);
+            try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
+                while (rs.next()) {
+                    usedNumbers.add(rs.getLong(1));
+                }
+            }
+
+
+            for (VatData vd : vatData) {
+                String xml;
+                if (!vd.isVatIssued()) {
+                    // подобрать номер из настроенного диапазона:
+                    boolean numberFound = false;
+                    while (!numberFound && counter <= end) {
+                        Long cnt = counter;
+                        if (usedNumbers.indexOf(cnt) == -1) {
+                            numberFound = true;
+                            vd.setVatUnp(unp);
+                            vd.setVatYear((short) year);
+                            vd.setVatNumber(cnt);
+                        }
+                        counter++;
+                    }
+                    if (!numberFound) {
+                        throw new Exception(String.format(
+                                "Среди настроенного диапазона номеров счет-фактур\n" +
+                                        "для УНП %09d на %04d год нет свободных", unp, year));
+                    }
+                    // INSERT o_vats(id_blank_ts_info, unp, `year`, `number`)
+                    psIssueVat.setInt(1, vd.getBlancTsInfoId());
+                    psIssueVat.setInt(2, vd.getVatUnp());
+                    psIssueVat.setShort(3, vd.getVatYear());
+                    psIssueVat.setLong(4, vd.getVatNumber());
+                    psIssueVat.executeUpdate();
+                }
+                xml = makeVATXml(vd);
+                vatXmls.put(String.format("%09d-%04d-%010d", vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()), xml);
+            }
+
+            conn.commit();
+            sendVATs(vatXmls, upload, msg -> lMessage.setText(msg));
+            final String resultMessage = (upload ? "Загрузка на портал" : "Сохранение") + " ЭСЧФ завершено успешно";
+            MainController.showInfoMessage("", resultMessage);
+            lMessage.setText(resultMessage);
+        } catch (Exception e) {
+            MainController.showErrorMessage("", e.getMessage());
+            System.out.println("[ОШИБКА] " + e);
+            if (Main.verbose) {
+                e.printStackTrace(System.out);
+            }
+            lMessage.setText("Возникла ошибка");
+        }
+        refreshVats();
+    }
+
+    private void sendVATs(Map<String, String> vatXmls, boolean upload, StringCallback callback) throws Exception {
+        String dir = ConfigReader.getInstance().getVatPath();
+        new File(dir).mkdirs();
+
+        for (Map.Entry<String, String> entry : vatXmls.entrySet()) {
+            try (FileWriter fw = new FileWriter(dir + File.separator + entry.getKey() + ".xml");
+                 BufferedWriter bw = new BufferedWriter(fw)) {
+                String content = entry.getValue();
+                bw.write(content, 0, content.length());
+            }
+        }
+
+        if (!upload) {
+            return;
+        }
+        VatTool vt = new VatTool();
+        vt.run(vatXmls, callback);
+    }
+
+    private String makeVATXml(VatData vd) {
+        String template = "<?xml version='1.0' encoding='UTF-8'?>\n" +
+                "<issuance xmlns='http://www.w3schools.com' sender='190471274'>\n" +
+                "    <general>\n" +
+                "        <number>{number}</number>\n" +
+                "        <dateIssuance>{dateIssuance}</dateIssuance>\n" +
+                "        <dateTransaction>{dateTransaction}</dateTransaction> <!-- yyyy-MM-dd -->\n" +
+                "        <documentType>ORIGINAL</documentType>\n" +
+                "    </general>\n" +
+                "    <provider>\n" +
+                "        <providerStatus>SELLER</providerStatus>\n" +
+                "        <dependentPerson>false</dependentPerson>\n" +
+                "        <residentsOfOffshore>false</residentsOfOffshore>\n" +
+                "        <specialDealGoods>false</specialDealGoods>\n" +
+                "        <bigCompany>false</bigCompany>\n" +
+                "        <countryCode>112</countryCode>\n" +
+                "        <unp>190471274</unp>\n" +
+                "        <name>УП 'Белтехосмотр'</name>\n" +
+                "        <address>г. Минск,ул. Платонова, д.22а, ком. 312</address>\n" +
+                "    </provider>\n" +
+                "    <recipient>\n" +
+                "        <recipientStatus>CUSTOMER</recipientStatus>\n" +
+                "        <dependentPerson>false</dependentPerson>\n" +
+                "        <residentsOfOffshore>false</residentsOfOffshore>\n" +
+                "        <specialDealGoods>false</specialDealGoods>\n" +
+                "        <bigCompany>false</bigCompany>\n" +
+                "        <countryCode>112</countryCode>\n" +
+                "        <unp>{customerUnp}</unp>\n" +
+                "        <name>{customerName}</name>\n" +
+                "        <address>{customerAddress}</address>\n" +
+                "    </recipient>\n" +
+                "    <senderReceiver>\n" +
+                "        <consignors/>\n" +
+                "        <consignees/>\n" +
+                "    </senderReceiver>\n" +
+                "    <deliveryCondition>\n" +
+                "        <contract>\n" +
+                "            <documents>\n" +
+                "                <document>\n" +
+                "                    <docType>\n" +
+                "                        <code>606</code>\n" +
+                "                    </docType>\n" +
+                "                    <date>{actDate}</date>\n" +
+                "                    <blankCode></blankCode>\n" +
+                "                    <seria>{actSeries}</seria>\n" +
+                "                    <number>{actNumber}</number>\n" +
+                "                </document>\n" +
+                "            </documents>\n" +
+                "        </contract>\n" +
+                "    </deliveryCondition>\n" +
+                "    <roster totalCostVat='{totalCostVat}' totalExcise='0' totalVat='{totalVat}' totalCost='{totalCost}'>\n" +
+                "        <rosterItem>\n" +
+                "            <number>0</number>\n" +
+                "            <name>{serviceName}</name>\n" +
+                "            <code></code>\n" +
+                "            <units>796</units>\n" +
+                "            <count>1</count>\n" +
+                "            <price>{totalCost}</price>\n" +
+                "            <cost>{totalCost}</cost>\n" +
+                "            <summaExcise>0</summaExcise>\n" +
+                "            <vat>\n" +
+                "                <rate>20</rate>\n" +
+                "                <rateType>DECIMAL</rateType>\n" +
+                "                <summaVat>{totalVat}</summaVat>\n" +
+                "            </vat>\n" +
+                "            <costVat>{totalCostVat}</costVat>\n" +
+                "        </rosterItem>\n" +
+                "    </roster>\n" +
+                "</issuance>";
+        String sDate = String.format("%1$tY-%1$tm-%1$td", vd.get_date());
+        return template
+                .replace("{number}", String.format("%09d-%04d-%010d", vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
+                .replace("{dateIssuance}", sDate)
+                .replace("{dateTransaction}", sDate)
+                .replace("{actDate}", sDate)
+                .replace("{customerUnp}", String.format("%09d", vd.getContractorUnp()))
+                .replace("{customerName}", vd.getContractorName())
+                .replace("{customerAddress}", "")
+                .replace("{totalCostVat}", vd.getWithVAT())
+                .replace("{totalVat}", vd.getVAT())
+                .replace("{totalCost}", vd.getWithoutVAT())
+                .replace("{actSeries}", vd.getBlankSeries())
+                .replace("{actNumber}", vd.getBlankNumber())
+                .replace("{serviceName}", ConfigReader.getInstance().getServiceName());
+    }
+
+    public void bIssueUploadAction(ActionEvent actionEvent) {
+        issueVATS(true);
+    }
+
+    public static class VatData {
+        int blancTsInfoId;
+        Integer vatId;
+        private SimpleStringProperty vatFullNumber;
+        private SimpleStringProperty date;
+
+
+        private Integer vatUnp;
+        private Short vatYear;
+        private Long vatNumber;
+
+        private Date _date;
+        private SimpleIntegerProperty contractorUnp;
+        private SimpleStringProperty contractorName;
+        private SimpleStringProperty withoutVAT;
+        private SimpleStringProperty withVAT;
+        private SimpleStringProperty VAT;
+
+        private SimpleStringProperty blankSeries;
+        private SimpleStringProperty blankNumber;
+
+        public VatData(int blancTsInfoId, Integer vatId,
+                       String blankSeries, Integer blankNumber,
+                       Integer vatUnp, Short vatYear, Long vatNumber,
+                       Date date, int contractorUnp, String contractorName, BigDecimal withoutVAT,
+                       BigDecimal withVAT, BigDecimal VAT) {
+            this.blancTsInfoId = blancTsInfoId;
+            this.vatId = vatId;
+            this.blankSeries = new SimpleStringProperty(blankSeries);
+            this.blankNumber = new SimpleStringProperty(String.valueOf(blankNumber));
+            this.vatUnp = vatUnp;
+            this.vatYear = vatYear;
+            this.vatNumber = vatNumber;
+            this.date = new SimpleStringProperty(String.format("%1$td.%1$tm.%1$tY", date));
+            this._date = date;
+            this.contractorUnp = new SimpleIntegerProperty(contractorUnp);
+            this.contractorName = new SimpleStringProperty(contractorName);
+            this.withoutVAT = new SimpleStringProperty(withoutVAT.toString());
+            this.withVAT = new SimpleStringProperty(withVAT.toString());
+            this.VAT = new SimpleStringProperty(VAT.toString());
+
+
+            if (isVatIssued()) {
+                this.vatFullNumber = new SimpleStringProperty(
+                        String.format("%09d-%04d-%010d", vatUnp, vatYear, vatNumber));
+            } else {
+                this.vatFullNumber = new SimpleStringProperty(null);
+            }
+//            StringBinding concat = Bindings.createStringBinding(() -> {
+//                if (VatData.this.getVatUnp() < 0) {
+//                    return "";
+//                }
+//                return String.format("%9d-%4d-%10d", VatData.this.getVatUnp(), VatData.this.getVatYear(), VatData.this.getVatNumber());
+//            }, vatUnpProperty(), vatYearProperty(), vatNumberProperty());
+//
+//            this.vatFullNumberProperty().bind(concat);
+        }
+
+        public int getBlancTsInfoId() {
+            return blancTsInfoId;
+        }
+
+        public void setBlancTsInfoId(int blancTsInfoId) {
+            this.blancTsInfoId = blancTsInfoId;
+        }
+
+
+        public String getDate() {
+            return date.get();
+        }
+
+        public void setDate(String date) {
+            this.date.set(date);
+        }
+
+        public SimpleStringProperty dateProperty() {
+            return date;
+        }
+
+        public int getContractorUnp() {
+            return contractorUnp.get();
+        }
+
+        public void setContractorUnp(int contractorUnp) {
+            this.contractorUnp.set(contractorUnp);
+        }
+
+        public SimpleIntegerProperty contractorUnpProperty() {
+            return contractorUnp;
+        }
+
+        public String getContractorName() {
+            return contractorName.get();
+        }
+
+        public void setContractorName(String contractorName) {
+            this.contractorName.set(contractorName);
+        }
+
+        public SimpleStringProperty contractorNameProperty() {
+            return contractorName;
+        }
+
+        public String getWithoutVAT() {
+            return withoutVAT.get();
+        }
+
+        public void setWithoutVAT(String withoutVAT) {
+            this.withoutVAT.set(withoutVAT);
+        }
+
+        public SimpleStringProperty withoutVATProperty() {
+            return withoutVAT;
+        }
+
+        public String getWithVAT() {
+            return withVAT.get();
+        }
+
+        public void setWithVAT(String withVAT) {
+            this.withVAT.set(withVAT);
+        }
+
+        public SimpleStringProperty withVATProperty() {
+            return withVAT;
+        }
+
+        public String getVAT() {
+            return VAT.get();
+        }
+
+        public void setVAT(String VAT) {
+            this.VAT.set(VAT);
+        }
+
+        public SimpleStringProperty VATProperty() {
+            return VAT;
+        }
+
+        public String getVatFullNumber() {
+            return vatFullNumber.get();
+        }
+
+        public void setVatFullNumber(String vatFullNumber) {
+            this.vatFullNumber.set(vatFullNumber);
+        }
+
+        public SimpleStringProperty vatFullNumberProperty() {
+            return vatFullNumber;
+        }
+
+        public Date get_date() {
+            return _date;
+        }
+
+        public void set_date(Date _date) {
+            this._date = _date;
+        }
+
+        public boolean isVatIssued() {
+            return (vatUnp != null && vatYear != null && vatNumber != null);
+        }
+
+        public Integer getVatUnp() {
+            return vatUnp;
+        }
+
+        public void setVatUnp(Integer vatUnp) {
+            this.vatUnp = vatUnp;
+        }
+
+        public Short getVatYear() {
+            return vatYear;
+        }
+
+        public void setVatYear(Short vatYear) {
+            this.vatYear = vatYear;
+        }
+
+        public Long getVatNumber() {
+            return vatNumber;
+        }
+
+        public void setVatNumber(Long vatNumber) {
+            this.vatNumber = vatNumber;
+        }
+
+        public Integer getVatId() {
+            return vatId;
+        }
+
+        public void setVatId(Integer vatId) {
+            this.vatId = vatId;
+        }
+
+        public String getBlankSeries() {
+            return blankSeries.get();
+        }
+
+        public SimpleStringProperty blankSeriesProperty() {
+            return blankSeries;
+        }
+
+        public void setBlankSeries(String blankSeries) {
+            this.blankSeries.set(blankSeries);
+        }
+
+        public String getBlankNumber() {
+            return blankNumber.get();
+        }
+
+        public SimpleStringProperty blankNumberProperty() {
+            return blankNumber;
+        }
+
+        public void setBlankNumber(String blankNumber) {
+            this.blankNumber.set(blankNumber);
+        }
+    }
+}

@@ -1,0 +1,98 @@
+package by.gto.jasperprintmysql.data;
+
+import by.gto.tools.ConnectionMySql;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import javax.swing.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ *
+ * @author Aleks
+ */
+public class OwnerDataSW2 extends SwingWorker {
+
+    private static final Logger log = LogManager.getLogger(OwnerDataSW2.class);
+    private final List<String> listOwner = new ArrayList<>();
+    private final List<String> listOwnerUNP = new ArrayList<>();
+    private final ComboBox name;
+    private final ComboBox unp;
+    private final boolean enabled;
+    private final Label label;
+
+    /**
+     *
+     * @param name
+     * @param unp
+     * @param enabled
+     * @param label
+     */
+    public OwnerDataSW2(ComboBox name, ComboBox unp, boolean enabled, Label label) {
+        this.name = name;
+        this.unp = unp;
+        this.enabled = enabled;
+        this.label = label;
+    }
+
+    @Override
+    protected Void doInBackground() {
+        if (enabled) {
+            String Query = "SELECT owner_info.id_owner, UPPER(owner_info.`name`), owner_info.`unp` FROM owner_info GROUP BY owner_info.`name` ORDER BY owner_info.`name`";
+            try {
+                try (Connection conn = ConnectionMySql.getInstance().getConn(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(Query)) {
+                    while (rs.next()) {
+                        listOwner.add(rs.getString(2).trim());
+                        if (rs.getString(3) != null) {
+                            listOwnerUNP.add(rs.getString(3).trim());
+                        }
+                    }
+                }
+            } catch (SQLException ex) {
+                log.error(ex);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void done() {
+        if (enabled) {
+            name.setDisable(false);
+            unp.setDisable(false);
+            label.setDisable(false);
+            name.getItems().clear();
+            name.getItems().addAll(listOwner);
+
+            unp.getItems().clear();
+            unp.getItems().addAll(listOwnerUNP);
+
+
+//            name.getInputContext().selectInputMethod(new Locale("ru", "RU"));
+//            final EventList<String> owners = GlazedLists.eventList(listOwner);
+//            final EventList<String> ownersUNP = GlazedLists.eventList(listOwnerUNP);
+
+            //if (name.getItemCount() < 1) {
+            if (name.getItems().size() < 1) {
+                /*support = AutoCompleteSupport.install(name, owners);
+                support.setFilterMode(TextMatcherEditor.CONTAINS);*/
+            }
+            //if (unp.getItemCount() < 1) {
+            if (unp.getItems().size() < 1) {
+                /*UNP = AutoCompleteSupport.install(unp, ownersUNP);
+                UNP.setFilterMode(TextMatcherEditor.CONTAINS);*/
+            }
+        } else {
+            name.setDisable(true);
+            unp.setDisable(true);
+            label.setDisable(true);
+        }
+    }
+}

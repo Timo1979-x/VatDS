@@ -1,35 +1,78 @@
 package by.gto.tools;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import javax.swing.JOptionPane;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import javax.swing.*;
+import java.io.*;
 
 /**
- *
  * @author Aleks
  */
 public class ConfigReader {
 
     private static final Logger log = LogManager.getLogger(ConfigReader.class);
     private static volatile ConfigReader instance;
-    private static String host = "127.0.0.1";
-    private static String port = "33060";
-    private static String chiefDS = "ФИО";
-    private static String position = "Должность";
-    private static int NDS = 20;
+    private String host = "127.0.0.1";
+    private String port = "33060";
+    private String chiefDS = "ФИО";
+    private String position = "Должность";
+    private int NDS = 20;
+    private int UNP = 0;
+    private String orgName = "Организация";
+    private String serviceName = "Контрольно-диагностические работы";
     //private File configXml = new File("config.xml");
+    private String vatServiceUrl = "https://ws.vat.gov.by:443/InvoicesWS/services/InvoicesPort?wsdl";
+
+    public  String getVatServiceUrl() {
+        return vatServiceUrl;
+    }
+
+    public  void setVatServiceUrl(String vatServiceUrl) {
+        this.vatServiceUrl = vatServiceUrl;
+    }
+
+    public String getVatPath() {
+        return vatPath;
+    }
+
+    public void setVatPath(String vatPath) {
+        this.vatPath = vatPath;
+    }
+
+    private String vatPath = "c:\\";
+
+    //тестовый - https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public int getUNP() {
+        return UNP;
+    }
+
+    public void setUNP(int UNP) {
+        this.UNP = UNP;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
     private static final File configXml = new File("config.xml");
 
     /**
-     *
      * @return
      */
     public static ConfigReader getInstance() {
@@ -42,12 +85,13 @@ public class ConfigReader {
         }
         return instance;
     }
+
     private XMLConfiguration config;
 
     private ConfigReader() {
 
         if (!configXml.exists()) {
-            save(configXml);
+            _save(configXml);
         }
         try {
             config = new XMLConfiguration("config.xml");
@@ -58,9 +102,11 @@ public class ConfigReader {
         read();
     }
 
-    private void save(File configXml) {
-        try {
-            Writer wFile = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configXml), "UTF8"));
+    private void _save(File configXml) {
+        try (FileOutputStream fos = new FileOutputStream(configXml);
+             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF8");
+             Writer wFile = new BufferedWriter(osw)) {
+
             wFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
             wFile.write("<configuration>\n");
             wFile.write("    <config>\n");
@@ -69,6 +115,11 @@ public class ConfigReader {
             wFile.write(String.format("        <position>%s</position>\n", getPosition()));
             wFile.write(String.format("        <chiefDS>%s</chiefDS>\n", getChiefDS()));
             wFile.write(String.format("        <NDS>%s</NDS>\n", getNDS()));
+            wFile.write(String.format("        <UNP>%s</UNP>\n", getUNP()));
+            wFile.write(String.format("        <orgName>%s</orgName>\n", getOrgName()));
+            wFile.write(String.format("        <serviceName>%s</serviceName>\n", getServiceName()));
+            wFile.write(String.format("        <vatServiceUrl>%s</vatServiceUrl>\n", getVatServiceUrl()));
+            wFile.write(String.format("        <vatPath>%s</vatPath>\n", getVatPath()));
             wFile.write("    </config>\n");
             wFile.write("</configuration>\n");
             wFile.flush();
@@ -124,6 +175,12 @@ public class ConfigReader {
             position = config.getString("config.position", position).trim();
             chiefDS = config.getString("config.chiefDS", chiefDS).trim();
             NDS = config.getInt("config.NDS", NDS);
+            UNP = config.getInt("config.UNP", UNP);
+            orgName = config.getString("config.orgName", orgName).trim();
+            serviceName = config.getString("config.serviceName", serviceName).trim();
+            vatServiceUrl = config.getString("config.vatServiceUrl", vatServiceUrl).trim();
+            vatPath = config.getString("config.vatPath", vatPath).trim();
+
         } catch (Exception ex) {
             log.error(ex.getMessage());
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
@@ -151,22 +208,22 @@ public class ConfigReader {
     }
 
     public void setHost(String host) {
-        ConfigReader.host = host;
+        this.host = host;
     }
 
     public void setChiefDS(String chiefDS) {
-        ConfigReader.chiefDS = chiefDS;
+        this.chiefDS = chiefDS;
     }
 
     public void setPosition(String position) {
-        ConfigReader.position = position;
+        this.position = position;
     }
 
     public void setNDS(int NDS) {
-        ConfigReader.NDS = NDS;
+        this.NDS = NDS;
     }
 
-    public void setSave() {
-        save(configXml);
+    public void save() {
+        _save(configXml);
     }
 }

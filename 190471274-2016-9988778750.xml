@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issuance xmlns="http://www.w3schools.com" sender="190471274">
+    <general>
+        <number>190471274-2016-9988778752</number>
+        <dateIssuance>2016-07-18</dateIssuance>
+        <dateTransaction>2016-07-31</dateTransaction> <!-- yyyy-MM-dd -->
+        <documentType>ORIGINAL</documentType>
+    </general>
+    <provider>
+        <providerStatus>SELLER</providerStatus>
+        <dependentPerson>false</dependentPerson>
+        <residentsOfOffshore>false</residentsOfOffshore>
+        <specialDealGoods>false</specialDealGoods>
+        <bigCompany>false</bigCompany>
+        <countryCode>112</countryCode>
+        <unp>190471274</unp>
+        <name>УП "Белтехосмотр"</name>
+        <address>г. Минск,ул. Платонова, д.22а, ком. 312</address>
+    </provider>
+    <recipient>
+        <recipientStatus>CUSTOMER</recipientStatus>
+        <dependentPerson>false</dependentPerson>
+        <residentsOfOffshore>false</residentsOfOffshore>
+        <specialDealGoods>false</specialDealGoods>
+        <bigCompany>false</bigCompany>
+        <countryCode>112</countryCode>
+        <unp>691803992</unp>
+
+    </recipient>
+    <senderReceiver>
+        <consignors/>
+        <consignees/>
+    </senderReceiver>
+    <deliveryCondition>
+        <contract>
+            <number>ИКС5/30</number>
+            <date>2016-02-08</date>
+            <documents>
+                <document>
+                    <docType>
+                        <code>612</code>
+                    </docType>
+                    <date>2016-07-31</date>
+                    <blankCode></blankCode>
+                    <seria></seria>
+                    <number>ИКС5/30-1607</number>
+                </document>
+            </documents>
+        </contract>
+    </deliveryCondition>
+    <roster totalCostVat="77.0" totalExcise="0" totalVat="12.84" totalCost="64.16">
+        <rosterItem>
+            <number>0</number>
+            <name>Информационно-консультационное сопровождение</name>
+            <code></code>
+            <units>796</units>
+            <count>2</count>
+            <price>32.08</price>
+            <cost>64.16</cost>
+            <summaExcise>0</summaExcise>
+            <vat>
+                <rate>20</rate>
+                <rateType>DECIMAL</rateType>
+                <summaVat>12.84</summaVat>
+            </vat>
+            <costVat>77.0</costVat>
+        </rosterItem>
+    </roster>
+</issuance>

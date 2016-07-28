@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: AvJCEProv:avkeytool:1.1.1.2572">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/AvJCEProv/avkeytool/1.1.1.2572/avkeytool-1.1.1.2572.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/AvJCEProv/avkeytool/1.1.1.2572/avkeytool-1.1.1.2572-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/AvJCEProv/avkeytool/1.1.1.2572/avkeytool-1.1.1.2572-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: AvJCEProv:avtsc:1.0.1.873">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/AvJCEProv/avtsc/1.0.1.873/avtsc-1.0.1.873.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/AvJCEProv/avtsc/1.0.1.873/avtsc-1.0.1.873-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/AvJCEProv/avtsc/1.0.1.873/avtsc-1.0.1.873-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

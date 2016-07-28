@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: l-apache-cxf:l-apache-cxf:2.7.18">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/l-apache-cxf/l-apache-cxf/2.7.18/l-apache-cxf-2.7.18.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/l-apache-cxf/l-apache-cxf/2.7.18/l-apache-cxf-2.7.18-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/l-apache-cxf/l-apache-cxf/2.7.18/l-apache-cxf-2.7.18-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

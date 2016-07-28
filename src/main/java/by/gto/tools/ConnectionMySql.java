@@ -1,13 +1,14 @@
 package by.gto.tools;
 
+import by.gto.btoreport.gui.MainController;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
-import java.sql.SQLException;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
-import javax.swing.JOptionPane;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.sql.SQLException;
 
 /**
  *
@@ -56,7 +57,7 @@ public class ConnectionMySql {
                 cpMySql.setURL(String.format("jdbc:mysql://%s:%s/to", ConfigReader.getInstance().getHost(), ConfigReader.getInstance().getPort()));
                 cpMySql.setUser("root");
                 cpMySql.setPassword("ghbdfnbpfwbz");
-                cpMySql.setConnectTimeout(28800);
+                cpMySql.setConnectTimeout(5000);
                 cpMySql.setCharacterSetResults("utf8");
                 cpMySql.setUseCompression(true);
                        
@@ -66,7 +67,8 @@ public class ConnectionMySql {
                 } catch (RuntimeException ex) {
                     log.error("RuntimeException ", ex);
                 } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(null, "Ошибка подключения к серверу.", "Ошибка", 0);
+                    //JOptionPane.showMessageDialog(null, "Ошибка подключения к серверу.", "Ошибка", 0);
+                    MainController.showInfoMessage("Ошибка", "Ошибка подключения к серверу.");
                     log.fatal("SQLException", ex);
                 }
             }

@@ -1,9 +1,13 @@
 package by.gto.jasperprintmysql;
 
+import by.gto.btoreport.gui.Main;
 import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.ModalFrameUtil;
+import com.mgrecol.jasper.jasperviewerfx.JRViewerFx;
+import com.mgrecol.jasper.jasperviewerfx.JRViewerFxMode;
 import com.mysql.jdbc.Connection;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
@@ -23,26 +27,27 @@ import java.util.logging.Level;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import javafx.stage.Stage;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRResultSetDataSource;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 public class App {
 
     private static final Logger Log = LogManager.getLogger(App.class);
 
     /**
-     *
      * @param title
      * @param message
      */
     public static void showMessage(String title, String message) {
         JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //JOptionPane.showMessageDialog(frame, message);
+        //JOptionPane.showMessageDialog(frame, setMessage);
         JOptionPane.showMessageDialog(frame, message, title, 0);
     }
 
@@ -70,7 +75,7 @@ public class App {
             javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             JasperPrint jasperPrint;
             try (Connection conn = ConnectionMySql.getInstance().getConn();
-                    Statement st = conn.createStatement();) {
+                 Statement st = conn.createStatement();) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("fromDate", fromDate);
                 map.put("beforeDate", beforeDate);
@@ -201,21 +206,34 @@ public class App {
 //                    jasperPrint = JasperFillManager.fillReport(inputStream, map, conn);
 
                         //jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
-                        MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS, csv, xml");
+                        //MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS, csv, xml");
                         System.out.println("1");
-                        myViewer.setTitle("Предварительный просмотр");
+                        //myViewer.setCaption("Предварительный просмотр");
                         System.out.println("2");
-                        myViewer.setExtendedState(myViewer.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+                        //myViewer.setExtendedState(myViewer.getExtendedState() | JFrame.MAXIMIZED_BOTH);
                         System.out.println("3");
                         if (!jasperPrint.getPages().isEmpty()) {
+                            //Stage stage = Main.getStage();
+                            Stage stage = new Stage();
                             System.out.println("4");
-                            ModalFrameUtil.showAsModal(myViewer, MainView.getF(), JFrame.MAXIMIZED_BOTH);
+                            JRViewerFx viewer = new JRViewerFx(jasperPrint, JRViewerFxMode.REPORT_VIEW, stage);
+                            //viewer.start(stage);
+                            //ModalFrameUtil.showAsModal(myViewer, MainView.getF(), JFrame.MAXIMIZED_BOTH);
+                            //ModalFrameUtil.showAsModalFX(myViewer, Main.getStage(), JFrame.MAXIMIZED_BOTH);
                             System.out.println("5");
-                            MainView.getF().toFront();
+                            //MainView.getF().toFront();
                         }
 
                     } catch (JRException | ExceptionInInitializerError e) {
                         showMessage("Ошибка", "Ошибка подключения к серверу.");
+                        Log.fatal(e.fillInStackTrace());
+                        Throwable e1 = e;
+                        while (e1 != null) {
+                            e1.printStackTrace();
+                            e1 = e1.getCause();
+                        }
+                    } catch (Exception e) {
+                        showMessage("Ошибка", "Нифига не понятная ошибка");
                         Log.fatal(e.fillInStackTrace());
                         Throwable e1 = e;
                         while (e1 != null) {
