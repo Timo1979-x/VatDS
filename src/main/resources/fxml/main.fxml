@@ -17,7 +17,7 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="452.0" prefWidth="551.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="452.0" prefWidth="551.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.MainController">
    <children>
       <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="519.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
@@ -111,8 +111,8 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ComboBox fx:id="comboBoxYear" layoutY="2.0" onAction="#comboBoxYearAction" prefHeight="25.0" prefWidth="108.0" />
-                        <ComboBox fx:id="comboBoxMonth" layoutX="108.0" layoutY="2.0" onAction="#comboBoxMonthAction" prefHeight="25.0" prefWidth="107.0" />
+                        <ComboBox fx:id="comboBoxYear" layoutY="2.0" onAction="#comboBoxYearAction" prefHeight="25.0" prefWidth="108.0" promptText="год" />
+                        <ComboBox fx:id="comboBoxMonth" layoutX="108.0" layoutY="2.0" onAction="#comboBoxMonthAction" prefHeight="25.0" prefWidth="107.0" promptText="месяц" />
                         <TableView fx:id="vatTableView" layoutY="27.0" prefHeight="354.0" prefWidth="551.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
                           <columns>
                             <TableColumn fx:id="colContractorName" prefWidth="139.0" text="Наименование" />
@@ -125,8 +125,8 @@
                               <TableColumn maxWidth="10.0" prefWidth="10.0" />
                           </columns>
                         </TableView>
-                        <Button fx:id="bIssue" layoutX="218.0" layoutY="1.0" mnemonicParsing="false" onAction="#bIssueAction" style="-fx-background-color: C2F2D4;" text="Сформировать на диске" />
-                        <Button fx:id="bIssueUpload" layoutX="371.0" layoutY="1.0" mnemonicParsing="false" onAction="#bIssueUploadAction" style="-fx-background-color: C2F2D4;" text="Сформировать и отправить" />
+                        <Button fx:id="bIssue" layoutX="218.0" layoutY="1.0" mnemonicParsing="false" onAction="#bIssueAction" text="Сформировать на диске" />
+                        <Button fx:id="bIssueUpload" layoutX="371.0" layoutY="1.0" mnemonicParsing="false" onAction="#bIssueUploadAction" text="Сформировать и отправить" />
                      </children></AnchorPane>
             </content>
           </Tab>

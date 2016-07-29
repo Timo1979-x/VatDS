@@ -1,21 +1,19 @@
 package by.gto.tools;
 
-import by.avest.edoc.client.PersonalKeyManager;
+import by.avest.edoc.client.PersonalKeyManager2;
 import by.gto.btoreport.gui.MainController;
 
-import javax.security.auth.x500.X500Principal;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Tim on 23.07.2016.
  */
-public class KeySelector extends PersonalKeyManager {
+public class KeySelector extends PersonalKeyManager2 {
     private Map<String, String> passwords = new HashMap<>();
 
     public KeySelector(KeyStore ks) {
@@ -33,19 +31,24 @@ public class KeySelector extends PersonalKeyManager {
     }
 
     public char[] promptPassword(String alias) throws IOException {
+        final String pass = System.getProperty("by.gto.btoreport.avest.password");
+        if(pass != null) {
+            return pass.toCharArray();
+        }
         if(passwords.containsKey(alias)) {
             return passwords.get(alias).toCharArray();
         }
         if(chooseAlias(new String[] {alias}) != null) {
             return passwords.get(alias).toCharArray();
         }
-        return "V!kt0RPele^!".toCharArray();
-        //return MainController.passwordPrompt("Введите пароль для ключа \"" + alias + "\": ", 8).toCharArray();
-
+        return new char[0];
     }
 
     public String chooseAlias(String[] aliases) throws IOException {
-        //return "Республиканское унитарное сервисное предприятие \"БЕЛТЕХОСМОТР\"_02_06_16_17_17";
+        for (String alias : aliases) {
+            final PrivateKey pk = this.getPrivateKey(alias);
+            System.out.println(pk);
+        }
         passwords.clear();
         Object[] result = MainController.chooseFromList("Выберите ключ", aliases);
         int idx = (int) result[0];
@@ -54,6 +57,9 @@ public class KeySelector extends PersonalKeyManager {
             passwords.put(alias, (String)result[1]);
             return alias;
         }
-        return null;
+        return "";
     }
+
+
+
 }

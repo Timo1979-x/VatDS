@@ -1,6 +1,7 @@
 package by.gto.tools;
 
 import by.avest.certstore.AvCertStoreProvider;
+import by.avest.crypto.ocsp.client.protocol.util.Base64;
 import by.avest.crypto.pkcs11.provider.AvestProvider;
 import by.avest.crypto.pkcs11.provider.ProviderFactory;
 import by.avest.edoc.client.*;
@@ -27,53 +28,79 @@ public class VatTool {
     private static byte[] xsdAdditional;
     private static byte[] xsdFixed;
     private EVatService2 service;
-    private static String xsddirname = VatTool.class.getClassLoader().getResource("xsd").getPath();
+    //private static String xsddirname = VatTool.class.getClassLoader().getResource("xsd").getPath();
     private static File outdir = new File(ConfigReader.getInstance().getVatPath() + "\\out");
     private boolean delete = false;
 
-    public void run(Map<String, String> vatXmls, StringCallback callback) throws Exception {
+    private static AvestProvider avestProvider;
+    private static AvTLSProvider avTlsProvider;
+    private static AvCertStoreProvider avCertStoreProvider;
 
-        AvestProvider prov = null;
-        AvTLSProvider tlsProvider = null;
-        AvCertStoreProvider storeProvider = null;
+    public static AvestProvider getAvestProvider() {
+        if (avestProvider == null) {
+            avestProvider = ProviderFactory.addAvUniversalProvider();
+        }
+        return avestProvider;
+    }
+
+    public static AvTLSProvider getAvTlsProvider() {
+        if (avTlsProvider == null) {
+            avTlsProvider = new AvTLSProvider();
+            Security.addProvider(avTlsProvider);
+        }
+        return avTlsProvider;
+    }
+
+    public static AvCertStoreProvider getAvCertStoreProvider() {
+        if (avCertStoreProvider == null) {
+            avCertStoreProvider = new AvCertStoreProvider();
+            Security.addProvider(avCertStoreProvider);
+        }
+        return avCertStoreProvider;
+    }
+
+    public void run(Map<String, String> vatXmls, StringCallback callback) throws Exception {
+        AvestProvider avProv = null;
+
+        AvTLSProvider tlsProv = null;
+        AvCertStoreProvider storeProv = null;
         try {
             final Provider[] providers = Security.getProviders();
-            prov = ProviderFactory.addAvUniversalProvider();
-
-            tlsProvider = new AvTLSProvider();
-            Security.addProvider(tlsProvider);
-            storeProvider = new AvCertStoreProvider();
-            Security.addProvider(storeProvider);
-
+            avProv = getAvestProvider();
+            tlsProv = getAvTlsProvider();
+            storeProv = getAvCertStoreProvider();
             final Provider[] providers1 = Security.getProviders();
             doSignAndUploadStrings(vatXmls, callback);
         } finally {
-            Security.removeProvider("AvUniversal");
-            Security.removeProvider("AvCertStoreProvider");
-            Security.removeProvider("AvTLSProvider");
+//            Security.removeProvider("AvUniversal");
+//            Security.removeProvider("AvCertStoreProvider");
+//            Security.removeProvider("AvTLSProvider");
             final Provider[] providers = Security.getProviders();
-            if (storeProvider != null) {
-                for (Object o : storeProvider.values()) {
-                    System.out.println(o + ": " + o.getClass().getCanonicalName());
-                }
-                storeProvider.clear();
-            }
-            if (tlsProvider != null) {
-                for (Object o : tlsProvider.values()) {
-                    System.out.println(o);
-                }
-                tlsProvider.clear();
-            }
-            if (prov != null) {
-                prov.clear();
-                prov.close();
-            }
+//            if (storeProvider != null) {
+//                for (Object o : storeProvider.values()) {
+//                    System.out.println(o + ": " + o.getClass().getCanonicalName());
+//                }
+//                storeProvider.clear();
+//            }
+//            if (tlsProvider != null) {
+//                for (Object o : tlsProvider.values()) {
+//                    System.out.println(o);
+//                }
+//                tlsProvider.clear();
+//            }
+//            if (prov != null) {
+//                prov.clear();
+//                prov.close();
+//            }
         }
     }
 
     public void doSignAndUploadStrings(Map<String, String> xmlInfo, StringCallback callback) throws Exception {
-        this.service = new EVatService2(ConfigReader.getInstance().getVatServiceUrl(), new KeySelector());
-        //this.service.login(this.loginstr);
+        String url = System.getProperty("by.gto.btoreport.avest.url");
+        if(url == null) {
+            url = ConfigReader.getInstance().getVatServiceUrl();
+        }
+        this.service = new EVatService2(url, new KeySelector());
         this.service.login("");
         System.out.println("[OK] Авторизация успешна");
         this.printConnectionInfo();
@@ -171,7 +198,7 @@ public class VatTool {
         String invoicenum = eDoc.getDocument().getXmlNodeValue("issuance/general/number");
         String docType = eDoc.getDocument().getXmlNodeValue("issuance/general/documentType");
         System.out.println("[OK] Документ  \'" + invoicenum + "\', тип документа \'" + docType + "\'.");
-        byte[] xsdSchema = loadXsdSchema(xsddirname, docType);
+        byte[] xsdSchema = loadXsdSchema(/*xsddirname,*/ docType);
         boolean isDocumentValid = eDoc.getDocument().validateXML(xsdSchema);
         if (!isDocumentValid) {
             throw new Exception("Cтруктура документа не соответствует XSD схеме.");
@@ -241,35 +268,53 @@ public class VatTool {
         os.close();
     }
 
-    private static byte[] readFile(File file) throws FileNotFoundException, IOException {
-        byte[] fileData = new byte[(int) file.length()];
-        DataInputStream dis = new DataInputStream(new FileInputStream(file));
-
-        try {
-            dis.readFully(fileData);
-        } finally {
-            dis.close();
+    private static byte[] readResource(String relpath) throws IOException {
+        byte buf[] = new byte[5 * 1024];
+        final URL resource = VatTool.class.getResource(relpath);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            try (InputStream iss = resource.openStream()) {
+                while (true) {
+                    int r = iss.read(buf);
+                    if (r <= 0) break;
+                    baos.write(buf, 0, r);
+                }
+            }
+            return baos.toByteArray();
         }
-
-        return fileData;
     }
 
-    private static byte[] loadXsdSchema(String xsdFolderName, String doctype) throws Exception {
+//    private static byte[] readFile(File file) throws FileNotFoundException, IOException {
+//        byte[] fileData = new byte[(int) file.length()];
+//        DataInputStream dis = new DataInputStream(new FileInputStream(file));
+//
+//        try {
+//            dis.readFully(fileData);
+//        } finally {
+//            dis.close();
+//        }
+//
+//        return fileData;
+//    }
+
+    private static byte[] loadXsdSchema(/*String xsdFolderName,*/ String doctype) throws Exception {
         File xsdFile = null;
         doctype = doctype == null ? "" : doctype;
         if ("ORIGINAL".equalsIgnoreCase(doctype) || "ADD_NO_REFERENCE".equalsIgnoreCase(doctype)) {
             if (xsdOriginal == null) {
-                xsdOriginal = readFile(new File(xsdFolderName, "MNSATI_original.xsd"));
+                //xsdOriginal = readFile(new File(xsdFolderName, "MNSATI_original.xsd"));
+                xsdOriginal = readResource("/xsd/MNSATI_original.xsd");
             }
             return xsdOriginal;
         } else if ("FIXED".equalsIgnoreCase(doctype)) {
             if (xsdFixed == null) {
-                xsdFixed = readFile(new File(xsdFolderName, "MNSATI_fixed.xsd"));
+                //xsdFixed = readFile(new File(xsdFolderName, "MNSATI_fixed.xsd"));
+                xsdFixed = readResource("/xsd/MNSATI_fixed.xsd");
             }
             return xsdFixed;
         } else if (doctype.equalsIgnoreCase("ADDITIONAL")) {
             if (xsdAdditional == null) {
-                xsdAdditional = readFile(new File(xsdFolderName, "MNSATI_additional.xsd"));
+                //xsdAdditional = readFile(new File(xsdFolderName, "MNSATI_additional.xsd"));
+                xsdAdditional = readResource("/xsd/MNSATI_additional.xsd");
             }
             return xsdAdditional;
         } else {

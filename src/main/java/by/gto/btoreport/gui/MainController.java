@@ -19,7 +19,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -164,6 +163,10 @@ public class MainController implements Initializable {
             newStage.setResizable(false);
             controller = loader.getController();
             controller.setListItems(items);
+            final String pass = System.getProperty("by.gto.btoreport.avest.password");
+            if (pass != null) {
+                controller.setPassword(pass);
+            }
             newStage.showAndWait();
             result[0] = controller.getKeyIndex();
             result[1] = controller.getPassword();
@@ -429,6 +432,41 @@ public class MainController implements Initializable {
             refreshVats();
         } catch (Exception e) {
         }
+
+//        comboBoxOwner.setCellFactory(
+//                new Callback<ListView<String>, ListCell<String>>() {
+//                    @Override
+//                    public ListCell<String> call(ListView<String> param) {
+//                        final ListCell<String> cell = new ListCell<String>() {
+//                            {
+//                                super.setPrefWidth(100);
+//                            }
+//
+//                            @Override
+//                            public void updateItem(String item,
+//                                                   boolean empty) {
+//                                super.updateItem(item, empty);
+//                                if (item != null) {
+//                                    setText(item);
+//                                    if (item.contains("КОСКО")) {
+//                                        empty = true;
+//                                        setTextFill(Color.RED);
+//                                    } else if (item.contains("ОСИПОВИ")) {
+//                                        setTextFill(Color.GREEN);
+//                                    } else {
+//                                        setTextFill(Color.BLACK);
+//                                    }
+//                                } else {
+//                                    setText(null);
+//                                }
+//                            }
+//                        };
+//                        return cell;
+//                    }
+//                });
+
+        new AutoCompleteComboBoxListener(comboBoxOwner);
+        //new ComboBoxAutoComplete<String>(comboBoxOwner);
     }
 
 //    public void showUpdate(String url) throws IOException {

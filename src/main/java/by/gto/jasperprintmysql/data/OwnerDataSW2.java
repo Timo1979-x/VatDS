@@ -1,8 +1,11 @@
 package by.gto.jasperprintmysql.data;
 
 import by.gto.tools.ConnectionMySql;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -21,8 +24,8 @@ import java.util.List;
 public class OwnerDataSW2 extends SwingWorker {
 
     private static final Logger log = LogManager.getLogger(OwnerDataSW2.class);
-    private final List<String> listOwner = new ArrayList<>();
-    private final List<String> listOwnerUNP = new ArrayList<>();
+    private final ObservableList<String> listOwner = FXCollections.observableArrayList();
+    private final ObservableList<String> listOwnerUNP = FXCollections.observableArrayList();
     private final ComboBox name;
     private final ComboBox unp;
     private final boolean enabled;
@@ -49,7 +52,7 @@ public class OwnerDataSW2 extends SwingWorker {
             try {
                 try (Connection conn = ConnectionMySql.getInstance().getConn(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(Query)) {
                     while (rs.next()) {
-                        listOwner.add(rs.getString(2).trim());
+                        listOwner.add(StringUtils.trim(rs.getString(2)));
                         if (rs.getString(3) != null) {
                             listOwnerUNP.add(rs.getString(3).trim());
                         }
@@ -68,11 +71,14 @@ public class OwnerDataSW2 extends SwingWorker {
             name.setDisable(false);
             unp.setDisable(false);
             label.setDisable(false);
-            name.getItems().clear();
-            name.getItems().addAll(listOwner);
 
-            unp.getItems().clear();
-            unp.getItems().addAll(listOwnerUNP);
+            name.setItems(listOwner);
+//            name.getItems().clear();
+//            name.getItems().addAll(listOwner);
+
+            unp.setItems(listOwnerUNP);
+//            unp.getItems().clear();
+//            unp.getItems().addAll(listOwnerUNP);
 
 
 //            name.getInputContext().selectInputMethod(new Locale("ru", "RU"));

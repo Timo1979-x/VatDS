@@ -16,6 +16,7 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class Main extends Application {
@@ -51,6 +52,15 @@ public class Main extends Application {
 
 
     public static void main(String[] args) {
+        //поддерживаемые настройки (можно задавать через ком. строку)
+        // все отладочные сообщения java security (см. http://docs.oracle.com/javase/7/docs/technotes/guides/security/troubleshooting-security.html):
+        // -Djava.security.debug=none
+        // пароль по умолчанию
+        // -Dby.gto.btoreport.avest.password="..."
+        // название ключа по умолчанию:
+        // -Dby.gto.btoreport.avest.alias="Республиканское унитарное сервисное предприятие \"БЕЛТЕХОСМОТР\"_02_06_16_17_17"
+        // можно задать тестовую площадку:
+        // -Dby.gto.btoreport.avest.url="https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl"
         initAvest();
 
         launch(args);

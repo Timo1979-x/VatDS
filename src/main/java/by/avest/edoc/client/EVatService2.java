@@ -53,7 +53,7 @@ import org.w3c.dom.Element;
 public class EVatService2 {
     private String wsdlLocation;
     private InvoicesIntf port;
-    private PersonalKeyManager keyManager;
+    private PersonalKeyManager2 keyManager;
     private String alias;
     private PKIXBuilderParameters builderParams;
     private TrustManager[] trustManagers;
@@ -62,7 +62,7 @@ public class EVatService2 {
         return wsdlLocation != null && !wsdlLocation.endsWith("?wsdl")?wsdlLocation + "?wsdl":wsdlLocation;
     }
 
-    public EVatService2(String wsdlLocation, PersonalKeyManager keyManager) throws CertificateException, KeyStoreException, IOException, AvDocException {
+    public EVatService2(String wsdlLocation, PersonalKeyManager2 keyManager) throws CertificateException, KeyStoreException, IOException, AvDocException {
         this.wsdlLocation = fixWSDLLocation(wsdlLocation);
         this.builderParams = CertStoreBuilderParams.getBuilderParams();
         this.keyManager = keyManager;
