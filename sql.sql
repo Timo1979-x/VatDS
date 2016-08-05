@@ -8,9 +8,9 @@ CREATE TABLE `to`.o_vats (
 )
 ENGINE = INNODB
 AUTO_INCREMENT = 1
+AVG_ROW_LENGTH = 3276
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
-
 
 
 
@@ -25,7 +25,6 @@ ENGINE = INNODB
 AVG_ROW_LENGTH = 8192
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
-
 
 
 
