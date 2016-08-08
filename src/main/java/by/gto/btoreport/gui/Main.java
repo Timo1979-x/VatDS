@@ -43,7 +43,7 @@ public class Main extends Application {
         Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/main.fxml"));
         primaryStage.setTitle("Отчеты для ДС");
         primaryStage.setScene(new Scene(root));
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
         Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
         primaryStage.getIcons().add(i);
 
@@ -79,7 +79,6 @@ public class Main extends Application {
 
         try {
             String f = new File (Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
-            System.out.println(f);
             String dllPath = f + "\\classes\\win" + (is64bit ? "64" : "32");
             System.setProperty("java.library.path", dllPath);
         } catch (URISyntaxException e) {

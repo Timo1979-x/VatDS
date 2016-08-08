@@ -31,35 +31,39 @@ public class KeySelector extends PersonalKeyManager2 {
     }
 
     public char[] promptPassword(String alias) throws IOException {
+        System.out.println("start promptPassword " + alias);
         final String pass = System.getProperty("by.gto.btoreport.avest.password");
-        if(pass != null) {
+        if (pass != null) {
+            System.out.println("promptPassword: use pass from environment");
             return pass.toCharArray();
         }
-        if(passwords.containsKey(alias)) {
+        if (passwords.containsKey(alias)) {
+            System.out.println("promptPassword: use recently entered pass");
             return passwords.get(alias).toCharArray();
         }
-        if(chooseAlias(new String[] {alias}) != null) {
+        if (chooseAlias(new String[]{alias}) != null) {
             return passwords.get(alias).toCharArray();
         }
         return new char[0];
     }
 
     public String chooseAlias(String[] aliases) throws IOException {
-        for (String alias : aliases) {
-            final PrivateKey pk = this.getPrivateKey(alias);
-            System.out.println(pk);
-        }
+//        for (String alias : aliases) {
+//            final PrivateKey pk = this.getPrivateKey(alias);
+//            System.out.println(pk);
+//        }
+        System.out.println("start chooseAlias");
         passwords.clear();
         Object[] result = MainController.chooseFromList("Выберите ключ", aliases);
         int idx = (int) result[0];
-        if(idx >= 0) {
+        if (idx >= 0) {
             String alias = aliases[idx];
-            passwords.put(alias, (String)result[1]);
+            passwords.put(alias, (String) result[1]);
             return alias;
         }
+        System.out.println("end chooseAlias");
         return "";
     }
-
 
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
     <config>
-        <host>127.0.0.1</host>
+        <host>192.168.212.2</host>
         <port>33060</port>
         <position>Должность</position>
         <chiefDS>ФИО</chiefDS>
@@ -10,6 +10,6 @@
         <orgName>Организация</orgName>
         <serviceName>Контрольно-диагностические работы</serviceName>
         <vatServiceUrl>https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl</vatServiceUrl>
-        <vatPath>D:\temp\vats_out</vatPath>
+        <vatPath>d:\temp\vats190471274</vatPath>
     </config>
 </configuration>

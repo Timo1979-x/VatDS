@@ -160,14 +160,16 @@ public class MainController implements Initializable {
             newStage.initModality(Modality.APPLICATION_MODAL);
             newStage.setTitle(title);
             newStage.setScene(new Scene(root));
-            newStage.setResizable(false);
+            newStage.setResizable(true);
             controller = loader.getController();
             controller.setListItems(items);
             final String pass = System.getProperty("by.gto.btoreport.avest.password");
             if (pass != null) {
                 controller.setPassword(pass);
             }
+            System.out.println("chooseFromList: before newStage.showAndWait();");
             newStage.showAndWait();
+            System.out.println("chooseFromList: after newStage.showAndWait();");
             result[0] = controller.getKeyIndex();
             result[1] = controller.getPassword();
         } catch (IOException e) {
@@ -505,27 +507,37 @@ public class MainController implements Initializable {
         selectedMonth = idxMonth + 1;
         selectedYear = years.get(idxYear);
 
-        String query = "SELECT  \n" +
-                "bti.id_blanc_ts_info bti_id, vats.id vats_id, \n" +
-                "vats.unp v_unp, vats.year v_year, vats.number v_number, \n" +
-                "bti.date_ot date1, \n" +
-                "oi.name, oi.unp, \n" +
-                "stti.summa_no_tax withoutVAT, \n" +
-                "stti.summa_oplaty withVAT, \n" +
-                "stti.summa_oplaty - stti.summa_no_tax VAT,\n" +
-                "b.seria blankSeries,\n" +
-                "b.number blankNumber" +
+        String query = "SELECT\n" +
+                "  bti.id_blanc_ts_info bti_id,\n" +
+                "  vats.id vats_id,\n" +
+                "  vats.unp v_unp,\n" +
+                "  vats.year v_year,\n" +
+                "  vats.number v_number,\n" +
+                "  bti.date_ot date1,\n" +
+                "  oi.name,\n" +
+                "  oi.unp,\n" +
+                "  stti.summa_no_tax withoutVAT,\n" +
+                "  stti.summa_oplaty withVAT,\n" +
+                "  stti.summa_oplaty - stti.summa_no_tax VAT,\n" +
+                "  b.seria blankSeries,\n" +
+                "  b.number blankNumber\n" +
+                "FROM o_vats vats\n" +
+                "  RIGHT JOIN blanc_ts_info bti\n" +
+                "    ON bti.id_blanc_ts_info = vats.id_blank_ts_info\n" +
+                "  INNER JOIN ts_info ti\n" +
+                "    ON bti.id_ts_info = ti.id_ts_info\n" +
                 "\n" +
-                "FROM o_vats vats RIGHT JOIN  blanc_ts_info bti ON bti.id_blanc_ts_info = vats.id_blank_ts_info \n" +
-                "INNER JOIN ts_info ti ON bti.id_ts_info = ti.id_ts_info \n" +
+                "  INNER JOIN owner_info oi\n" +
+                "    ON ti.`id_owner_zakazch` = oi.id_owner\n" +
+                "  INNER JOIN sd_tarifs_ts_info stti\n" +
+                "    ON (ti.id_ts_info = stti.id_ts_info\n" +
+                "    AND bti.id_blanc = stti.id_blanc)\n" +
+                "  INNER JOIN blanc b\n" +
+                "    ON bti.id_blanc = b.id_blanc\n" +
                 "\n" +
-                "INNER JOIN owner_info oi ON ti.id_owner_sobs = oi.id_owner \n" +
-                "INNER JOIN sd_tarifs_ts_info stti ON (ti.id_ts_info = stti.id_ts_info AND bti.id_blanc = stti.id_blanc)\n" +
-                "INNER JOIN blanc b ON bti.id_blanc = b.id_blanc\n" +
-                "\n" +
-                "WHERE oi.id_owner_type = 2 \n" +
+                "WHERE oi.id_owner_type IN (2, 3)\n" +
                 "AND EXTRACT(MONTH FROM bti.date_ot) = ?\n" +
-                "AND EXTRACT(YEAR FROM bti.date_ot) = ?\n" +
+                "AND EXTRACT(year FROM bti.date_ot) = ?\n" +
                 "AND b.id_blanc_type = 1\n" +
                 "AND b.id_blanc_status = 2";
         try (Connection conn = ConnectionMySql.getInstance().getConn();
@@ -572,7 +584,7 @@ public class MainController implements Initializable {
                     );
                 }
             }
-            vatTableView.getSelectionModel().selectAll();
+            //vatTableView.getSelectionModel().selectAll();
         } catch (SQLException e) {
 
             e.printStackTrace();
@@ -594,35 +606,6 @@ public class MainController implements Initializable {
         } catch (Exception e) {
             MainController.showErrorMessage("", e.getMessage());
         }
-    }
-
-    public void miTestAction(ActionEvent actionEvent) {
-        final URL xsd = MainController.class.getClassLoader().getResource("xsd");
-        final String path = xsd.getPath();
-        final File file = new File(path);
-
-        System.out.println(file.exists());
-        System.out.println(file.isDirectory());
-//        AvestProvider prov = null;
-//
-//        try {
-//            prov = ProviderFactory.addAvUniversalProvider();
-//            Security.addProvider(new AvTLSProvider());
-//            Security.addProvider(new AvCertStoreProvider());
-//            VatTool vt = new VatTool();
-//            vt.run(new HashMap<String, String>(), new StringCallback() {
-//                @Override
-//                public void call(String msg) {
-//
-//                }
-//            });
-//        } catch (Exception e) {
-//            showErrorMessage("", e.getMessage());
-//        } finally {
-//            if (prov != null) {
-//                prov.close();
-//            }
-//        }
     }
 
     public void bIssueAction(ActionEvent actionEvent) {
@@ -676,7 +659,10 @@ public class MainController implements Initializable {
             }
 
 
-            for (VatData vd : vatData) {
+            for(Integer index: selectedIndices) {
+                VatData vd = vatData.get(index);
+//            }
+//            for (VatData vd : vatData) {
                 String xml;
                 if (!vd.isVatIssued()) {
                     // подобрать номер из настроенного диапазона:
@@ -728,7 +714,8 @@ public class MainController implements Initializable {
         new File(dir).mkdirs();
 
         for (Map.Entry<String, String> entry : vatXmls.entrySet()) {
-            try (FileWriter fw = new FileWriter(dir + File.separator + entry.getKey() + ".xml");
+            try (FileOutputStream fos = new FileOutputStream(dir + File.separator + entry.getKey() + ".xml");
+                    OutputStreamWriter fw = new OutputStreamWriter(fos, "UTF-8");
                  BufferedWriter bw = new BufferedWriter(fw)) {
                 String content = entry.getValue();
                 bw.write(content, 0, content.length());
