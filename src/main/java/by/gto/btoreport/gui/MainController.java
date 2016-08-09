@@ -1,5 +1,6 @@
 package by.gto.btoreport.gui;
 
+import by.gto.helpers.VatHelpers;
 import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
 import by.gto.jasperprintmysql.data.OwnerDataSW2;
@@ -19,6 +20,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.sql.*;
+import java.util.Date;
+import java.util.function.Predicate;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -27,10 +33,6 @@ import org.json.JSONObject;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -471,20 +473,6 @@ public class MainController implements Initializable {
         //new ComboBoxAutoComplete<String>(comboBoxOwner);
     }
 
-//    public void showUpdate(String url) throws IOException {
-//        Stage newStage = new Stage();
-//        FXMLLoader loader = new FXMLLoader();
-//        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/UpdateMessage.fxml"));
-//        newStage.initModality(Modality.APPLICATION_MODAL);
-//        newStage.setTitle("Обновление");
-//        newStage.setScene(new Scene(root));
-//        newStage.setResizable(false);
-//        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
-//        newStage.getIcons().add(i);
-//        newStage.show();
-//
-//    }
-
     public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
         Stage newStage = new Stage();
         FXMLLoader loader = new FXMLLoader();
@@ -608,23 +596,18 @@ public class MainController implements Initializable {
         }
     }
 
-    public void bIssueAction(ActionEvent actionEvent) {
-        issueVATS(false);
-    }
-
-    private void issueVATS(boolean upload) {
+    private void issueVATS() {
         if (vatTableView.getSelectionModel().getSelectedIndex() == -1) {
             MainController.showInfoMessage("", "Не выделено ни одной строки");
             return;
         }
         ObservableList<Integer> selectedIndices = vatTableView.getSelectionModel().getSelectedIndices();
 
-        int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
+        //int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
+        short year = (short) Calendar.getInstance().get(Calendar.YEAR);
         int unp = ConfigReader.getInstance().getUNP();
-        long begin, end;
-        long counter;
-        List<Long> usedNumbers = new ArrayList<>();
-        Map<String, String> vatXmls = new HashMap<>();
+        long numberBegin, numberEnd;
+        List<String> numbersUsed = new ArrayList<>();
         String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM o_vat_settings ovs WHERE ovs.`year` = ?";
         String qUsedVatNumbers = "SELECT ov.`number` FROM o_vats ov\n" +
                 "  WHERE ov.`number` >= ? AND ov.`number` <= ? AND ov.unp = ?  AND ov.`year` = ?\n" +
@@ -643,59 +626,85 @@ public class MainController implements Initializable {
                 if (!rs.next()) {
                     throw new Exception("Не заданы номера счетов-фактур на требуемый год");
                 } else {
-                    counter = begin = rs.getLong(1);
-                    end = rs.getLong(2);
+                    numberBegin = rs.getLong(1);
+                    numberEnd = rs.getLong(2);
                 }
             }
 
-            psUsedVatNumbers.setLong(1, begin);
-            psUsedVatNumbers.setLong(2, end);
+            psUsedVatNumbers.setLong(1, numberBegin);
+            psUsedVatNumbers.setLong(2, numberEnd);
             psUsedVatNumbers.setInt(3, unp);
             psUsedVatNumbers.setInt(4, year);
             try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
                 while (rs.next()) {
-                    usedNumbers.add(rs.getLong(1));
+                    numbersUsed.add(VatHelpers.vatNumber(unp, year, rs.getLong(1)));
                 }
             }
 
+            // отправка:
+            String dir = ConfigReader.getInstance().getVatPath();
+            new File(dir).mkdirs();
 
-            for(Integer index: selectedIndices) {
-                VatData vd = vatData.get(index);
-//            }
-//            for (VatData vd : vatData) {
-                String xml;
-                if (!vd.isVatIssued()) {
-                    // подобрать номер из настроенного диапазона:
-                    boolean numberFound = false;
-                    while (!numberFound && counter <= end) {
-                        Long cnt = counter;
-                        if (usedNumbers.indexOf(cnt) == -1) {
-                            numberFound = true;
-                            vd.setVatUnp(unp);
-                            vd.setVatYear((short) year);
-                            vd.setVatNumber(cnt);
+            long counter = numberBegin;
+            try (VatTool vt = new VatTool()) {
+                for (Integer index : selectedIndices) {
+                    VatData vd = vatData.get(index);
+                    String number = null;
+                    if (!vd.isVatIssued()) {
+                        // подобрать номер из настроенных, но еще не задействованный:
+                        for (; counter <= numberEnd; counter++) {
+                            number = VatHelpers.vatNumber(unp, year, counter);
+                            final byte status = vt.isNumberSpare(number);
+                            if(status  == 2) {
+                                // пометим номер как занятый
+                                psUsedVatNumbers.setLong(1, counter);
+                                psUsedVatNumbers.setLong(2, counter);
+                                psUsedVatNumbers.setInt(3, unp);
+                                psUsedVatNumbers.setInt(4, year);
+                                try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
+                                    if (!rs.next()) {
+                                        psIssueVat.setNull(1, Types.INTEGER);
+                                        psIssueVat.setInt(2, vd.getVatUnp());
+                                        psIssueVat.setShort(3, vd.getVatYear());
+                                        psIssueVat.setLong(4, vd.getVatNumber());
+                                        psIssueVat.executeUpdate();
+                                    }
+                                }
+
+                                conn.commit();
+                            }
+
+                            if (status == 0 && !numbersUsed.contains(number)) {
+                                break;
+                            }
                         }
-                        counter++;
+
+                        if (counter > numberEnd) {
+                            throw new Exception(String.format("Не осталось свободных настроенных номеров счет-фактур"));
+                        }
+                        vd.setVatYear(year);
+                        vd.setVatUnp(unp);
+                        vd.setVatNumber(counter++);
                     }
-                    if (!numberFound) {
-                        throw new Exception(String.format(
-                                "Среди настроенного диапазона номеров счет-фактур\n" +
-                                        "для УНП %09d на %04d год нет свободных", unp, year));
-                    }
+                    final String vatXml = makeVATXml(vd);
+                    vt.doSignAndUploadString(vatXml);
+                    // записать в базу:
                     // INSERT o_vats(id_blank_ts_info, unp, `year`, `number`)
                     psIssueVat.setInt(1, vd.getBlancTsInfoId());
                     psIssueVat.setInt(2, vd.getVatUnp());
                     psIssueVat.setShort(3, vd.getVatYear());
                     psIssueVat.setLong(4, vd.getVatNumber());
                     psIssueVat.executeUpdate();
+                    conn.commit();
+                    try (FileOutputStream fos = new FileOutputStream(dir + File.separator + number + ".xml");
+                         OutputStreamWriter fw = new OutputStreamWriter(fos, "UTF-8");
+                         BufferedWriter bw = new BufferedWriter(fw)) {
+                        bw.write(vatXml, 0, vatXml.length());
+                    }
                 }
-                xml = makeVATXml(vd);
-                vatXmls.put(String.format("%09d-%04d-%010d", vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()), xml);
             }
 
-            conn.commit();
-            sendVATs(vatXmls, upload, msg -> lMessage.setText(msg));
-            final String resultMessage = (upload ? "Загрузка на портал" : "Сохранение") + " ЭСЧФ завершено успешно";
+            final String resultMessage = "Загрузка на портал ЭСЧФ завершена успешно";
             MainController.showInfoMessage("", resultMessage);
             lMessage.setText(resultMessage);
         } catch (Exception e) {
@@ -709,25 +718,38 @@ public class MainController implements Initializable {
         refreshVats();
     }
 
-    private void sendVATs(Map<String, String> vatXmls, boolean upload, StringCallback callback) throws Exception {
-        String dir = ConfigReader.getInstance().getVatPath();
-        new File(dir).mkdirs();
-
-        for (Map.Entry<String, String> entry : vatXmls.entrySet()) {
-            try (FileOutputStream fos = new FileOutputStream(dir + File.separator + entry.getKey() + ".xml");
-                    OutputStreamWriter fw = new OutputStreamWriter(fos, "UTF-8");
-                 BufferedWriter bw = new BufferedWriter(fw)) {
-                String content = entry.getValue();
-                bw.write(content, 0, content.length());
-            }
-        }
-
-        if (!upload) {
-            return;
-        }
-        VatTool vt = new VatTool();
-        vt.run(vatXmls, callback);
-    }
+//    private void sendVATs(Integer unp, Short year, long numberBegin, long numberEnd,
+//                          List<String> numbersUsed,
+//                          List<VatData> vats, Callback4<Integer, Short, Long, Integer, Void> callback) throws Exception {
+//        String dir = ConfigReader.getInstance().getVatPath();
+//        new File(dir).mkdirs();
+//
+//        long counter = numberBegin;
+//        try (VatTool vt = new VatTool()) {
+//            for (VatData vd : vats) {
+//                if (!vd.isVatIssued()) {
+//                    // подобрать номер из настроенных, но еще не задействованный:
+//                    String number = null;
+//                    for (; counter <= numberEnd; counter++) {
+//                        number = VatHelpers.vatNumber(unp, year, counter);
+//                        if (!numbersUsed.contains(number) && vt.isNumberSpare(number)) {
+//                            break;
+//                        }
+//                    }
+//
+//                    if (counter > numberEnd) {
+//                        throw new Exception(String.format("Не осталось свободных настроенных номеров счет-фактур"));
+//                    }
+//                    vd.setVatYear(year);
+//                    vd.setVatUnp(unp);
+//                    vd.setVatNumber(counter++);
+//                }
+//                final String vatXml = makeVATXml(vd);
+//                vt.doSignAndUploadString(vatXml);
+//                // записать в базу:
+//            }
+//        }
+//    }
 
     private String makeVATXml(VatData vd) {
         String template = "<?xml version='1.0' encoding='UTF-8'?>\n" +
@@ -800,7 +822,7 @@ public class MainController implements Initializable {
                 "</issuance>";
         String sDate = String.format("%1$tY-%1$tm-%1$td", vd.get_date());
         return template
-                .replace("{number}", String.format("%09d-%04d-%010d", vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
+                .replace("{number}", VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
                 .replace("{dateIssuance}", sDate)
                 .replace("{dateTransaction}", sDate)
                 .replace("{actDate}", sDate)
@@ -816,7 +838,7 @@ public class MainController implements Initializable {
     }
 
     public void bIssueUploadAction(ActionEvent actionEvent) {
-        issueVATS(true);
+        issueVATS();
     }
 
     public static class VatData {

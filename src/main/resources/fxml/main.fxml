@@ -185,8 +185,6 @@
                                         <TableColumn maxWidth="10.0" prefWidth="10.0"/>
                                     </columns>
                                 </TableView>
-                                <Button fx:id="bIssue" layoutX="218.0" layoutY="1.0" mnemonicParsing="false"
-                                        onAction="#bIssueAction" text="Сформировать на диске" disable="true"/>
                                 <Button fx:id="bIssueUpload" layoutX="371.0" layoutY="1.0" mnemonicParsing="false"
                                         onAction="#bIssueUploadAction" text="Сформировать и отправить"/>
                             </children>

@@ -68,7 +68,9 @@ public final class SettingsController implements javafx.fxml.Initializable {
             return;
         }
 
+
         File dir = new File(eVatPath.getText());
+        dir.mkdirs();
         if(!(dir.exists() && dir.isDirectory())) {
             lResult.setText("\"" + dir + "\" не существует или не папка");
             return;

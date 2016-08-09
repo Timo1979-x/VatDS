@@ -13,8 +13,10 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.Provider;
-import java.security.Security;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.ws.soap.SOAPFaultException;
@@ -22,7 +24,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 /**
  * Created by Tim on 23.07.2016.
  */
-public class VatTool {
+public class VatTool implements Closeable {
 
     private static byte[] xsdOriginal;
     private static byte[] xsdAdditional;
@@ -35,69 +37,26 @@ public class VatTool {
     private static AvestProvider avestProvider;
     private static AvTLSProvider avTlsProvider;
     private static AvCertStoreProvider avCertStoreProvider;
+    private long numberBegin;
+    private long numberEnd;
+    private List<Long> numbersUsed = new ArrayList<>();
 
-    public static AvestProvider getAvestProvider() {
-        if (avestProvider == null) {
-            avestProvider = ProviderFactory.addAvUniversalProvider();
-        }
-        return avestProvider;
-    }
-
-    public static AvTLSProvider getAvTlsProvider() {
-        if (avTlsProvider == null) {
-            avTlsProvider = new AvTLSProvider();
-            Security.addProvider(avTlsProvider);
-        }
-        return avTlsProvider;
-    }
-
-    public static AvCertStoreProvider getAvCertStoreProvider() {
-        if (avCertStoreProvider == null) {
-            avCertStoreProvider = new AvCertStoreProvider();
-            Security.addProvider(avCertStoreProvider);
-        }
-        return avCertStoreProvider;
-    }
-
-    public void run(Map<String, String> vatXmls, StringCallback callback) throws Exception {
+    public VatTool() throws UnrecoverableKeyException, CertificateException,
+            NoSuchAlgorithmException, KeyStoreException, IOException, AvDocException,
+            InvalidAlgorithmParameterException, KeyManagementException {
         AvestProvider avProv = null;
-
         AvTLSProvider tlsProv = null;
         AvCertStoreProvider storeProv = null;
-        try {
-            final Provider[] providers = Security.getProviders();
-            avProv = getAvestProvider();
-            tlsProv = getAvTlsProvider();
-            storeProv = getAvCertStoreProvider();
-            final Provider[] providers1 = Security.getProviders();
-            doSignAndUploadStrings(vatXmls, callback);
-        } finally {
-//            Security.removeProvider("AvUniversal");
-//            Security.removeProvider("AvCertStoreProvider");
-//            Security.removeProvider("AvTLSProvider");
-            final Provider[] providers = Security.getProviders();
-//            if (storeProvider != null) {
-//                for (Object o : storeProvider.values()) {
-//                    System.out.println(o + ": " + o.getClass().getCanonicalName());
-//                }
-//                storeProvider.clear();
-//            }
-//            if (tlsProvider != null) {
-//                for (Object o : tlsProvider.values()) {
-//                    System.out.println(o);
-//                }
-//                tlsProvider.clear();
-//            }
-//            if (prov != null) {
-//                prov.clear();
-//                prov.close();
-//            }
-        }
-    }
 
-    public void doSignAndUploadStrings(Map<String, String> xmlInfo, StringCallback callback) throws Exception {
+        //final Provider[] providers = Security.getProviders();
+        avProv = getAvestProvider();
+        tlsProv = getAvTlsProvider();
+        storeProv = getAvCertStoreProvider();
+        //final Provider[] providers1 = Security.getProviders();
+
+
         String url = System.getProperty("by.gto.btoreport.avest.url");
-        if(url == null) {
+        if (url == null) {
             url = ConfigReader.getInstance().getVatServiceUrl();
         }
         this.service = new EVatService2(url, new KeySelector());
@@ -106,20 +65,45 @@ public class VatTool {
         this.printConnectionInfo();
         this.service.connect();
         System.out.println("[OK] Подключение успешно");
-
-        for (Map.Entry<String, String> entry : xmlInfo.entrySet()) {
-            try {
-                System.out.println("[OK] Обработка ЭСЧФ \'" + entry.getKey());
-                callback.call(entry.getKey() + " загружается.");
-                this.doSignAndUploadString(entry.getValue());
-            } catch (Exception e) {
-                throw new Exception("[ОШИБКА] Не удалось обработать ЭСЧФ " + entry.getKey() + ".\n" + e.getMessage());
-            }
-        }
-
-        this.service.disconnect();
-        this.service.logout();
     }
+
+    private static AvestProvider getAvestProvider() {
+        if (avestProvider == null) {
+            avestProvider = ProviderFactory.addAvUniversalProvider();
+        }
+        return avestProvider;
+    }
+
+    private static AvTLSProvider getAvTlsProvider() {
+        if (avTlsProvider == null) {
+            avTlsProvider = new AvTLSProvider();
+            Security.addProvider(avTlsProvider);
+        }
+        return avTlsProvider;
+    }
+
+    private static AvCertStoreProvider getAvCertStoreProvider() {
+        if (avCertStoreProvider == null) {
+            avCertStoreProvider = new AvCertStoreProvider();
+            Security.addProvider(avCertStoreProvider);
+        }
+        return avCertStoreProvider;
+    }
+
+//    public void doSignAndUploadStrings(Map<String, String> xmlInfo, Callback1 callback) throws Exception {
+//        for (Map.Entry<String, String> entry : xmlInfo.entrySet()) {
+//            try {
+//                System.out.println("[OK] Обработка ЭСЧФ \'" + entry.getKey());
+//                callback.call(entry.getKey() + " загружается.");
+//                this.doSignAndUploadString(entry.getValue());
+//            } catch (Exception e) {
+//                throw new Exception("[ОШИБКА] Не удалось обработать ЭСЧФ " + entry.getKey() + ".\n" + e.getMessage());
+//            }
+//        }
+//
+//        this.service.disconnect();
+//        this.service.logout();
+//    }
 
     private void printConnectionInfo() {
         String host = System.getProperty("https.proxyHost");
@@ -190,12 +174,46 @@ public class VatTool {
 //        }
 //    }
 
-    private void doSignAndUploadString(String inXml) throws Exception {
+
+    /**
+     * @param number номер проверяемой счет-фактуры
+     * @return 0 - с/ф не найдена (статус NOT_FOUND);
+     * 1- с/ф найдена на портале, но еще может быть удалена (статусы IN_PROGRESS или IN_PROGRESS_ERROR);
+     * 2 - с/ф найдена и уже останется на портале навечно (все остальные статусы)
+     * 3- ошибка получения статуса
+     */
+
+    public byte isNumberSpare(String number) {
+        try {
+            AvEStatus status = this.service.getStatus(number);
+            System.out.println(status.getMessage());
+            if ("NOT_FOUND".equals(status.getStatus())) return 0;
+            //if ("IN_PROGRESS".equals(status.getStatus()) || "IN_PROGRESS_ERROR".equals(status.getStatus())) return 1;
+            if ("COMPLETED".equals(status.getStatus())
+                    || "COMPLETED_SIGNED".equals(status.getStatus())
+                    || "ON_AGREEMENT".equals(status.getStatus())
+                    || "CANCELLED".equals(status.getStatus())
+                    || "ON_AGREEMENT_CANCEL".equals(status.getStatus())) {
+                return 2;
+            }
+            return 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 3;
+        }
+    }
+
+    public void doSignAndUploadString(String inXml) throws Exception {
         AvEDoc eDoc = this.service.createEDoc();
 
         final byte[] docInMemory = inXml.getBytes("UTF-8"); //readFile(infile);
         eDoc.getDocument().load(docInMemory);
         String invoicenum = eDoc.getDocument().getXmlNodeValue("issuance/general/number");
+        if (isNumberSpare(invoicenum) != 0) {
+            return;
+            //throw new Exception(String.format("Номер %s уже занят!", invoicenum));
+        }
+
         String docType = eDoc.getDocument().getXmlNodeValue("issuance/general/documentType");
         System.out.println("[OK] Документ  \'" + invoicenum + "\', тип документа \'" + docType + "\'.");
         byte[] xsdSchema = loadXsdSchema(/*xsddirname,*/ docType);
@@ -319,6 +337,14 @@ public class VatTool {
             return xsdAdditional;
         } else {
             throw new Exception("Неизвестный тип счета-фактуры НДС \'" + doctype + "\'.");
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (this.service != null) {
+            this.service.disconnect();
+            this.service.logout();
         }
     }
 }
