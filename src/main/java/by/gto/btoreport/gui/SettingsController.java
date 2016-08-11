@@ -71,7 +71,7 @@ public final class SettingsController implements javafx.fxml.Initializable {
 
         File dir = new File(eVatPath.getText());
         dir.mkdirs();
-        if(!(dir.exists() && dir.isDirectory())) {
+        if (!(dir.exists() && dir.isDirectory())) {
             lResult.setText("\"" + dir + "\" не существует или не папка");
             return;
         }
@@ -101,8 +101,8 @@ public final class SettingsController implements javafx.fxml.Initializable {
 
     private boolean verifyUNP(String unp) {
         try {
-            Long.parseLong(unp);
-            return unp.length() == 9;
+            final long l = Long.parseLong(unp);
+            return l >= 100000000 && l <= 999999999;
         } catch (NumberFormatException e) {
             return false;
         }

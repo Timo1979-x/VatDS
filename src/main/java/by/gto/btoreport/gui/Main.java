@@ -26,7 +26,6 @@ public class Main extends Application {
     //public static final String EINV_PORTAL_URL = "https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl";
     //public static final String EINV_PORTAL_URL= "https://ws.vat.gov.by:443/InvoicesWS/services/InvoicesPort?wsdl";
     public static boolean verbose = true;
-    public static final String XSD_PATH = "classes/xsd";
     public static boolean debug = true;
 
     public static String message;
@@ -67,7 +66,10 @@ public class Main extends Application {
     }
 
     private static void initAvest() {
-        boolean is64bit = false;
+
+        System.out.println("user.home: " + System.getProperty("user.home"));
+        System.out.println("APPDATA: " + System.getenv("APPDATA"));
+        boolean is64bit;
         if (System.getProperty("os.name").contains("Windows")) {
             is64bit = (System.getenv("ProgramFiles(x86)") != null);
         } else {
@@ -78,8 +80,9 @@ public class Main extends Application {
 
 
         try {
-            String f = new File (Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
-            String dllPath = f + "\\classes\\win" + (is64bit ? "64" : "32");
+            String f = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+            String dllPath = f + "\\win" + (is64bit ? "64" : "32");
+            System.out.println("dllPath: " + dllPath);
             System.setProperty("java.library.path", dllPath);
         } catch (URISyntaxException e) {
             e.printStackTrace();

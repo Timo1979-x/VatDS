@@ -8,12 +8,12 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
@@ -42,12 +42,17 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
     @FXML
     public TextField eRangeBegin;
     @FXML
+    public Button bSave;
+    @FXML
     public TextField eRangeEnd;
+
+    private boolean modified;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         table.setEditable(true);
+
+
         Callback<TableColumn, TableCell> cellFactory =
                 new Callback<TableColumn, TableCell>() {
                     public TableCell call(TableColumn p) {
@@ -129,7 +134,7 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
                 "SELECT " +
                         "       ovs.`year`,\n" +
                         "       ovs.`begin`,\n" +
-                        "       ovs.`end` FROM o_vat_settings ovs\n" +
+                        "       ovs.`end` FROM ei_vat_settings ovs\n" +
                         "  ORDER BY ovs.`year`";
         try {
             try (Connection conn = ConnectionMySql.getInstance().getConn(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(query)) {
@@ -139,7 +144,7 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
                 }
             }
         } catch (SQLException ex) {
-            MainController.showErrorMessage("", ex.getMessage());
+            MainController.showErrorMessage("Ошибка", ex.getMessage());
             log.error(ex);
         }
         try {
@@ -152,6 +157,7 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
     }
 
 
+
     public void bAddRangeAction(ActionEvent actionEvent) {
         String year = StringUtils.trim(eYear.getText());
         String begin = StringUtils.trim(eRangeBegin.getText());
@@ -162,7 +168,7 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
             long lEnd = Long.parseLong(end);
 
             if (lBegin > lEnd) {
-                MainController.showErrorMessage("", "Начало больше конца");
+                MainController.showErrorMessage("Данные некорректны", "Начало больше конца");
                 return;
             }
 
@@ -172,22 +178,23 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
                 }
             });
         } catch (NumberFormatException e) {
-            MainController.showErrorMessage("", "Данные некорректны");
+            MainController.showErrorMessage("Данные некорректны", "Данные некорректны");
         }
         data.add(new VatSetting(year, begin, end));
         eYear.clear();
         eRangeBegin.clear();
         eRangeEnd.clear();
+        setModified(true);
     }
 
     public void bSaveAction(ActionEvent actionEvent) {
         String validateResult = validateData();
         if (!StringUtils.isEmpty(validateResult)) {
-            MainController.showErrorMessage("", validateResult);
+            MainController.showErrorMessage("Данные некорректны", validateResult);
             return;
         }
 
-        String query = "INSERT INTO o_vat_settings (`year`, `begin`, `end`)\n" +
+        String query = "INSERT INTO ei_vat_settings (`year`, `begin`, `end`)\n" +
                 "  VALUES (?, ?, ?)\n" +
                 "ON DUPLICATE KEY UPDATE\n" +
                 "`begin` = ?,\n" +
@@ -196,8 +203,8 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
         try {
             try (Connection conn = ConnectionMySql.getInstance().getConn(); PreparedStatement ps = conn.prepareStatement(query)) {
                 conn.setAutoCommit(false);
-                try(Statement st= conn.createStatement()) {
-                    st.executeUpdate("delete from o_vat_settings");
+                try (Statement st = conn.createStatement()) {
+                    st.executeUpdate("delete from ei_vat_settings");
                 }
                 data.stream().forEach(vatSetting -> {
                             try {
@@ -212,17 +219,18 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
                             }
                         }
                 );
-                if(rslt.length() ==0) {
+                if (rslt.length() == 0) {
                     conn.commit();
                 }
             }
-            MainController.showInfoMessage("", "Сохранено успешно");
+            MainController.showInfoMessage("Успех", "Сохранено успешно");
+            setModified(false);
         } catch (SQLException ex) {
             rslt.append("\n").append(ex.getMessage());
             log.error(ex);
         }
         if (rslt.length() > 0) {
-            MainController.showErrorMessage("", rslt.toString());
+            MainController.showErrorMessage("Данные некорректны", rslt.toString());
         }
     }
 
@@ -259,6 +267,7 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
 //                data.get(selectedIndex));
 
         data.remove(selectedIndex);
+        setModified(true);
     }
 
     public static class VatSetting {
@@ -315,6 +324,15 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
         }
 
         @Override
+        public void commitEdit(String newValue) {
+            boolean mod = isEditing();
+            super.commitEdit(newValue);
+            if (mod) {
+                SettingsVATController.this.setModified(true);
+            }
+        }
+
+        @Override
         public void startEdit() {
             if (!isEmpty()) {
                 super.startEdit();
@@ -352,6 +370,7 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
                     setGraphic(null);
                 }
             }
+
         }
 
         private void createTextField() {
@@ -371,6 +390,15 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
         private String getString() {
             return getItem() == null ? "" : getItem().toString();
         }
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.bSave.setText("Сохранить" + (modified ? " *" : ""));
+        this.modified = modified;
     }
 }
 

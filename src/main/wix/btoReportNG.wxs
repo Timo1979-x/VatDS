@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?define Version = 0.0.20.0 ?>
+<?define UpgradeCode = '{00402D40-B0E5-49BA-AA12-3D783B6226E5}' ?>
+<?define Manufacturer = 'УП «Белтехосмотр»' ?>
+<?define ManufacturerShortName = 'Beltehosmotr' ?>
+<?define ProductName = 'Статистические отчеты ДС' ?>
+<?define ProductShortName = 'btoReportNG' ?>
+<?define Comment = 'Инсталляционный пакет "$(var.ProductName)"' ?>
+<?define Description = 'Инсталляционный пакет "$(var.ProductName)"' ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Codepage="1251" Id="40AD8AB2-27FA-49A8-9094-7A2AD536AB69" Language="1049" Manufacturer="$(var.Manufacturer)" Name="$(var.ProductName)" UpgradeCode="$(var.UpgradeCode)" Version="$(var.Version)">
+        <Package Comments="$(var.Comment)" Compressed="yes" Description="$(var.Description)" InstallScope="perMachine" InstallerVersion="200"/>
+        <Media Cabinet="simple.cab" EmbedCab="yes" Id="1"/>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder" Name="PFiles">
+                <Directory Id="BTODIR" Name="$(var.ManufacturerShortName)">
+                    <Directory Id="PROGRAMDIR" Name="$(var.ProductShortName)">
+                        <Component Guid="*" Id="BTOREPORT.EXE">
+                            <File Id="BTOREPORT.EXE" Name="btoReport.exe" Source="$(env.wixPrjDir)\btoReport.exe"/>
+                            <Shortcut Id="desktopShortcutBTOREPORT.EXE" Directory="DesktopFolder" Name="btoReport" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
+                            <Shortcut Id="programShortcutBTOREPORT.EXE" Directory="ProgramMenuDir" Name="btoReport" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
+                        </Component>
+                        <Component Guid="*" Id="VAT_MANUAL.DOC">
+                            <File Id="VAT_MANUAL.DOC" Name="vat_manual.doc" Source="$(env.wixPrjDir)\vat_manual.doc"/>
+                            <Shortcut Id="programShortcutVAT_MANUAL.DOC" Directory="ProgramMenuDir" Name="btoReportDoc" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="WordIcon.ico" IconIndex="0" />
+                        </Component>
+                    </Directory>
+                </Directory>
+            </Directory>
+            <Directory Id="DesktopFolder"/>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ProgramMenuDir" Name="$(var.ProductName)">
+                    <Component Guid="E2D5227B-9A57-47EE-B7A7-0BB02BF055C8" Id="StartMenuShortcutUninstall">
+                        <RemoveFolder Id="ProgramMenuDir" On="uninstall"/>
+                        <!-- <RemoveFolder Id="ProgramMenuSubDir" On="uninstall"/> -->
+                        <RegistryValue Key="Software\$(var.ManufacturerShortName)\$(var.ProductShortName)" Root="HKCU" Type="string" Value=""/>
+                        <Shortcut Arguments="/x [ProductCode]" Description="Удаление ${var.ProductName}" Id="UninstallProduct" Name="Удаление" Target="[System64Folder]msiexec.exe"/>
+                    </Component>
+                </Directory>
+            </Directory>
+        </Directory>
+        <Feature Id="DefaultFeature" Level="1" Title="Main Feature">
+            <ComponentRef Id="BTOREPORT.EXE"/>
+            <ComponentRef Id="VAT_MANUAL.DOC"/>
+            <ComponentGroupRef Id="compGrouplib"/>
+            <ComponentGroupRef Id="compGroupwin32"/>
+            <ComponentGroupRef Id="compGroupwin64"/>
+            <ComponentRef Id="StartMenuShortcutUninstall"/>
+        </Feature>
+        <UI/>
+        <Icon Id="DesktopIcon.ico" SourceFile="$(sys.CURRENTDIR)\src\main\resources\piggy_bank_icon.ico"/>
+        <Icon Id="WordIcon.ico" SourceFile="$(sys.CURRENTDIR)\src\main\resources\1470854782_word_256px.ico"/>
+    </Product>
+</Wix>

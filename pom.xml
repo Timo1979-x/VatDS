@@ -142,13 +142,53 @@
                 </executions>
             </plugin>
 
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.7</version>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
+                        <id>copy-dlls-w32</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <outputDirectory>${basedir}/target/win32</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources/win32</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-dlls-w64</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <outputDirectory>${basedir}/target/win64</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources/win64</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-manual</id>
                         <phase>validate</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -158,20 +198,17 @@
                             <outputDirectory>${basedir}/target</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>win32</directory>
-                                    <filtering>true</filtering>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>false</filtering>
                                     <includes>
-                                        <include>**/*.dll</include>
+                                        <include>*.doc</include>
                                     </includes>
                                 </resource>
                             </resources>
-                            <nonFilteredFileExtensions>
-                                <nonFilteredFileExtension>jasper</nonFilteredFileExtension>
-                            </nonFilteredFileExtensions>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -232,7 +269,8 @@
                             <outfile>target/${exeFileName}.exe</outfile>
                             <jar>target/${project.artifactId}-${project.version}.jar</jar>
                             <errTitle>${product.title}</errTitle>
-                            <icon>piggy-bank2.ico</icon>
+                            <!--<icon>piggy-bank2.ico</icon>-->
+                            <icon>src\main\resources\piggy-bank2.ico</icon>
                             <downloadUrl>http://java.com/download</downloadUrl>
                             <!--<customProcName>true</customProcName>-->
                             <classPath>
@@ -265,6 +303,31 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!--<plugin>
+                <groupId>org.apache.npanday.plugins</groupId>
+                <artifactId>wix-maven-plugin</artifactId>
+                <version>1.4.0-incubating</version>
+                <configuration>
+                    <sourceFiles>
+                        <sourceFile>src/main/wix/btoReportNG.wxs </sourceFile>
+                    </sourceFiles>
+                    <outputDirectory>target</outputDirectory>
+                    <objectFiles>
+                        <objectFile>target/btoReportNG.wixobj</objectFile>
+                    </objectFiles>
+                    <outputFile>target/btoReportNG.msi</outputFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>wix</id>
+                        <goals>
+                            <goal>candle</goal>
+                            <goal>light</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
         </plugins>
     </build>
     <dependencies>

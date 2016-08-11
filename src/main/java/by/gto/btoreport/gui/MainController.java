@@ -10,21 +10,30 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.awt.*;
+import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Predicate;
 
+import javafx.stage.WindowEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -87,7 +96,13 @@ public class MainController implements Initializable {
     public TableView vatTableView;
     @FXML
     public TableColumn colVATFullNumber;
+    @FXML
     public Label lMessage;
+    @FXML
+    public TableColumn colBlankSeries;
+    @FXML
+    public TableColumn colBlankNumber;
+
     private String report = "recordBook";
     private byte bankTransfer = 2;
 
@@ -107,11 +122,15 @@ public class MainController implements Initializable {
 
     public static void showErrorMessage(String title, String message) {
         Alert a = new Alert(Alert.AlertType.ERROR, message, ButtonType.CLOSE);
+        a.setTitle(title);
+        a.setHeaderText(null);
         a.showAndWait();
     }
 
     public static void showInfoMessage(String title, String message) {
         Alert a = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.CLOSE);
+        a.setTitle(title);
+        a.setHeaderText(null);
         a.showAndWait();
     }
 
@@ -391,10 +410,43 @@ public class MainController implements Initializable {
         bShowReport.setDisable(false);
     }
 
+    private ScrollBar findScrollBar(TableView<?> table, Orientation orientation) {
+
+        // this would be the preferred solution, but it doesn't work. it always gives back the vertical scrollbar
+        //      return (ScrollBar) table.lookup(".scroll-bar:horizontal");
+        //
+        // => we have to search all scrollbars and return the one with the proper orientation
+
+        Set<Node> set = table.lookupAll(".scroll-bar");
+        for (Node node : set) {
+            ScrollBar bar = (ScrollBar) node;
+            if (bar.getOrientation() == orientation) {
+                return bar;
+            }
+        }
+        return null;
+    }
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+//        ScrollBar table1HorizontalScrollBar = findScrollBar( vatTableView, Orientation.HORIZONTAL);
+//        ScrollBar table1VerticalScrollBar = findScrollBar( table, Orientation.VERTICAL);
+//        if(table1HorizontalScrollBar != null) {
+//            table1HorizontalScrollBar.setVisible(true);
+//        }
+//        if(table1VerticalScrollBar != null) {
+//            table1VerticalScrollBar.setVisible(true);
+//        }
+
+//        for (Object c : vatTableView.getColumns()) {
+//            ((TableColumn)c).setResizable(true);
+//            vatTableView.setColumnResizePolicy();
+//            System.out.println(c);
+//        }
         dtpEnd.setValue(LocalDate.now());
         dtpStart.setValue(LocalDate.now());
+
 
         comboBoxMonth.setItems(months);
         comboBoxYear.setItems(years);
@@ -414,6 +466,10 @@ public class MainController implements Initializable {
                 new PropertyValueFactory<VatData, String>("withVAT"));
         colVAT.setCellValueFactory(
                 new PropertyValueFactory<VatData, String>("VAT"));
+        colBlankSeries.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("blankSeries"));
+        colBlankNumber.setCellValueFactory(
+                new PropertyValueFactory<VatData, String>("blankNumber"));
 
 //        vatData.add(new VatData(1, 1, (short) 200, 10l, new Date(), 123123123, " Рога и",
 //                new BigDecimal("10.1"), new BigDecimal("12.2"), new BigDecimal("2.05")));
@@ -475,8 +531,10 @@ public class MainController implements Initializable {
 
     public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
         Stage newStage = new Stage();
-        FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/settingsVAT.fxml"));
+        FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/settingsVAT.fxml"));
+        Parent root = loader.load();
+        final SettingsVATController controller = loader.<SettingsVATController>getController();
+        //controller = (SettingsVATController) loader.getController();
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.setTitle("Настройка диапазонов номеров ЭСЧФ");
         newStage.setScene(new Scene(root));
@@ -484,6 +542,22 @@ public class MainController implements Initializable {
         Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
         newStage.getIcons().add(i);
         newStage.show();
+        newStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                if (controller.isModified()) {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Подтвердите");
+                    alert.setHeaderText("Подтвердите");
+                    alert.setContentText("Настройки были изменены. Действительно хотите закрыть окно без сохранения настроек?");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() != ButtonType.OK) {
+                        event.consume();
+                    }
+                }
+            }
+        });
     }
 
     private void refreshVats() {
@@ -509,7 +583,7 @@ public class MainController implements Initializable {
                 "  stti.summa_oplaty - stti.summa_no_tax VAT,\n" +
                 "  b.seria blankSeries,\n" +
                 "  b.number blankNumber\n" +
-                "FROM o_vats vats\n" +
+                "FROM ei_vats vats\n" +
                 "  RIGHT JOIN blanc_ts_info bti\n" +
                 "    ON bti.id_blanc_ts_info = vats.id_blank_ts_info\n" +
                 "  INNER JOIN ts_info ti\n" +
@@ -608,12 +682,12 @@ public class MainController implements Initializable {
         int unp = ConfigReader.getInstance().getUNP();
         long numberBegin, numberEnd;
         List<String> numbersUsed = new ArrayList<>();
-        String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM o_vat_settings ovs WHERE ovs.`year` = ?";
-        String qUsedVatNumbers = "SELECT ov.`number` FROM o_vats ov\n" +
+        String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM ei_vat_settings ovs WHERE ovs.`year` = ?";
+        String qUsedVatNumbers = "SELECT ov.`number` FROM ei_vats ov\n" +
                 "  WHERE ov.`number` >= ? AND ov.`number` <= ? AND ov.unp = ?  AND ov.`year` = ?\n" +
                 "\n" +
                 "  ORDER BY ov.`number`";
-        String qIssueVat = "INSERT o_vats(id_blank_ts_info, unp, `year`, `number`)\n" +
+        String qIssueVat = "INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)\n" +
                 "  VALUES (?, ?, ?, ?);";
         try (Connection conn = ConnectionMySql.getInstance().getConn();
              PreparedStatement psGetNumberRange = conn.prepareStatement(qGetNumberRange);
@@ -650,12 +724,21 @@ public class MainController implements Initializable {
                 for (Integer index : selectedIndices) {
                     VatData vd = vatData.get(index);
                     String number = null;
-                    if (!vd.isVatIssued()) {
+                    final boolean issued = vd.isVatIssued();
+                    if (!issued) {
                         // подобрать номер из настроенных, но еще не задействованный:
                         for (; counter <= numberEnd; counter++) {
                             number = VatHelpers.vatNumber(unp, year, counter);
+                            if (numbersUsed.contains(number)) {
+                                continue;
+                            }
                             final byte status = vt.isNumberSpare(number);
-                            if(status  == 2) {
+                            if (status == 3) {
+                                throw new Exception("Ошибка получения статуса ЭСЧФ.\n" +
+                                        "Проверьте настройки, подключение к\n" +
+                                        "интернету и попробуйте позже");
+                            }
+                            if (status == 2) {
                                 // пометим номер как занятый
                                 psUsedVatNumbers.setLong(1, counter);
                                 psUsedVatNumbers.setLong(2, counter);
@@ -664,9 +747,9 @@ public class MainController implements Initializable {
                                 try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
                                     if (!rs.next()) {
                                         psIssueVat.setNull(1, Types.INTEGER);
-                                        psIssueVat.setInt(2, vd.getVatUnp());
-                                        psIssueVat.setShort(3, vd.getVatYear());
-                                        psIssueVat.setLong(4, vd.getVatNumber());
+                                        psIssueVat.setInt(2, unp);
+                                        psIssueVat.setShort(3, year);
+                                        psIssueVat.setLong(4, counter);
                                         psIssueVat.executeUpdate();
                                     }
                                 }
@@ -674,7 +757,7 @@ public class MainController implements Initializable {
                                 conn.commit();
                             }
 
-                            if (status == 0 && !numbersUsed.contains(number)) {
+                            if (status == 0) {
                                 break;
                             }
                         }
@@ -685,29 +768,37 @@ public class MainController implements Initializable {
                         vd.setVatYear(year);
                         vd.setVatUnp(unp);
                         vd.setVatNumber(counter++);
+
                     }
                     final String vatXml = makeVATXml(vd);
+                    if(!issued) {
+                        // записать в базу:
+                        // INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)
+                        psIssueVat.setInt(1, vd.getBlancTsInfoId());
+                        psIssueVat.setInt(2, vd.getVatUnp());
+                        psIssueVat.setShort(3, vd.getVatYear());
+                        psIssueVat.setLong(4, vd.getVatNumber());
+                        psIssueVat.executeUpdate();
+                    }
                     vt.doSignAndUploadString(vatXml);
-                    // записать в базу:
-                    // INSERT o_vats(id_blank_ts_info, unp, `year`, `number`)
-                    psIssueVat.setInt(1, vd.getBlancTsInfoId());
-                    psIssueVat.setInt(2, vd.getVatUnp());
-                    psIssueVat.setShort(3, vd.getVatYear());
-                    psIssueVat.setLong(4, vd.getVatNumber());
-                    psIssueVat.executeUpdate();
-                    conn.commit();
                     try (FileOutputStream fos = new FileOutputStream(dir + File.separator + number + ".xml");
                          OutputStreamWriter fw = new OutputStreamWriter(fos, "UTF-8");
                          BufferedWriter bw = new BufferedWriter(fw)) {
                         bw.write(vatXml, 0, vatXml.length());
                     }
+                    conn.commit();
                 }
+            }
+            catch (Exception e) {
+                conn.rollback();
+                throw e;
             }
 
             final String resultMessage = "Загрузка на портал ЭСЧФ завершена успешно";
             MainController.showInfoMessage("", resultMessage);
             lMessage.setText(resultMessage);
         } catch (Exception e) {
+
             MainController.showErrorMessage("", e.getMessage());
             System.out.println("[ОШИБКА] " + e);
             if (Main.verbose) {
@@ -839,6 +930,15 @@ public class MainController implements Initializable {
 
     public void bIssueUploadAction(ActionEvent actionEvent) {
         issueVATS();
+    }
+
+    public void miHelpAction(ActionEvent actionEvent) {
+        try {
+            String f = new File(MainController.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+            Desktop.getDesktop().open(new File(f + "\\vat_manual.doc"));
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     public static class VatData {

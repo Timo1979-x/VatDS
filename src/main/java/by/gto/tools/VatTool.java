@@ -55,16 +55,21 @@ public class VatTool implements Closeable {
         //final Provider[] providers1 = Security.getProviders();
 
 
-        String url = System.getProperty("by.gto.btoreport.avest.url");
-        if (url == null) {
-            url = ConfigReader.getInstance().getVatServiceUrl();
-        }
+        String url = getVatServiceUrl();
         this.service = new EVatService2(url, new KeySelector());
         this.service.login("");
         System.out.println("[OK] Авторизация успешна");
         this.printConnectionInfo();
         this.service.connect();
         System.out.println("[OK] Подключение успешно");
+    }
+
+    private String getVatServiceUrl() {
+        String url = System.getProperty("by.gto.btoreport.avest.url");
+        if (url == null) {
+            url = ConfigReader.getInstance().getVatServiceUrl();
+        }
+        return url;
     }
 
     private static AvestProvider getAvestProvider() {
@@ -110,7 +115,7 @@ public class VatTool implements Closeable {
         String port = System.getProperty("https.proxyPort");
         StringBuilder sb = new StringBuilder();
         sb.append("[OK] Подключение к ");
-        sb.append(ConfigReader.getInstance().getVatServiceUrl());
+        sb.append(getVatServiceUrl());
         if (host != null) {
             sb.append(" через прокси ");
             sb.append(host);
@@ -183,24 +188,27 @@ public class VatTool implements Closeable {
      * 3- ошибка получения статуса
      */
 
-    public byte isNumberSpare(String number) {
+    public byte isNumberSpare(String number) throws Exception {
+        AvEStatus status = null;
         try {
-            AvEStatus status = this.service.getStatus(number);
-            System.out.println(status.getMessage());
-            if ("NOT_FOUND".equals(status.getStatus())) return 0;
-            //if ("IN_PROGRESS".equals(status.getStatus()) || "IN_PROGRESS_ERROR".equals(status.getStatus())) return 1;
-            if ("COMPLETED".equals(status.getStatus())
-                    || "COMPLETED_SIGNED".equals(status.getStatus())
-                    || "ON_AGREEMENT".equals(status.getStatus())
-                    || "CANCELLED".equals(status.getStatus())
-                    || "ON_AGREEMENT_CANCEL".equals(status.getStatus())) {
-                return 2;
-            }
-            return 1;
+            status = this.service.getStatus(number);
         } catch (Exception e) {
             e.printStackTrace();
             return 3;
         }
+        if("DENIED".equals(status.getStatus())) {
+            throw new Exception(status.getMessage());
+        }
+        if ("NOT_FOUND".equals(status.getStatus())) return 0;
+        //if ("IN_PROGRESS".equals(status.getStatus()) || "IN_PROGRESS_ERROR".equals(status.getStatus())) return 1;
+        if ("COMPLETED".equals(status.getStatus())
+                || "COMPLETED_SIGNED".equals(status.getStatus())
+                || "ON_AGREEMENT".equals(status.getStatus())
+                || "CANCELLED".equals(status.getStatus())
+                || "ON_AGREEMENT_CANCEL".equals(status.getStatus())) {
+            return 2;
+        }
+        return 1;
     }
 
     public void doSignAndUploadString(String inXml) throws Exception {

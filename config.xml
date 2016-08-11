@@ -6,7 +6,7 @@
         <position>Должность</position>
         <chiefDS>ФИО</chiefDS>
         <NDS>20</NDS>
-        <UNP>190471274</UNP>
+        <UNP>0</UNP>
         <orgName>Организация</orgName>
         <serviceName>Контрольно-диагностические работы</serviceName>
         <vatServiceUrl>https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl</vatServiceUrl>

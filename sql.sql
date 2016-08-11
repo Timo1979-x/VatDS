@@ -1,4 +1,4 @@
-CREATE TABLE `to`.o_vats (
+CREATE TABLE `to`.ei_vats (
   id int(11) NOT NULL AUTO_INCREMENT,
   id_blank_ts_info int(11) NOT NULL COMMENT 'ссылка на бланк, по которому выдана с/ф',
   unp int(11) NOT NULL COMMENT 'УНП организации на момент выдачи с/ф по НДС (является частью номера С/Ф)',
@@ -7,19 +7,18 @@ CREATE TABLE `to`.o_vats (
   PRIMARY KEY (id)
 )
 ENGINE = INNODB
-AUTO_INCREMENT = 1
 AVG_ROW_LENGTH = 3276
 CHARACTER SET utf8
 COLLATE utf8_general_ci;
 
 
 
-CREATE TABLE `to`.o_vat_settings (
+CREATE TABLE `to`.ei_vat_settings (
   year smallint(6) NOT NULL,
   begin bigint(20) UNSIGNED NOT NULL,
   end bigint(20) UNSIGNED NOT NULL,
   PRIMARY KEY (year),
-  UNIQUE INDEX UK_o_vat_settings_year (year)
+  UNIQUE INDEX UK_ei_vat_settings_year (year)
 )
 ENGINE = INNODB
 AVG_ROW_LENGTH = 8192
@@ -35,7 +34,7 @@ SELECT
   stti.summa_no_tax withoutVAT,
   stti.summa_oplaty withVAT,
   stti.summa_oplaty - stti.summa_no_tax VAT
-  FROM o_vats vats RIGHT JOIN  blanc_ts_info bti ON bti.id_blanc_ts_info = vats.id_blank_ts_info
+  FROM ei_vats vats RIGHT JOIN  blanc_ts_info bti ON bti.id_blanc_ts_info = vats.id_blank_ts_info
   INNER JOIN ts_info ti ON bti.id_ts_info = ti.id_ts_info
 
   INNER JOIN owner_info oi ON ti.id_owner_sobs = oi.id_owner

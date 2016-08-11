@@ -70,7 +70,8 @@ public class ConfigReader {
         this.orgName = orgName;
     }
 
-    private static final File configXml = new File("config.xml");
+    //private static final File configXml = new File("config.xml");
+    private static final File configXml = new File(System.getenv("APPDATA") + "\\btoReportNG\\config.xml");
 
     /**
      * @return
@@ -94,7 +95,7 @@ public class ConfigReader {
             _save(configXml);
         }
         try {
-            config = new XMLConfiguration("config.xml");
+            config = new XMLConfiguration(configXml);
         } catch (ConfigurationException ex) {
             log.error(ex);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
@@ -103,6 +104,7 @@ public class ConfigReader {
     }
 
     private void _save(File configXml) {
+        configXml.getParentFile().mkdirs();
         try (FileOutputStream fos = new FileOutputStream(configXml);
              OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF8");
              Writer wFile = new BufferedWriter(osw)) {
