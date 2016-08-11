@@ -13,12 +13,14 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import org.apache.log4j.Logger;
 
 /**
  * Created by ltv on 29.07.2016.
  */
 public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
 
+    private final static Logger log = Logger.getLogger(AutoCompleteComboBoxListener.class);
     private ComboBox comboBox;
     private StringBuilder sb;
     private int lastLength;
@@ -37,7 +39,7 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
                 AutoCompleteComboBoxListener.this.originalItems =
                         FXCollections.observableArrayList(comboBox.getItems());
                 if (AutoCompleteComboBoxListener.this.originalItems.size() == 0) {
-                    System.out.println("originalItems.size() " + originalItems.size());
+                    log.info("originalItems.size() " + originalItems.size());
                 }
             }
         });
@@ -48,7 +50,7 @@ public class AutoCompleteComboBoxListener<T> implements EventHandler<KeyEvent> {
                 AutoCompleteComboBoxListener.this.originalItems =
                         FXCollections.observableArrayList(newValue);
                 if (AutoCompleteComboBoxListener.this.originalItems.size() == 0) {
-                    System.out.println("originalItems.size() " + originalItems.size());
+                    log.info("originalItems.size() " + originalItems.size());
                 }
             }
         });

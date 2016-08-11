@@ -7,6 +7,7 @@ import by.avest.crypto.pkcs11.provider.ProviderFactory;
 import by.avest.edoc.client.*;
 import by.avest.net.tls.AvTLSProvider;
 import by.gto.btoreport.gui.Main;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.Authenticator;
@@ -25,7 +26,7 @@ import javax.xml.ws.soap.SOAPFaultException;
  * Created by Tim on 23.07.2016.
  */
 public class VatTool implements Closeable {
-
+    private final static Logger log = Logger.getLogger(VatTool.class);
     private static byte[] xsdOriginal;
     private static byte[] xsdAdditional;
     private static byte[] xsdFixed;
@@ -55,13 +56,15 @@ public class VatTool implements Closeable {
         //final Provider[] providers1 = Security.getProviders();
 
 
-        String url = getVatServiceUrl();
-        this.service = new EVatService2(url, new KeySelector());
+        String wsdlUrlString = getVatServiceUrl();
+        URL wsdlUrl = new URL(wsdlUrlString);
+        String refUrlString = String.format("https://%s:%d/cxf/dictionary/grp/%%s?s=5", wsdlUrl.getHost(), wsdlUrl.getPort());
+        this.service = new EVatService2(wsdlUrlString, refUrlString, new KeySelector());
         this.service.login("");
-        System.out.println("[OK] Авторизация успешна");
+        log.info("[OK] Авторизация успешна");
         this.printConnectionInfo();
         this.service.connect();
-        System.out.println("[OK] Подключение успешно");
+        log.info("[OK] Подключение успешно");
     }
 
     private String getVatServiceUrl() {
@@ -125,59 +128,9 @@ public class VatTool implements Closeable {
             }
         }
 
-        System.out.println(sb.toString());
+        log.info(sb.toString());
     }
 
-//    private void doSignAndUploadFile(File infile) throws Exception {
-//        System.out.println("[OK] Обработка файла \'" + infile.getAbsolutePath() + "\'.");
-//        AvEDoc eDoc = this.service.createEDoc();
-//        eDoc.getDocument().load(readFile(infile));
-//        String invoicenum = eDoc.getDocument().getXmlNodeValue("issuance/general/number");
-//        String docType = eDoc.getDocument().getXmlNodeValue("issuance/general/documentType");
-//        System.out.println("[OK] Документ  \'" + invoicenum + "\', тип документа \'" + docType + "\'.");
-//        byte[] xsdSchema = loadXsdSchema(this.xsddirname, docType);
-//        boolean isDocumentValid = eDoc.getDocument().validateXML(xsdSchema);
-//        if (!isDocumentValid) {
-//            throw new Exception("Cтруктура документа не соответствует XSD схеме.");
-//        } else {
-//            eDoc.sign();
-//            System.out.println("[OK] Документ подписан.");
-//            byte[] signedDocument = eDoc.getEncoded();
-//            File outdir = this.getOutDir();
-//            File outSigned = new File(outdir, "invoice-" + invoicenum + ".sgn.xml");
-//            writeFile(outSigned, signedDocument);
-//            AvETicket ticket = null;
-//
-//            try {
-//                ticket = this.service.sendEDoc(eDoc);
-//                System.out.println("[OK] Документ отправлен.");
-//            } catch (SOAPFaultException var13) {
-//                System.err.println("[ОШИБКА] При обработке запроса на сервере произошла ошибка: " + var13.getMessage());
-//                System.exit(1);
-//            }
-//
-//            File outTicket;
-//            if (ticket.accepted()) {
-//                String err = ticket.getMessage();
-//                outTicket = new File(outdir, "invoice-" + invoicenum + ".ticket.xml");
-//                writeFile(outTicket, ticket.getEncoded());
-//                System.out.println("[OK] Счет-фактура НДС с номером \'" + invoicenum + "\' принят к обработке. Сервер вернул ответ: " + err);
-//                if (this.delete) {
-//                    if (infile.delete()) {
-//                        System.out.println("[OK] Исходный файл \'" + infile.getAbsolutePath() + "\' удалён.");
-//                    } else {
-//                        System.out.println("[ERROR] Не удалось удалить исходный файл \'" + infile.getAbsolutePath() + "\'.");
-//                    }
-//                }
-//            } else {
-//                AvError err1 = ticket.getLastError();
-//                outTicket = new File(outdir, "invoice-" + invoicenum + ".ticket.error.xml");
-//                writeFile(outTicket, ticket.getEncoded());
-//                System.err.println("[ОШИБКА] Не удалось загрузить счет-фактуру НДС с номером \'" + invoicenum + "\'. " + err1.getMessage());
-//            }
-//
-//        }
-//    }
 
 
     /**
@@ -193,10 +146,10 @@ public class VatTool implements Closeable {
         try {
             status = this.service.getStatus(number);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
             return 3;
         }
-        if("DENIED".equals(status.getStatus())) {
+        if ("DENIED".equals(status.getStatus())) {
             throw new Exception(status.getMessage());
         }
         if ("NOT_FOUND".equals(status.getStatus())) return 0;
@@ -217,20 +170,24 @@ public class VatTool implements Closeable {
         final byte[] docInMemory = inXml.getBytes("UTF-8"); //readFile(infile);
         eDoc.getDocument().load(docInMemory);
         String invoicenum = eDoc.getDocument().getXmlNodeValue("issuance/general/number");
-        if (isNumberSpare(invoicenum) != 0) {
+        final byte status = isNumberSpare(invoicenum);
+        if (status != 0) {
             return;
             //throw new Exception(String.format("Номер %s уже занят!", invoicenum));
         }
 
+        String unp = eDoc.getDocument().getXmlNodeValue("issuance/recipient/unp");
+        this.service.checkUNP(unp);
+
         String docType = eDoc.getDocument().getXmlNodeValue("issuance/general/documentType");
-        System.out.println("[OK] Документ  \'" + invoicenum + "\', тип документа \'" + docType + "\'.");
+        log.info("[OK] Документ  \'" + invoicenum + "\', тип документа \'" + docType + "\'.");
         byte[] xsdSchema = loadXsdSchema(/*xsddirname,*/ docType);
         boolean isDocumentValid = eDoc.getDocument().validateXML(xsdSchema);
         if (!isDocumentValid) {
             throw new Exception("Cтруктура документа не соответствует XSD схеме.");
         } else {
             eDoc.sign();
-            System.out.println("[OK] Документ подписан.");
+            log.info("[OK] Документ подписан.");
             byte[] signedDocument = eDoc.getEncoded();
             File outdir = this.getOutDir();
             File outSigned = new File(outdir, "invoice-" + invoicenum + ".sgn.xml");
@@ -239,23 +196,24 @@ public class VatTool implements Closeable {
 
             try {
                 ticket = this.service.sendEDoc(eDoc);
-                System.out.println("[OK] Документ отправлен.");
-            } catch (SOAPFaultException var13) {
-                System.err.println("[ОШИБКА] При обработке запроса на сервере произошла ошибка: " + var13.getMessage());
-                System.exit(1);
+                log.info("[OK] Документ отправлен.");
+            } catch (SOAPFaultException ex) {
+                log.error("[ОШИБКА] При обработке запроса на сервере произошла ошибка: " + ex.getMessage());
+                throw ex;
+                //System.exit(1);
             }
 
             File outTicket;
             if (ticket.accepted()) {
-                String err = ticket.getMessage();
+                String msg = ticket.getMessage();
                 outTicket = new File(outdir, "invoice-" + invoicenum + ".ticket.xml");
                 writeFile(outTicket, ticket.getEncoded());
-                System.out.println("[OK] Счет-фактура НДС с номером \'" + invoicenum + "\' принят к обработке. Сервер вернул ответ: " + err);
+                log.info("[OK] Счет-фактура НДС с номером \'" + invoicenum + "\' принят к обработке. Сервер вернул ответ: " + msg);
             } else {
                 AvError err1 = ticket.getLastError();
                 outTicket = new File(outdir, "invoice-" + invoicenum + ".ticket.error.xml");
                 writeFile(outTicket, ticket.getEncoded());
-                System.err.println("[ОШИБКА] Не удалось загрузить счет-фактуру НДС с номером \'" + invoicenum + "\'. " + err1.getMessage());
+                log.error("[ОШИБКА] Не удалось загрузить счет-фактуру НДС с номером \'" + invoicenum + "\'. " + err1.getMessage());
             }
 
         }

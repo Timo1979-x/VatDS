@@ -7,6 +7,7 @@ package by.avest.edoc.client;
 
 import by.avest.crypto.cert.verify.CertVerify;
 import by.avest.crypto.cert.verify.CertVerifyResult;
+import org.apache.log4j.Logger;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
 import sun.security.x509.X500Name;
@@ -20,6 +21,7 @@ import java.security.cert.X509Certificate;
 import java.util.*;
 
 public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
+    private final static Logger log = Logger.getLogger(PersonalKeyManager2.class);
     public static final String PARAM_UNP = "UNP";
     public static final String PARAM_PUB_KEY_ID = "PUB_KEY_ID";
     public static final String PARAM_COMMON_NAME = "COMMON_NAME";
@@ -283,8 +285,8 @@ public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
                             this.credentials.put(alias, cred1);
                         }
                     }
-                } catch (KeyStoreException var5) {
-                    var5.printStackTrace();
+                } catch (KeyStoreException ex) {
+                    log.error(ex.getMessage(), ex);
                 }
             }
         }

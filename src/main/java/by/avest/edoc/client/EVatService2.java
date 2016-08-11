@@ -17,53 +17,53 @@ import by.avest.edoc.client.InvoicesIntf;
 import by.avest.edoc.client.InvoicesService;
 import by.avest.edoc.client.PersonalKeyManager;
 import by.avest.edoc.client.XmlUtil;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.URL;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
+import java.security.*;
+import java.security.cert.CertStore;
 import java.security.cert.CertificateException;
 import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.Date;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
+import javax.net.ssl.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.soap.SOAPBinding;
+
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class EVatService2 {
+    private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv 11.0) like Gecko";
     private String wsdlLocation;
+    private String refLocation;
     private InvoicesIntf port;
     private PersonalKeyManager2 keyManager;
     private String alias;
     private PKIXBuilderParameters builderParams;
     private TrustManager[] trustManagers;
+    private final static Logger log = Logger.getLogger(EVatService2.class);
 
     private static String fixWSDLLocation(String wsdlLocation) {
-        return wsdlLocation != null && !wsdlLocation.endsWith("?wsdl")?wsdlLocation + "?wsdl":wsdlLocation;
+        return wsdlLocation != null && !wsdlLocation.endsWith("?wsdl") ? wsdlLocation + "?wsdl" : wsdlLocation;
     }
 
-    public EVatService2(String wsdlLocation, PersonalKeyManager2 keyManager) throws CertificateException, KeyStoreException, IOException, AvDocException {
+    public EVatService2(String wsdlLocation, String refLocation, PersonalKeyManager2 keyManager) throws CertificateException, KeyStoreException, IOException, AvDocException {
         this.wsdlLocation = fixWSDLLocation(wsdlLocation);
+        this.refLocation = refLocation;
         this.builderParams = CertStoreBuilderParams.getBuilderParams();
         this.keyManager = keyManager;
         this.keyManager.setCertVerify(new CertVerify(this.builderParams, true));
@@ -84,7 +84,7 @@ public class EVatService2 {
     private X509Certificate getMngrCert() {
         X509Certificate result = null;
         X509Certificate[] chain = this.keyManager.getCertificateChain(this.alias);
-        if(chain != null && chain.length != 0) {
+        if (chain != null && chain.length != 0) {
             result = chain[0];
         }
 
@@ -92,21 +92,138 @@ public class EVatService2 {
     }
 
     public void login() throws AvDocException {
-        this.alias = this.keyManager.chooseClientAlias(new String[0], (Principal[])null, (Socket)null);
+        this.alias = this.keyManager.chooseClientAlias(new String[0], (Principal[]) null, (Socket) null);
         this.keyManager.getPrivateKey(this.alias);
         this.keyManager.getCertificateChain(this.alias);
     }
 
     public void login(String str) throws AvDocException {
-        if(str != null && !str.isEmpty()) {
+        if (str != null && !str.isEmpty()) {
             this.keyManager.init(str);
-            this.alias = this.keyManager.chooseClientAlias(new String[0], (Principal[])null, (Socket)null);
+            this.alias = this.keyManager.chooseClientAlias(new String[0], (Principal[]) null, (Socket) null);
             this.keyManager.getPrivateKey(this.alias);
             this.keyManager.getCertificateChain(this.alias);
         } else {
             this.login();
         }
 
+    }
+
+    static PKIXBuilderParameters getBuilderParams() throws IOException, KeyStoreException, AvDocException, CertificateException {
+        CertStore certStore = null;
+        try {
+            certStore = CertStore.getInstance("AvCA", null);
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new AvDocException("Неверный параметр доступа к справочнику сертификатов.", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new AvDocException("Неверный алгоритм доступа к справочнику сертификатов.", e);
+        }
+        KeyStore rootKeyStore = KeyStore.getInstance("AvRoot");
+        try {
+            rootKeyStore.load(null);
+        } catch (NoSuchAlgorithmException e) {
+            throw new AvDocException("Неверный алгоритм доступа к справочнику ключей.", e);
+        }
+        PKIXBuilderParameters pbp = null;
+        try {
+            pbp = new PKIXBuilderParameters(rootKeyStore, null);
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new AvDocException("Неверный параметр алгоритма проверки цепочки сертификатов.", e);
+        }
+        pbp.addCertStore(certStore);
+        return pbp;
+    }
+
+    public boolean checkUNP(String unp) throws Exception {
+        // TODO: проверить, можно ли удалить
+        KeyStore keyStore = KeyStore.getInstance("AvPersonal");
+        keyStore.load(null, null);
+        // TODO: проверить, можно ли удалить
+        this.builderParams = getBuilderParams();
+        CertPathTrustManagerParameters trustManagerParams = new CertPathTrustManagerParameters(this.builderParams);
+        String tmDefaultAlg = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = null;
+        try {
+            tmf = TrustManagerFactory.getInstance(tmDefaultAlg);
+            tmf.init(trustManagerParams);
+        } catch (NoSuchAlgorithmException e) {
+            throw new AvDocException("Неверный алгоритм предоставления доверенных сертификатов.", e);
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new AvDocException("Неверный параметр алгоритма предоставления доверенных сертификатов.", e);
+        }
+        HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(String.format(this.refLocation, unp)).openConnection();
+        SSLContext context = null;
+        try {
+            context = SSLContext.getInstance("AvTLS");
+        } catch (NoSuchAlgorithmException e) {
+            throw new AvDocException("Неверный алгоритм SSL протокола.", e);
+        }
+
+        TrustManager[] tm = tmf.getTrustManagers();
+        // KeyManager[] kms = new KeyManager[]{new KeyInteractiveSelector()};
+        context.init(null, tm, null);
+        SSLSocketFactory sf = context.getSocketFactory();
+
+//
+//// Create a TrustManager that trusts the CAs in our KeyStore
+        //  String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+//        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+//        tmf.init(keyStore);
+//        TrustManager[] trustmanagers = tmf.getTrustManagers();
+//        for (TrustManager trustmanager : trustmanagers) {
+//            System.out.println("trustmanager: " + trustmanager.toString());
+//        }
+//        HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(url).openConnection();
+//        // Create an SSLContext that uses our TrustManager
+//        SSLContext context = SSLContext.getInstance("AvTLS");
+//        //SSLContext.
+//        context.init(null, tmf.getTrustManagers(), null);
+//
+//        urlConnection.setSSLSocketFactory(context.getSocketFactory());
+//        try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
+//            String inputLine;
+//
+//            while ((inputLine = in.readLine()) != null) {
+//
+//                System.out.println("inputLine:" + inputLine);
+//            }
+//        }
+        urlConnection.setSSLSocketFactory(sf);
+
+        // optional default is GET
+        urlConnection.setRequestMethod("GET");
+
+        //add request header
+        urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+
+//        int responseCode = urlConnection.getResponseCode();
+//        System.out.println("\nSending 'GET' request to URL : " + url);
+//        System.out.println("Response Code : " + responseCode);
+        // StringBuilder response = new StringBuilder();
+        int t = 5;
+        boolean isTrue = false;
+        StringBuilder sb = new StringBuilder();
+        while (t != 0) {
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
+                String inputLine = null;
+                sb.setLength(0);
+                while ((inputLine = in.readLine()) != null) {
+                    sb.append(inputLine);
+                    t = 0;
+                    isTrue = true;
+                }
+
+            } catch (IOException e) {
+                t--;
+                log.error(e.getMessage(), e);
+            }
+        }
+
+        if (!isTrue) {
+            sb.append("Error");
+        }
+        log.info(unp + " -> " + sb);
+        return true;
     }
 
     public void connect() throws KeyManagementException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, AvDocException {
@@ -123,20 +240,20 @@ public class EVatService2 {
             throw new AvDocException("Неверный алгоритм SSL протокола.", var12);
         }
 
-        context.init(new KeyManager[]{this.keyManager}, this.trustManagers, (SecureRandom)null);
+        context.init(new KeyManager[]{this.keyManager}, this.trustManagers, (SecureRandom) null);
         SSLSocketFactory sf = context.getSocketFactory();
         HttpsURLConnection.setDefaultSSLSocketFactory(sf);
         URL wsdlURL = new URL(wsdlLocation);
         InvoicesService ss = new InvoicesService(wsdlURL, InvoicesService.SERVICE);
         result = ss.getInvoicesPort();
         Client client = ClientProxy.getClient(result);
-        HTTPConduit condoit = (HTTPConduit)client.getConduit();
+        HTTPConduit condoit = (HTTPConduit) client.getConduit();
         TLSClientParameters params = new TLSClientParameters();
         params.setSSLSocketFactory(sf);
         params.setDisableCNCheck(true);
         condoit.setTlsClientParameters(params);
-        BindingProvider bindingProvider = (BindingProvider)result;
-        SOAPBinding sopadBinding = (SOAPBinding)bindingProvider.getBinding();
+        BindingProvider bindingProvider = (BindingProvider) result;
+        SOAPBinding sopadBinding = (SOAPBinding) bindingProvider.getBinding();
         sopadBinding.setMTOMEnabled(true);
         return result;
     }
@@ -144,12 +261,12 @@ public class EVatService2 {
     public AvETicket sendEDoc(AvEDoc eDoc) throws IOException, AvDocException, ParseException {
         AvDoc document = eDoc.getDocument();
         String generalNumber = document.getXmlNodeValue("/issuance/general/number");
-        if(generalNumber == null) {
+        if (generalNumber == null) {
             throw new AvDocException("Документ не содержит элемент \'/issuance/general/number\'.");
         } else {
             Object response = null;
             byte[] response1;
-            if(eDoc.getSignCount() == 1) {
+            if (eDoc.getSignCount() == 1) {
                 response1 = this.port.put(eDoc.getEncoded());
             } else {
                 response1 = this.port.putFinal(eDoc.getEncoded());

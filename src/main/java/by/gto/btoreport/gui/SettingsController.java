@@ -3,8 +3,12 @@ package by.gto.btoreport.gui;
 import by.gto.tools.ConfigReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.net.URL;
@@ -33,6 +37,8 @@ public final class SettingsController implements javafx.fxml.Initializable {
     public TextField eServiceName;
     @FXML
     public TextField eVatPath;
+
+    private final static Logger log = Logger.getLogger(SettingsController.class);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -122,10 +128,10 @@ public final class SettingsController implements javafx.fxml.Initializable {
                 String s = st.nextElement().toString();
                 ipArray[i] = Integer.parseInt(s);
                 i++;
-                System.out.println("s:" + s);
+                log.info("s:" + s);
             }
             for (int j = 0; j < 4; j++) {
-                System.out.println("ipArray[i]:" + ipArray[j]);
+                log.info("ipArray[i]:" + ipArray[j]);
             }
             switch (IPvalue) {
                 case "0.0.0.0":
@@ -179,7 +185,7 @@ public final class SettingsController implements javafx.fxml.Initializable {
                 eVatPath.setText(out.getAbsolutePath());
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }

@@ -3,7 +3,6 @@ package by.gto.tools;
 import by.gto.btoreport.gui.MainController;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import javax.sql.ConnectionPoolDataSource;
@@ -20,7 +19,7 @@ public class ConnectionMySql {
     // private ConfigReader config = new ConfigReader();
     private static PooledConnection pool = null;
     //  private Connection conn = null;
-    private static final Logger log = LogManager.getLogger(ConnectionMySql.class);
+    private static final Logger log = Logger.getLogger(ConnectionMySql.class);
 
     public static ConnectionMySql getInstance() {
         if (instance == null) {

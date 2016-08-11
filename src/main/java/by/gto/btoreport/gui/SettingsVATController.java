@@ -8,15 +8,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import java.net.URL;
@@ -26,7 +22,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public final class SettingsVATController implements javafx.fxml.Initializable {
-    private static final Logger log = LogManager.getLogger(SettingsVATController.class);
+    private static final Logger log = Logger.getLogger(SettingsVATController.class);
 
     private final ObservableList<VatSetting> data = FXCollections.observableArrayList();
     @FXML
@@ -150,13 +146,9 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
         try {
             table.setItems(data);
         } catch (Throwable t) {
-            System.out.println(t.getMessage());
+            log.error(t.getMessage());
         }
-
-
     }
-
-
 
     public void bAddRangeAction(ActionEvent actionEvent) {
         String year = StringUtils.trim(eYear.getText());

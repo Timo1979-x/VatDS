@@ -34,9 +34,7 @@ public class JRViewerMain extends Application {
 		try {
 			jasperPrint = JasperFillManager.fillReport("target/classes/TestReport.jasper", new HashMap(),  new JREmptyDataSource());
 		} catch (JRException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		};	
+		};
 		JRViewerFx viewer = new JRViewerFx(jasperPrint, JRViewerFxMode.REPORT_VIEW,primaryStage);
 		viewer.start(primaryStage);
 		

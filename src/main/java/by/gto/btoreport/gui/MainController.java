@@ -4,7 +4,10 @@ import by.gto.helpers.VatHelpers;
 import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
 import by.gto.jasperprintmysql.data.OwnerDataSW2;
-import by.gto.tools.*;
+import by.gto.tools.ConfigReader;
+import by.gto.tools.ConnectionMySql;
+import by.gto.tools.Util;
+import by.gto.tools.VatTool;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -25,32 +28,28 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.awt.*;
-import java.net.URISyntaxException;
-import java.sql.*;
-import java.util.Date;
-import java.util.List;
-import java.util.function.Predicate;
-
 import javafx.stage.WindowEvent;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @SuppressWarnings("SqlDialectInspection")
 public class MainController implements Initializable {
 
-    private static final Logger log = LogManager.getLogger(MainController.class);
+    private static final Logger log = Logger.getLogger(MainController.class);
 
     @FXML
     public CheckBox cbPeriod;
@@ -161,7 +160,7 @@ public class MainController implements Initializable {
 
         } catch (Exception e) {
             if (Main.verbose) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
             if (Main.debug) {
                 throw e;
@@ -188,14 +187,14 @@ public class MainController implements Initializable {
             if (pass != null) {
                 controller.setPassword(pass);
             }
-            System.out.println("chooseFromList: before newStage.showAndWait();");
+            log.info("chooseFromList: before newStage.showAndWait();");
             newStage.showAndWait();
-            System.out.println("chooseFromList: after newStage.showAndWait();");
+            log.info("chooseFromList: after newStage.showAndWait();");
             result[0] = controller.getKeyIndex();
             result[1] = controller.getPassword();
         } catch (IOException e) {
             if (Main.verbose) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
             }
             if (Main.debug) {
                 throw e;
@@ -274,14 +273,14 @@ public class MainController implements Initializable {
                 } else if (showMessage) {
                     showInfoMessage("", "Установлена последняя версия btoReport");
                 }
-                System.out.println(strTemp);
+                log.info(strTemp);
             }
         } catch (Exception ex) {
             if (showMessage) {
                 showErrorMessage("", "Ошибка проверки версии");
             }
 
-            log.error(ex.getMessage());
+            log.error(ex.getMessage(), ex);
         }
     }
 
@@ -384,12 +383,12 @@ public class MainController implements Initializable {
                 owner = owner.trim().replaceAll("(^.*\")(.+)(\".*$)", "$2");
                 owner = owner.replaceAll("\"", "_");
                 owner = owner.replaceAll("\\s+", "%");
-                System.out.println(String.format("----------owner--------%s", owner));
+                log.info(String.format("----------owner--------%s", owner));
             }
             ownerUNP = (String) comboBoxUNP.getSelectionModel().getSelectedItem();
             if (!StringUtils.isEmpty(ownerUNP)) {
                 ownerUNP = ownerUNP.trim();
-                System.out.println(String.format("--------ownerUNP----------%s", ownerUNP));
+                log.info(String.format("--------ownerUNP----------%s", ownerUNP));
             }
         }
 
@@ -646,10 +645,8 @@ public class MainController implements Initializable {
                     );
                 }
             }
-            //vatTableView.getSelectionModel().selectAll();
         } catch (SQLException e) {
-
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -800,9 +797,11 @@ public class MainController implements Initializable {
         } catch (Exception e) {
 
             MainController.showErrorMessage("", e.getMessage());
-            System.out.println("[ОШИБКА] " + e);
+
             if (Main.verbose) {
-                e.printStackTrace(System.out);
+                log.error(e.getMessage(), e);
+            } else {
+                log.error("[ОШИБКА] " + e.getMessage());
             }
             lMessage.setText("Возникла ошибка");
         }
@@ -937,7 +936,7 @@ public class MainController implements Initializable {
             String f = new File(MainController.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
             Desktop.getDesktop().open(new File(f + "\\vat_manual.doc"));
         } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 

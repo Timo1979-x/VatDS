@@ -2,6 +2,7 @@ package by.gto.tools;
 
 import by.avest.edoc.client.PersonalKeyManager2;
 import by.gto.btoreport.gui.MainController;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import java.util.Map;
  * Created by Tim on 23.07.2016.
  */
 public class KeySelector extends PersonalKeyManager2 {
+    private final static Logger log = Logger.getLogger(KeySelector.class);
     private Map<String, String> passwords = new HashMap<>();
 
     public KeySelector(KeyStore ks) {
@@ -31,14 +33,14 @@ public class KeySelector extends PersonalKeyManager2 {
     }
 
     public char[] promptPassword(String alias) throws IOException {
-        System.out.println("start promptPassword " + alias);
+        log.info("start promptPassword " + alias);
         final String pass = System.getProperty("by.gto.btoreport.avest.password");
         if (pass != null) {
-            System.out.println("promptPassword: use pass from environment");
+            log.info("promptPassword: use pass from environment");
             return pass.toCharArray();
         }
         if (passwords.containsKey(alias)) {
-            System.out.println("promptPassword: use recently entered pass");
+            log.info("promptPassword: use recently entered pass");
             return passwords.get(alias).toCharArray();
         }
         if (chooseAlias(new String[]{alias}) != null) {
@@ -52,7 +54,7 @@ public class KeySelector extends PersonalKeyManager2 {
 //            final PrivateKey pk = this.getPrivateKey(alias);
 //            System.out.println(pk);
 //        }
-        System.out.println("start chooseAlias");
+        log.info("start chooseAlias");
         passwords.clear();
         Object[] result = MainController.chooseFromList("Выберите ключ", aliases);
         int idx = (int) result[0];
@@ -61,7 +63,7 @@ public class KeySelector extends PersonalKeyManager2 {
             passwords.put(alias, (String) result[1]);
             return alias;
         }
-        System.out.println("end chooseAlias");
+        log.info("end chooseAlias");
         return "";
     }
 

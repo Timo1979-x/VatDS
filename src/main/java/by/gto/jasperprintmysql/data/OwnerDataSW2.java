@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -14,8 +13,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -23,7 +20,7 @@ import java.util.List;
  */
 public class OwnerDataSW2 extends SwingWorker {
 
-    private static final Logger log = LogManager.getLogger(OwnerDataSW2.class);
+    private static final Logger log = Logger.getLogger(OwnerDataSW2.class);
     private final ObservableList<String> listOwner = FXCollections.observableArrayList();
     private final ObservableList<String> listOwnerUNP = FXCollections.observableArrayList();
     private final ComboBox name;

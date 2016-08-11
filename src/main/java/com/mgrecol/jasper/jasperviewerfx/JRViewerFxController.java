@@ -3,56 +3,34 @@
  */
 package com.mgrecol.jasper.jasperviewerfx;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.util.Callback;
-
-import javax.imageio.ImageIO;
-
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRExporterParameter;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperPrintManager;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import org.apache.log4j.Logger;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
 
 
 /**
@@ -63,7 +41,7 @@ import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
  */
 public class JRViewerFxController implements  Initializable {
 
-
+	private final static Logger log = Logger.getLogger(JRViewerFxController.class);
 	private JRViewerFxMode printMode;
 	private String reportFilename;
 	private JRDataSource reportDataset;
@@ -165,8 +143,7 @@ public class JRViewerFxController implements  Initializable {
 				try {
 					JasperExportManager.exportReportToPdfFile(jasperPrint, file.getAbsolutePath());
 				} catch (JRException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(e,e);
 				}
 			}  else 	if(selectedExtension.contains("*.png")){
 				for(int i =0 ; i<jasperPrint.getPages().size(); i++){
@@ -185,18 +162,18 @@ public class JRViewerFxController implements  Initializable {
 					}else{
 						filename = file.getAbsolutePath()+fileNumber ;
 					}
-					System.out.println(filename);
+					log.info(filename);
 					File imageFile = new File(filename);
 					try {
 						ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", imageFile);
-						System.out.println(imageFile.getAbsolutePath());
+						log.info(imageFile.getAbsolutePath());
 					} catch (IOException e) {
 						TransactionResult t  = new TransactionResult();
 						t.setResultNumber(-1);
 						t.setResult("Error Saving Report");
 						t.setResultDescription(e.getMessage());
 						setTransactionResult(t);
-						e.printStackTrace();
+						log.error(e,e);
 					}
 
 				}
@@ -210,7 +187,7 @@ public class JRViewerFxController implements  Initializable {
 					t.setResult("Error Saving Report");
 					t.setResultDescription(e.getMessage());
 					setTransactionResult(t);
-					e.printStackTrace();
+					log.error(e,e);
 				}
 			} else 	if(selectedExtension.contains("*.docx")){
 				JRDocxExporter exporter = new JRDocxExporter();
@@ -224,9 +201,9 @@ public class JRViewerFxController implements  Initializable {
 					t.setResult("Error Saving Report");
 					t.setResultDescription(e.getMessage());
 					setTransactionResult(t);
-					e.printStackTrace();
+					log.error(e,e);
 				}
-				System.out.println("docx");
+				log.info("docx");
 			} else 	if(selectedExtension.contains("*.xlsx")){
 				JRXlsxExporter exporter = new JRXlsxExporter();
 				exporter.setParameter(JRXlsExporterParameter.JASPER_PRINT, jasperPrint);
@@ -239,9 +216,9 @@ public class JRViewerFxController implements  Initializable {
 					t.setResult("Error Saving Report");
 					t.setResultDescription(e.getMessage());
 					setTransactionResult(t);
-					e.printStackTrace();
+					log.error(e,e);
 				}
-				System.out.println("xlsx");
+				log.info("xlsx");
 			} 
 		}
 		return false;
@@ -251,8 +228,7 @@ public class JRViewerFxController implements  Initializable {
 		try {
 			image = (BufferedImage) JasperPrintManager.printPageToImage(jasperPrint, pageNumber, 2);
 		} catch (JRException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage(),e);
 		}
 		WritableImage fxImage = new WritableImage(jasperPrint.getPageWidth(), jasperPrint.getPageHeight());
 		return SwingFXUtils.toFXImage(image, fxImage);
@@ -274,13 +250,12 @@ public class JRViewerFxController implements  Initializable {
 		try {
 			JasperPrintManager.printReport(jasperPrint, true);
 		} catch (JRException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e,e);
 		}
 	}
 	@FXML 
 	private void pageListSelected(final ActionEvent event){
-		System.out.println(pageList.getSelectionModel().getSelectedItem()-1);
+		log.info(pageList.getSelectionModel().getSelectedItem()-1);
 		viewPage(pageList.getSelectionModel().getSelectedItem()-1);
 	}
 

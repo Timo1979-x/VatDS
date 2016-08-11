@@ -1,44 +1,32 @@
 package by.gto.jasperprintmysql;
 
-import by.gto.btoreport.gui.Main;
 import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
-import by.gto.tools.ModalFrameUtil;
 import com.mgrecol.jasper.jasperviewerfx.JRViewerFx;
 import com.mgrecol.jasper.jasperviewerfx.JRViewerFxMode;
 import com.mysql.jdbc.Connection;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.UnsupportedLookAndFeelException;
-
 import javafx.stage.Stage;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRResultSetDataSource;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-public class App {
+import javax.swing.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-    private static final Logger Log = LogManager.getLogger(App.class);
+public class App {
+    private final static Logger log = Logger.getLogger(App.class);
 
     /**
      * @param title
@@ -190,65 +178,52 @@ public class App {
                     }
 
                 }
-                System.out.println("Query: " + stringBuilder);
+                log.info("Query: " + stringBuilder);
                 ResultSet rsTest = st.executeQuery(stringBuilder.toString());
-                System.out.println("rsTest");
+                log.info("rsTest");
                 //  map.put("TableDataSource", jrDataSource);
                 // jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, jrDataSource);
                 //  rsTest.close();
                 // String printFileName = JasperFillManager.fillReportToFile(String.format("reports/%s.jasper", report), map, conn);
 //                JasperExportManager.exportReportToPdfFile(printFileName, "D:\\test\\1.pdf");
                 try (InputStream inputStream = App.class.getClassLoader().getResourceAsStream(String.format("reports/%s.jasper", report));) {
-                    System.out.println("fillReport1");
+                    log.info("fillReport1");
                     try {
                         jasperPrint = JasperFillManager.fillReport(inputStream, map, new JRResultSetDataSource(rsTest));
-                        System.out.println("fillReport2");
+                        log.info("fillReport2");
 //                    jasperPrint = JasperFillManager.fillReport(inputStream, map, conn);
 
                         //jasperPrint = JasperFillManager.fillReport(String.format("reports/%s.jasper", report), map, conn);
                         //MyViewer myViewer = new MyViewer(jasperPrint, false, " pdf, rtf, multipleXLS, singleXLS, csv, xml");
-                        System.out.println("1");
+                        log.info("1");
                         //myViewer.setCaption("Предварительный просмотр");
-                        System.out.println("2");
+                        log.info("2");
                         //myViewer.setExtendedState(myViewer.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-                        System.out.println("3");
+                        log.info("3");
                         if (!jasperPrint.getPages().isEmpty()) {
                             //Stage stage = Main.getStage();
                             Stage stage = new Stage();
-                            System.out.println("4");
+                            log.info("4");
                             JRViewerFx viewer = new JRViewerFx(jasperPrint, JRViewerFxMode.REPORT_VIEW, stage);
                             //viewer.start(stage);
                             //ModalFrameUtil.showAsModal(myViewer, MainView.getF(), JFrame.MAXIMIZED_BOTH);
                             //ModalFrameUtil.showAsModalFX(myViewer, Main.getStage(), JFrame.MAXIMIZED_BOTH);
-                            System.out.println("5");
+                            log.info("5");
                             //MainView.getF().toFront();
                         }
 
                     } catch (JRException | ExceptionInInitializerError e) {
                         showMessage("Ошибка", "Ошибка подключения к серверу.");
-                        Log.fatal(e.fillInStackTrace());
-                        Throwable e1 = e;
-                        while (e1 != null) {
-                            e1.printStackTrace();
-                            e1 = e1.getCause();
-                        }
+                        log.error(e.getMessage(), e);
                     } catch (Exception e) {
                         showMessage("Ошибка", "Нифига не понятная ошибка");
-                        Log.fatal(e.fillInStackTrace());
-                        Throwable e1 = e;
-                        while (e1 != null) {
-                            e1.printStackTrace();
-                            e1 = e1.getCause();
-                        }
+                        log.error(e.getMessage(),e);
                     }
                 }
             }
         } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException | UnsupportedLookAndFeelException | NullPointerException ex) {
             showMessage("jasper JRException", ex.toString());
-            for (StackTraceElement str : ex.getStackTrace()) {
-                System.out.println(str);
-            }
-            Log.error(ex);
+            log.error(ex.getMessage(), ex);
         }
     }
 

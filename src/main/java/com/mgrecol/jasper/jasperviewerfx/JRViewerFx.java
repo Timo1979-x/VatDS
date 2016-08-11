@@ -48,6 +48,7 @@ import net.sf.jasperreports.engine.JasperPrintManager;
 import net.sf.jasperreports.engine.export.JRXlsExporterParameter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -63,7 +64,7 @@ import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 public class JRViewerFx extends Application {
     private JasperPrint jasperPrint;
     private JRViewerFxMode printMode;
-
+    private final static Logger log = Logger.getLogger(JRViewerFx.class);
     @Override
     public void start(Stage primaryStage) throws Exception {
         InputStream fxmlStream = null;
@@ -83,10 +84,8 @@ public class JRViewerFx extends Application {
                 jrViewerFxController.setJasperPrint(jasperPrint);
                 jrViewerFxController.show();
             }
-            
-
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
         }
     }
 
@@ -97,7 +96,7 @@ public class JRViewerFx extends Application {
         try {
             start(primaryStage);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
 

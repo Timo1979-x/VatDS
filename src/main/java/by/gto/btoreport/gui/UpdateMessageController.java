@@ -7,6 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import org.apache.log4j.Logger;
 
 import java.awt.*;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public final class UpdateMessageController {
+    private final static Logger log = Logger.getLogger(UpdateMessageController.class);
     @FXML
     private WebView webContent;
     private ChangeListener<String> listener = new ChangeListener<String>() {
@@ -31,8 +33,8 @@ public final class UpdateMessageController {
 //                        engine.load(oldLoc);
 //                    }
 //                });
-            } catch (URISyntaxException | IOException e) {
-                e.printStackTrace();
+            } catch (URISyntaxException | IOException ex) {
+                log.error(ex.getMessage(), ex);
             }
         }
     };

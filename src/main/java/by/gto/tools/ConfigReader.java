@@ -2,7 +2,6 @@ package by.gto.tools;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -13,7 +12,7 @@ import java.io.*;
  */
 public class ConfigReader {
 
-    private static final Logger log = LogManager.getLogger(ConfigReader.class);
+    private static final Logger log = Logger.getLogger(ConfigReader.class);
     private static volatile ConfigReader instance;
     private String host = "127.0.0.1";
     private String port = "33060";
@@ -26,11 +25,11 @@ public class ConfigReader {
     //private File configXml = new File("config.xml");
     private String vatServiceUrl = "https://ws.vat.gov.by:443/InvoicesWS/services/InvoicesPort?wsdl";
 
-    public  String getVatServiceUrl() {
+    public String getVatServiceUrl() {
         return vatServiceUrl;
     }
 
-    public  void setVatServiceUrl(String vatServiceUrl) {
+    public void setVatServiceUrl(String vatServiceUrl) {
         this.vatServiceUrl = vatServiceUrl;
     }
 
@@ -70,12 +69,13 @@ public class ConfigReader {
         this.orgName = orgName;
     }
 
-    //private static final File configXml = new File("config.xml");
-    private static final File configXml = new File(System.getenv("APPDATA") + "\\btoReportNG\\config.xml");
+    private static File configXml = null;
 
-    /**
-     * @return
-     */
+    public static void setFilePath(String path) {
+        configXml = new File(path);
+    }
+
+
     public static ConfigReader getInstance() {
         if (instance == null) {
             synchronized (ConfigReader.class) {
