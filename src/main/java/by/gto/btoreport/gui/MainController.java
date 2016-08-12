@@ -36,6 +36,8 @@ import org.json.JSONObject;
 import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.*;
@@ -670,6 +672,33 @@ public class MainController implements Initializable {
     }
 
     private void issueVATS() {
+        final ConfigReader config = ConfigReader.getInstance();
+        if (config.isUseProxy()) {
+            Authenticator.setDefault(new Authenticator() {
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(config.getProxyUser(), config.getProxyPass().toCharArray());
+                }
+            });
+            System.setProperty("https.proxyHost", config.getProxyHost());
+            System.setProperty("https.proxyPort", String.valueOf(config.getProxyPort()));
+            System.setProperty("https.proxyUser", config.getProxyUser());
+            System.setProperty("https.proxyPass", config.getProxyPass());
+        } else {
+            Authenticator.setDefault(new Authenticator() {
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(null, null);
+                }
+            });
+            System.clearProperty("https.proxyHost");
+            System.clearProperty("https.proxyPort");
+            System.clearProperty("https.proxyUser");
+            System.clearProperty("https.proxyPass");
+        }
+        String proxyHost = System.getProperty("https.proxyHost");
+        String proxyPort = System.getProperty("https.proxyPort");
+        String proxyUser = System.getProperty("https.proxyUser");
+        String proxyPass = System.getProperty("https.proxyPass");
+
         if (vatTableView.getSelectionModel().getSelectedIndex() == -1) {
             MainController.showInfoMessage("", "Не выделено ни одной строки");
             return;
@@ -679,7 +708,7 @@ public class MainController implements Initializable {
         List<VatData> selectedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).collect(Collectors.toList());
         //int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
         short year = (short) Calendar.getInstance().get(Calendar.YEAR);
-        int unp = ConfigReader.getInstance().getUNP();
+        int unp = config.getUNP();
         long numberBegin, numberEnd;
         List<String> numbersUsed = new ArrayList<>();
         String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM ei_vat_settings ovs WHERE ovs.`year` = ?";
@@ -716,18 +745,17 @@ public class MainController implements Initializable {
             }
 
             // отправка:
-            String dir = ConfigReader.getInstance().getVatPath();
+            String dir = config.getVatPath();
             new File(dir).mkdirs();
 
             long counter = numberBegin;
             try (VatTool vt = new VatTool()) {
                 final List<String> unps = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
                 String unpResult = vt.checkUNPs(unps);
-                if(StringUtils.isNotEmpty(unpResult)) {
+                if (StringUtils.isNotEmpty(unpResult)) {
                     showErrorMessage("Ошибка проверки УНП", unpResult);
                     return;
                 }
-                showInfoMessage("", "проверка УНП ОК");
                 for (VatData vd : selectedRows) {
                     String number = null;
                     final boolean issued = vd.isVatIssued();
@@ -777,7 +805,7 @@ public class MainController implements Initializable {
 
                     }
                     final String vatXml = makeVATXml(vd);
-                    if(!issued) {
+                    if (!issued) {
                         // записать в базу:
                         // INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)
                         psIssueVat.setInt(1, vd.getBlancTsInfoId());
@@ -794,8 +822,7 @@ public class MainController implements Initializable {
                     }
                     conn.commit();
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 conn.rollback();
                 throw e;
             }

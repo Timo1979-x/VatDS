@@ -2,6 +2,8 @@ package by.gto.tools;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
@@ -22,8 +24,12 @@ public class ConfigReader {
     private int UNP = 0;
     private String orgName = "Организация";
     private String serviceName = "Контрольно-диагностические работы";
-    //private File configXml = new File("config.xml");
     private String vatServiceUrl = "https://ws.vat.gov.by:443/InvoicesWS/services/InvoicesPort?wsdl";
+    private String proxyUser ="";
+    private String proxyPass="";
+    private String proxyHost="";
+    private int proxyPort;
+    private boolean useProxy;
 
     public String getVatServiceUrl() {
         return vatServiceUrl;
@@ -122,6 +128,11 @@ public class ConfigReader {
             wFile.write(String.format("        <serviceName>%s</serviceName>\n", getServiceName()));
             wFile.write(String.format("        <vatServiceUrl>%s</vatServiceUrl>\n", getVatServiceUrl()));
             wFile.write(String.format("        <vatPath>%s</vatPath>\n", getVatPath()));
+            wFile.write(String.format("        <useProxy>%s</useProxy>\n", isUseProxy()));
+            wFile.write(String.format("        <proxyHost>%s</proxyHost>\n", getProxyHost()));
+            wFile.write(String.format("        <proxyPort>%d</proxyPort>\n", getProxyPort()));
+            wFile.write(String.format("        <proxyUser>%s</proxyUser>\n", getProxyUser()));
+            wFile.write(String.format("        <proxyPass>%s</proxyPass>\n", getProxyPass()));
             wFile.write("    </config>\n");
             wFile.write("</configuration>\n");
             wFile.flush();
@@ -130,44 +141,6 @@ public class ConfigReader {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
         }
     }
-//    public void ConfigReader() {
-//        if (configXml.exists()) {
-//            try {
-//                config = new XMLConfiguration("config.xml");
-////            config.addProperty("tables.table.fields.field(-1).name", "id");
-////            config.addProperty("tables.table.fields.field.type", "int");
-////            config.setProperty("colors.background", "#000000");
-////            config.save();
-////            config.setProperty("config.host", "192.168.0.1");
-////           config.save();
-////                config.load();
-////                host = config.getString("config.host").trim();
-////                port = config.getString("config.port").trim();
-////                chiefDS = config.getString("config.chiefDS").trim();
-//                //     host = config.getKeys("host").toString();
-//            } catch (ConfigurationException ex) {
-//                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        } else {
-//            try {
-//                try (Writer wFile = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configXml), "UTF8"))) {
-//                    wFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
-//                    wFile.write("<configuration>\n");
-//                    wFile.write("    <config>\n");
-//                    wFile.write("        <host>" + host + "</host>\n");
-//                    wFile.write("        <port>" + port + "</port>\n");
-//                    wFile.write("        <chiefDS>" + chiefDS + "</chiefDS>\n");
-//                    wFile.write("    </config>\n");
-//                    wFile.write("</configuration>\n");
-//                    wFile.flush();
-//                }
-//            } catch (IOException ex) {
-//                Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }
-//        read();
-//    }
-//
 
     private void read() {
         try {
@@ -183,6 +156,11 @@ public class ConfigReader {
             vatServiceUrl = config.getString("config.vatServiceUrl", vatServiceUrl).trim();
             vatPath = config.getString("config.vatPath", vatPath).trim();
 
+            useProxy = config.getBoolean("config.useProxy", false);
+            proxyHost = config.getString("config.proxyHost", proxyHost).trim();
+            proxyPort = NumberUtils.toInt(config.getString("config.proxyPort", "8080").trim(), 8080);
+            proxyUser = config.getString("config.proxyUser", proxyUser).trim();
+            proxyPass = config.getString("config.proxyPass", proxyPass).trim();
         } catch (Exception ex) {
             log.error(ex.getMessage());
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
@@ -227,5 +205,46 @@ public class ConfigReader {
 
     public void save() {
         _save(configXml);
+    }
+
+
+    public String getProxyUser() {
+        return proxyUser;
+    }
+
+    public void setProxyUser(String proxyUser) {
+        this.proxyUser = proxyUser;
+    }
+
+    public String getProxyPass() {
+        return proxyPass;
+    }
+
+    public void setProxyPass(String proxyPass) {
+        this.proxyPass = proxyPass;
+    }
+
+    public String getProxyHost() {
+        return proxyHost;
+    }
+
+    public void setProxyHost(String proxyHost) {
+        this.proxyHost = proxyHost;
+    }
+
+    public int getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
+    public boolean isUseProxy() {
+        return useProxy;
+    }
+
+    public void setUseProxy(boolean useProxy) {
+        this.useProxy = useProxy;
     }
 }

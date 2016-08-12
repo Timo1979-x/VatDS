@@ -124,10 +124,5 @@ public class Main extends Application {
         } catch (URISyntaxException e) {
             log.error(e.getMessage(), e);
         }
-        Authenticator.setDefault(new Authenticator() {
-            public PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(System.getProperty("https.proxyUser"), System.getProperty("https.proxyPass").toCharArray());
-            }
-        });
     }
 }

@@ -3,10 +3,7 @@ package by.gto.btoreport.gui;
 import by.gto.tools.ConfigReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import org.apache.log4j.Logger;
 
@@ -38,6 +35,16 @@ public final class SettingsController implements javafx.fxml.Initializable {
     @FXML
     public TextField eVatPath;
 
+    @FXML
+    public TextField eProxyHost;
+    @FXML
+    public TextField eProxyPort;
+    @FXML
+    public TextField eProxyUser;
+    @FXML
+    public PasswordField eProxyPass;
+    @FXML
+    public CheckBox cbUseProxy;
     private final static Logger log = Logger.getLogger(SettingsController.class);
 
     @Override
@@ -53,12 +60,19 @@ public final class SettingsController implements javafx.fxml.Initializable {
         eOrgName.setText(instance.getOrgName());
         eServiceName.setText(instance.getServiceName());
         eVatPath.setText(instance.getVatPath());
+
+        eProxyHost.setText(instance.getProxyHost());
+        eProxyPort.setText(String.valueOf(instance.getProxyPort()));
+        eProxyUser.setText(instance.getProxyUser());
+        eProxyPass.setText(instance.getProxyPass());
+        cbUseProxy.setSelected(instance.isUseProxy());
+        useProxyChanged();
     }
 
     public void bSaveClick(ActionEvent actionEvent) {
         String ip = eServerIP.getText().trim();
         if (!validateIP(ip)) {
-            lResult.setText("Недопустимый IP адрес");
+            lResult.setText("Недопустимый IP адрес сервера БД");
             return;
         }
 
@@ -82,6 +96,17 @@ public final class SettingsController implements javafx.fxml.Initializable {
             return;
         }
 
+        int proxyPort = -1;
+        try {
+            proxyPort = Integer.parseInt(eProxyPort.getText());
+        } catch (NumberFormatException e) {
+
+        }
+        if(proxyPort <= 0) {
+            lResult.setText("Порт должен быть положительным числом");
+            return;
+        }
+
         final ConfigReader instance = ConfigReader.getInstance();
         instance.setHost(ip);
         instance.setPosition(ePosition.getText().trim());
@@ -91,6 +116,11 @@ public final class SettingsController implements javafx.fxml.Initializable {
         instance.setOrgName(eOrgName.getText());
         instance.setServiceName(eServiceName.getText());
         instance.setVatPath(eVatPath.getText());
+        instance.setUseProxy(cbUseProxy.isSelected());
+        instance.setProxyHost(eProxyHost.getText());
+        instance.setProxyPort(proxyPort);
+        instance.setProxyUser(eProxyUser.getText());
+        instance.setProxyPass(eProxyPass.getText());
 
         instance.save();
         lResult.setText("Успешно сохранено");
@@ -187,5 +217,17 @@ public final class SettingsController implements javafx.fxml.Initializable {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+    }
+
+    public void cbUseProxyAction(ActionEvent actionEvent) {
+        useProxyChanged();
+    }
+
+    private void useProxyChanged() {
+        final boolean selected = cbUseProxy.isSelected();
+        eProxyHost.setDisable(!selected);
+        eProxyPort.setDisable(!selected);
+        eProxyPass.setDisable(!selected);
+        eProxyUser.setDisable(!selected);
     }
 }
