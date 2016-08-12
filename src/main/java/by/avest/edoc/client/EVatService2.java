@@ -29,7 +29,9 @@ import java.security.cert.CertificateException;
 import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import javax.net.ssl.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -134,10 +136,10 @@ public class EVatService2 {
         return pbp;
     }
 
-    public boolean checkUNP(String unp) throws Exception {
+    public String checkUNPs(List<String> unps) throws Exception {
         // TODO: проверить, можно ли удалить
-        KeyStore keyStore = KeyStore.getInstance("AvPersonal");
-        keyStore.load(null, null);
+        //KeyStore keyStore = KeyStore.getInstance("AvPersonal");
+        //keyStore.load(null, null);
         // TODO: проверить, можно ли удалить
         this.builderParams = getBuilderParams();
         CertPathTrustManagerParameters trustManagerParams = new CertPathTrustManagerParameters(this.builderParams);
@@ -151,7 +153,7 @@ public class EVatService2 {
         } catch (InvalidAlgorithmParameterException e) {
             throw new AvDocException("Неверный параметр алгоритма предоставления доверенных сертификатов.", e);
         }
-        HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(String.format(this.refLocation, unp)).openConnection();
+
         SSLContext context = null;
         try {
             context = SSLContext.getInstance("AvTLS");
@@ -164,66 +166,63 @@ public class EVatService2 {
         context.init(null, tm, null);
         SSLSocketFactory sf = context.getSocketFactory();
 
-//
-//// Create a TrustManager that trusts the CAs in our KeyStore
-        //  String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-//        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-//        tmf.init(keyStore);
-//        TrustManager[] trustmanagers = tmf.getTrustManagers();
-//        for (TrustManager trustmanager : trustmanagers) {
-//            System.out.println("trustmanager: " + trustmanager.toString());
-//        }
-//        HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(url).openConnection();
-//        // Create an SSLContext that uses our TrustManager
-//        SSLContext context = SSLContext.getInstance("AvTLS");
-//        //SSLContext.
-//        context.init(null, tmf.getTrustManagers(), null);
-//
-//        urlConnection.setSSLSocketFactory(context.getSocketFactory());
-//        try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
-//            String inputLine;
-//
-//            while ((inputLine = in.readLine()) != null) {
-//
-//                System.out.println("inputLine:" + inputLine);
-//            }
-//        }
-        urlConnection.setSSLSocketFactory(sf);
 
-        // optional default is GET
-        urlConnection.setRequestMethod("GET");
+        StringBuilder response = new StringBuilder();
+        List<String> badUnps = new ArrayList<>();
+        for(String unp: unps) {
+            String url = String.format(refLocation, unp);
 
-        //add request header
-        urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(url).openConnection();
+            urlConnection.setSSLSocketFactory(sf);
+
+            // optional default is GET
+            urlConnection.setRequestMethod("GET");
+
+            //add request header
+            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
 
 //        int responseCode = urlConnection.getResponseCode();
 //        System.out.println("\nSending 'GET' request to URL : " + url);
 //        System.out.println("Response Code : " + responseCode);
-        // StringBuilder response = new StringBuilder();
-        int t = 5;
-        boolean isTrue = false;
-        StringBuilder sb = new StringBuilder();
-        while (t != 0) {
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
-                String inputLine = null;
-                sb.setLength(0);
-                while ((inputLine = in.readLine()) != null) {
-                    sb.append(inputLine);
-                    t = 0;
-                    isTrue = true;
+            // StringBuilder response = new StringBuilder();
+            int retries = 5;
+            boolean isTrue = false;
+            while (retries != 0) {
+                response.setLength(0);
+                try {
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
+                        String inputLine;
+                        while ((inputLine = in.readLine()) != null) {
+                            response.append(inputLine);
+                            //hashMapUNP.put(unp, inputLine);
+                            //hashMapUNP.add(inputLine);
+                            retries = 0;
+                            isTrue = true;
+                        }
+                    }
+                } catch (IOException e) {
+                    retries--;
+                    log.error(e, e);
                 }
+            }
 
-            } catch (IOException e) {
-                t--;
-                log.error(e.getMessage(), e);
+            if (!isTrue) {
+                throw new Exception("Техническая ошибка при проверке существования УНП " + unp+
+                ".\nПроверьте наличие связи.");
+            }
+            else if (response.toString().trim().equals("{}")){
+                badUnps.add(unp);
             }
         }
-
-        if (!isTrue) {
-            sb.append("Error");
+        if(badUnps.size() > 0) {
+            response.setLength(0);
+            for (String badUnp : badUnps) {
+                response.append(badUnp).append(" ");
+            }
+            return "Найдены незарегистрированные УНП: \n" + response.toString();
+        } else  {
+            return "";
         }
-        log.info(unp + " -> " + sb);
-        return true;
     }
 
     public void connect() throws KeyManagementException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, AvDocException {

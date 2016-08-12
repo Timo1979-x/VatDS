@@ -118,6 +118,7 @@ public class Main extends Application {
         try {
             String f = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
             String dllPath = f + "\\win" + (is64bit ? "64" : "32");
+            System.setProperty("java.library.path", dllPath);
             log.info("dllPath: " + dllPath);
             log.info("java.library.path" + dllPath);
         } catch (URISyntaxException e) {

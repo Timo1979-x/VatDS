@@ -58,7 +58,7 @@ public class VatTool implements Closeable {
 
         String wsdlUrlString = getVatServiceUrl();
         URL wsdlUrl = new URL(wsdlUrlString);
-        String refUrlString = String.format("https://%s:%d/cxf/dictionary/grp/%%s?s=5", wsdlUrl.getHost(), wsdlUrl.getPort());
+        String refUrlString = String.format("https://%s/cxf/dictionary/grp/%%s?s=5", wsdlUrl.getHost());
         this.service = new EVatService2(wsdlUrlString, refUrlString, new KeySelector());
         this.service.login("");
         log.info("[OK] Авторизация успешна");
@@ -175,9 +175,6 @@ public class VatTool implements Closeable {
             return;
             //throw new Exception(String.format("Номер %s уже занят!", invoicenum));
         }
-
-        String unp = eDoc.getDocument().getXmlNodeValue("issuance/recipient/unp");
-        this.service.checkUNP(unp);
 
         String docType = eDoc.getDocument().getXmlNodeValue("issuance/general/documentType");
         log.info("[OK] Документ  \'" + invoicenum + "\', тип документа \'" + docType + "\'.");
@@ -312,5 +309,9 @@ public class VatTool implements Closeable {
             this.service.disconnect();
             this.service.logout();
         }
+    }
+
+    public String checkUNPs(List<String> unps) throws Exception {
+        return this.service.checkUNPs(unps);
     }
 }

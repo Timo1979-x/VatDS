@@ -45,6 +45,8 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("SqlDialectInspection")
 public class MainController implements Initializable {
@@ -674,6 +676,7 @@ public class MainController implements Initializable {
         }
         ObservableList<Integer> selectedIndices = vatTableView.getSelectionModel().getSelectedIndices();
 
+        List<VatData> selectedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).collect(Collectors.toList());
         //int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
         short year = (short) Calendar.getInstance().get(Calendar.YEAR);
         int unp = ConfigReader.getInstance().getUNP();
@@ -718,8 +721,14 @@ public class MainController implements Initializable {
 
             long counter = numberBegin;
             try (VatTool vt = new VatTool()) {
-                for (Integer index : selectedIndices) {
-                    VatData vd = vatData.get(index);
+                final List<String> unps = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
+                String unpResult = vt.checkUNPs(unps);
+                if(StringUtils.isNotEmpty(unpResult)) {
+                    showErrorMessage("Ошибка проверки УНП", unpResult);
+                    return;
+                }
+                showInfoMessage("", "проверка УНП ОК");
+                for (VatData vd : selectedRows) {
                     String number = null;
                     final boolean issued = vd.isVatIssued();
                     if (!issued) {
@@ -846,7 +855,7 @@ public class MainController implements Initializable {
                 "<issuance xmlns='http://www.w3schools.com' sender='190471274'>\n" +
                 "    <general>\n" +
                 "        <number>{number}</number>\n" +
-                "        <dateIssuance>{dateIssuance}</dateIssuance>\n" +
+                "        <!--<dateIssuance>{dateIssuance}</dateIssuance>-->\n" +
                 "        <dateTransaction>{dateTransaction}</dateTransaction> <!-- yyyy-MM-dd -->\n" +
                 "        <documentType>ORIGINAL</documentType>\n" +
                 "    </general>\n" +
