@@ -3,7 +3,7 @@
 <?define UpgradeCode = '{00402D40-B0E5-49BA-AA12-3D783B6226E5}' ?>
 <?define Manufacturer = 'УП «Белтехосмотр»' ?>
 <?define ManufacturerShortName = 'Beltehosmotr' ?>
-<?define ProductName = 'Статистические отчеты ДС' ?>
+<?define ProductName = 'Статистические отчеты ДС + ЭСЧФ' ?>
 <?define ProductShortName = 'btoReportNG' ?>
 <?define Comment = 'Инсталляционный пакет "$(var.ProductName)"' ?>
 <?define Description = 'Инсталляционный пакет "$(var.ProductName)"' ?>
@@ -15,10 +15,10 @@
             <Directory Id="ProgramFilesFolder" Name="PFiles">
                 <Directory Id="BTODIR" Name="$(var.ManufacturerShortName)">
                     <Directory Id="PROGRAMDIR" Name="$(var.ProductShortName)">
-                        <Component Guid="*" Id="BTOREPORT.EXE">
-                            <File Id="BTOREPORT.EXE" Name="btoReport.exe" Source="$(env.wixPrjDir)\btoReport.exe"/>
-                            <Shortcut Id="desktopShortcutBTOREPORT.EXE" Directory="DesktopFolder" Name="btoReport" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
-                            <Shortcut Id="programShortcutBTOREPORT.EXE" Directory="ProgramMenuDir" Name="btoReport" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
+                        <Component Guid="*" Id="BTOREPORTNG.EXE">
+                            <File Id="BTOREPORTNG.EXE" Name="btoReportNG.exe" Source="$(env.wixPrjDir)\btoReportNG.exe"/>
+                            <Shortcut Id="desktopShortcutBTOREPORTNG.EXE" Directory="DesktopFolder" Name="btoReportNG" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
+                            <Shortcut Id="programShortcutBTOREPORTNG.EXE" Directory="ProgramMenuDir" Name="btoReportNG" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
                         </Component>
                         <Component Guid="*" Id="VAT_MANUAL.DOC">
                             <File Id="VAT_MANUAL.DOC" Name="vat_manual.doc" Source="$(env.wixPrjDir)\vat_manual.doc"/>
@@ -40,7 +40,7 @@
             </Directory>
         </Directory>
         <Feature Id="DefaultFeature" Level="1" Title="Main Feature">
-            <ComponentRef Id="BTOREPORT.EXE"/>
+            <ComponentRef Id="BTOREPORTNG.EXE"/>
             <ComponentRef Id="VAT_MANUAL.DOC"/>
             <ComponentGroupRef Id="compGrouplib"/>
             <ComponentGroupRef Id="compGroupwin32"/>

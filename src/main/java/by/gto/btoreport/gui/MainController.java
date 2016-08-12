@@ -1,5 +1,7 @@
 package by.gto.btoreport.gui;
 
+import by.avest.crypto.ocsp.client.protocol.util.*;
+import by.avest.crypto.ocsp.client.protocol.util.Base64;
 import by.gto.helpers.VatHelpers;
 import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
@@ -36,10 +38,7 @@ import org.json.JSONObject;
 import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.net.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -208,7 +207,6 @@ public class MainController implements Initializable {
     }
 
     public void miAboutClick(ActionEvent actionEvent) throws IOException {
-        showInfoMessage("", Main.message);
         Stage newStage = new Stage();
         FXMLLoader loader = new FXMLLoader();
         Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/about.fxml"));
@@ -245,7 +243,15 @@ public class MainController implements Initializable {
     private void CheckUpdate(boolean showMessage) {
         try {
             URL url = new URL("http://gto.by/api/check.updates.php?name=btoReportNG");
-            BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+            ConfigReader config = ConfigReader.getInstance();
+            InputStream is = null;
+            if(config.isUseProxy()) {
+                final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(config.getProxyHost(), config.getProxyPort()));
+                is = url.openConnection(proxy).getInputStream();
+            } else {
+                is = url.openStream();
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String strTemp = "";
             while (null != (strTemp = br.readLine())) {
                 JSONObject obj = new JSONObject(strTemp);
@@ -275,7 +281,7 @@ public class MainController implements Initializable {
 
 
                 } else if (showMessage) {
-                    showInfoMessage("", "Установлена последняя версия btoReport");
+                    showInfoMessage("", "Установлена последняя версия btoReportNG");
                 }
                 log.info(strTemp);
             }

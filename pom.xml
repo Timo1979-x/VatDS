@@ -6,10 +6,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>by.gto</groupId>
-    <artifactId>btoReport</artifactId>
+    <artifactId>btoReportNG</artifactId>
     <version>0.2.25</version>
     <packaging>jar</packaging>
-    <name>btoReport</name>
+    <name>btoReportNG</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +18,7 @@
         <!--<avjceprov.path>${project.basedir}/libs/avjceprov</avjceprov.path>-->
         <avjceprov.path>c:/Program Files (x86)/Avest/AvPCM/AvJCEProv</avjceprov.path>
         <avests.path>${project.basedir}/libs/avest</avests.path>
-        <exeFileName>btoReport</exeFileName>
+        <exeFileName>btoReportNG</exeFileName>
         <product.title>Статистические отчеты</product.title>
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2016</product.year>
