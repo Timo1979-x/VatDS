@@ -244,7 +244,7 @@ public class MainController implements Initializable {
 
     private void CheckUpdate(boolean showMessage) {
         try {
-            URL url = new URL("http://gto.by/api/check.updates.php?name=btoReport");
+            URL url = new URL("http://gto.by/api/check.updates.php?name=btoReportNG");
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
             String strTemp = "";
             while (null != (strTemp = br.readLine())) {
