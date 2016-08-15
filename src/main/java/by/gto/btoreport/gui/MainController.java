@@ -244,11 +244,18 @@ public class MainController implements Initializable {
         try {
             URL url = new URL("http://gto.by/api/check.updates.php?name=btoReportNG");
             ConfigReader config = ConfigReader.getInstance();
+
             InputStream is = null;
             if(config.isUseProxy()) {
+                Authenticator.setDefault(new Authenticator() {
+                    public PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(config.getProxyUser(), config.getProxyPass().toCharArray());
+                    }
+                });
                 final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(config.getProxyHost(), config.getProxyPort()));
                 is = url.openConnection(proxy).getInputStream();
             } else {
+                Authenticator.setDefault(null);
                 is = url.openStream();
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -690,11 +697,7 @@ public class MainController implements Initializable {
             System.setProperty("https.proxyUser", config.getProxyUser());
             System.setProperty("https.proxyPass", config.getProxyPass());
         } else {
-            Authenticator.setDefault(new Authenticator() {
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(null, null);
-                }
-            });
+            Authenticator.setDefault(null);
             System.clearProperty("https.proxyHost");
             System.clearProperty("https.proxyPort");
             System.clearProperty("https.proxyUser");
