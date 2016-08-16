@@ -57,9 +57,9 @@ public class VatTool implements Closeable {
 
 
         String wsdlUrlString = getVatServiceUrl();
-        URL wsdlUrl = new URL(wsdlUrlString);
-        String refUrlString = String.format("https://%s/cxf/dictionary/grp/%%s?s=5", wsdlUrl.getHost());
-        this.service = new EVatService2(wsdlUrlString, refUrlString, new KeySelector());
+//        URL wsdlUrl = new URL(wsdlUrlString);
+//        String refUrlString = String.format("https://%s/cxf/dictionary/grp/%%s?s=5", wsdlUrl.getHost());
+        this.service = new EVatService2(wsdlUrlString, "https://vat.gov.by:443/cxf/dictionary/grp/%s?s=5", new KeySelector());
         this.service.login("");
         log.info("[OK] Авторизация успешна");
         this.printConnectionInfo();

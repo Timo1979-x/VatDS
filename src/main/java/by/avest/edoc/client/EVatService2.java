@@ -138,8 +138,8 @@ public class EVatService2 {
 
     public String checkUNPs(List<String> unps) throws Exception {
         // TODO: проверить, можно ли удалить
-        //KeyStore keyStore = KeyStore.getInstance("AvPersonal");
-        //keyStore.load(null, null);
+//        KeyStore keyStore = KeyStore.getInstance("AvPersonal");
+//        keyStore.load(null, null);
         // TODO: проверить, можно ли удалить
         this.builderParams = getBuilderParams();
         CertPathTrustManagerParameters trustManagerParams = new CertPathTrustManagerParameters(this.builderParams);
@@ -171,6 +171,7 @@ public class EVatService2 {
         List<String> badUnps = new ArrayList<>();
         for(String unp: unps) {
             String url = String.format(refLocation, unp);
+            log.info("url: " + url);
 
             HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(url).openConnection();
             urlConnection.setSSLSocketFactory(sf);
