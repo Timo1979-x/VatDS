@@ -3,7 +3,7 @@
 <?define UpgradeCode = '{00402D40-B0E5-49BA-AA12-3D783B6226E5}' ?>
 <?define Manufacturer = 'УП «Белтехосмотр»' ?>
 <?define ManufacturerShortName = 'Beltehosmotr' ?>
-<?define ProductName = 'Статистические отчеты ДС + ЭСЧФ' ?>
+<?define ProductName = 'Статистические отчеты ДС + ЭСЧФ (btoReportNG)' ?>
 <?define ProductShortName = 'btoReportNG' ?>
 <?define Comment = 'Инсталляционный пакет "$(var.ProductName)"' ?>
 <?define Description = 'Инсталляционный пакет "$(var.ProductName)"' ?>
