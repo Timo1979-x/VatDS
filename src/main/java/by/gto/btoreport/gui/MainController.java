@@ -246,7 +246,7 @@ public class MainController implements Initializable {
             ConfigReader config = ConfigReader.getInstance();
 
             InputStream is = null;
-            if(config.isUseProxy()) {
+            if (config.isUseProxy()) {
                 Authenticator.setDefault(new Authenticator() {
                     public PasswordAuthentication getPasswordAuthentication() {
                         return new PasswordAuthentication(config.getProxyUser(), config.getProxyPass().toCharArray());
@@ -585,6 +585,7 @@ public class MainController implements Initializable {
         selectedMonth = idxMonth + 1;
         selectedYear = years.get(idxYear);
 
+
         String query = "SELECT\n" +
                 "  bti.id_blanc_ts_info bti_id,\n" +
                 "  vats.id vats_id,\n" +
@@ -622,6 +623,10 @@ public class MainController implements Initializable {
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, selectedMonth);
             ps.setInt(2, selectedYear);
+            if (!checkAndReportVersion()) {
+                return;
+            }
+
             try (ResultSet rs = ps.executeQuery()) {
                 vatData.clear();
                 while (rs.next()) {
@@ -665,6 +670,29 @@ public class MainController implements Initializable {
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private boolean checkAndReportVersion() throws SQLException {
+        String query = "SELECT MAX(v.ver) FROM version v";
+        try (Connection conn = ConnectionMySql.getInstance().getConn();
+             Statement st = conn.createStatement()) {
+            try (ResultSet rs = st.executeQuery(query)) {
+                rs.next();
+                final int ver = rs.getInt(1);
+                if (ver >= 173) {
+                    return true;
+                } else {
+                    MainController.showErrorMessage("Неправильная версия БД",
+                            String.format("Для работы данной программы необходима\n" +
+                                    "база данных АРМ ДС версии 173\n" +
+                                    "(поставляется с АРМ ДС версии 3.0.0.22)\n" +
+                                    "Версия Вашей БД - %d", ver));
+                    return false;
+                }
+
+            }
+        }
+
     }
 
     public void comboBoxYearAction(ActionEvent actionEvent) {
