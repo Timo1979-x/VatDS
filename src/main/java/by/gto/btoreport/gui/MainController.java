@@ -930,9 +930,9 @@ public class MainController implements Initializable {
                 "        <specialDealGoods>false</specialDealGoods>\n" +
                 "        <bigCompany>false</bigCompany>\n" +
                 "        <countryCode>112</countryCode>\n" +
-                "        <unp>190471274</unp>\n" +
-                "        <name>УП 'Белтехосмотр'</name>\n" +
-                "        <address>г. Минск,ул. Платонова, д.22а, ком. 312</address>\n" +
+                "        <unp>{ourUNP}</unp>\n" +
+                "        <name>{ourName}</name>\n" +
+                "        <address>{ourAddress}</address>\n" +
                 "    </provider>\n" +
                 "    <recipient>\n" +
                 "        <recipientStatus>CUSTOMER</recipientStatus>\n" +
@@ -984,6 +984,7 @@ public class MainController implements Initializable {
                 "    </roster>\n" +
                 "</issuance>";
         String sDate = String.format("%1$tY-%1$tm-%1$td", vd.get_date());
+        final ConfigReader configReader = ConfigReader.getInstance();
         return template
                 .replace("{number}", VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
                 .replace("{dateIssuance}", sDate)
@@ -997,7 +998,10 @@ public class MainController implements Initializable {
                 .replace("{totalCost}", vd.getWithoutVAT())
                 .replace("{actSeries}", vd.getBlankSeries())
                 .replace("{actNumber}", vd.getBlankNumber())
-                .replace("{serviceName}", ConfigReader.getInstance().getServiceName());
+                .replace("{serviceName}", configReader.getServiceName())
+                .replace("{ourUNP}", String.format("%09d", configReader.getUNP()))
+                .replace("{ourName}", configReader.getOrgName())
+                .replace("{ourAddress}", ((ConfigReader) configReader).getOrgAddress());
     }
 
     public void bIssueUploadAction(ActionEvent actionEvent) {

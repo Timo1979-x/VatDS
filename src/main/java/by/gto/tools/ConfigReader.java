@@ -23,6 +23,7 @@ public class ConfigReader {
     private int NDS = 20;
     private int UNP = 0;
     private String orgName = "Организация";
+    private String orgAddress = "Адрес";
     private String serviceName = "Контрольно-диагностические работы";
     private String vatServiceUrl = "https://ws.vat.gov.by:443/InvoicesWS/services/InvoicesPort?wsdl";
     private String proxyUser ="";
@@ -75,6 +76,14 @@ public class ConfigReader {
         this.orgName = orgName;
     }
 
+    public String getOrgAddress() {
+        return orgAddress;
+    }
+
+    public void setOrgAddress(String orgAddress) {
+        this.orgAddress = orgAddress;
+    }
+
     private static File configXml = null;
 
     public static void setFilePath(String path) {
@@ -125,6 +134,7 @@ public class ConfigReader {
             wFile.write(String.format("        <NDS>%s</NDS>\n", getNDS()));
             wFile.write(String.format("        <UNP>%s</UNP>\n", getUNP()));
             wFile.write(String.format("        <orgName>%s</orgName>\n", getOrgName()));
+            wFile.write(String.format("        <orgAddress>%s</orgAddress>\n", getOrgAddress()));
             wFile.write(String.format("        <serviceName>%s</serviceName>\n", getServiceName()));
             wFile.write(String.format("        <vatServiceUrl>%s</vatServiceUrl>\n", getVatServiceUrl()));
             wFile.write(String.format("        <vatPath>%s</vatPath>\n", getVatPath()));
@@ -152,6 +162,7 @@ public class ConfigReader {
             NDS = config.getInt("config.NDS", NDS);
             UNP = config.getInt("config.UNP", UNP);
             orgName = config.getString("config.orgName", orgName).trim();
+            orgAddress = config.getString("config.orgAddress", orgAddress).trim();
             serviceName = config.getString("config.serviceName", serviceName).trim();
             vatServiceUrl = config.getString("config.vatServiceUrl", vatServiceUrl).trim();
             vatPath = config.getString("config.vatPath", vatPath).trim();

@@ -44,6 +44,8 @@ public final class SettingsController implements javafx.fxml.Initializable {
     @FXML
     public PasswordField eProxyPass;
     @FXML
+    public TextField eOrgAddress;
+    @FXML
     public CheckBox cbUseProxy;
     private final static Logger log = Logger.getLogger(SettingsController.class);
 
@@ -58,6 +60,7 @@ public final class SettingsController implements javafx.fxml.Initializable {
 
         eUNP.setText(String.valueOf(instance.getUNP()));
         eOrgName.setText(instance.getOrgName());
+        eOrgAddress.setText(instance.getOrgAddress());
         eServiceName.setText(instance.getServiceName());
         eVatPath.setText(instance.getVatPath());
 
@@ -70,6 +73,7 @@ public final class SettingsController implements javafx.fxml.Initializable {
     }
 
     public void bSaveClick(ActionEvent actionEvent) {
+        final ConfigReader instance = ConfigReader.getInstance();
         String ip = eServerIP.getText().trim();
         if (!validateIP(ip)) {
             lResult.setText("Недопустимый IP адрес сервера БД");
@@ -96,29 +100,31 @@ public final class SettingsController implements javafx.fxml.Initializable {
             return;
         }
 
-        int proxyPort = -1;
-        try {
-            proxyPort = Integer.parseInt(eProxyPort.getText());
-        } catch (NumberFormatException e) {
+        if(cbUseProxy.isSelected()) {
+            int proxyPort = -1;
+            try {
+                proxyPort = Integer.parseInt(eProxyPort.getText());
+            } catch (NumberFormatException e) {
 
-        }
-        if(proxyPort <= 0) {
-            lResult.setText("Порт должен быть положительным числом");
-            return;
+            }
+            if (proxyPort <= 0) {
+                lResult.setText("Порт должен быть положительным числом");
+                return;
+            }
+            instance.setProxyPort(proxyPort);
         }
 
-        final ConfigReader instance = ConfigReader.getInstance();
         instance.setHost(ip);
         instance.setPosition(ePosition.getText().trim());
         instance.setChiefDS(eFIO.getText().trim());
         instance.setNDS(Integer.valueOf(vat));
         instance.setUNP(Integer.valueOf(unp));
         instance.setOrgName(eOrgName.getText());
+        instance.setOrgAddress(eOrgAddress.getText());
         instance.setServiceName(eServiceName.getText());
         instance.setVatPath(eVatPath.getText());
         instance.setUseProxy(cbUseProxy.isSelected());
         instance.setProxyHost(eProxyHost.getText());
-        instance.setProxyPort(proxyPort);
         instance.setProxyUser(eProxyUser.getText());
         instance.setProxyPass(eProxyPass.getText());
 
