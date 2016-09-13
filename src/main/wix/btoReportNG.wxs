@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?define Version = 0.0.20.0 ?>
+<?define Version = 0.2.29.0 ?>
 <?define UpgradeCode = '{00402D40-B0E5-49BA-AA12-3D783B6226E5}' ?>
 <?define Manufacturer = 'УП «Белтехосмотр»' ?>
 <?define ManufacturerShortName = 'Beltehosmotr' ?>
@@ -8,7 +8,7 @@
 <?define Comment = 'Инсталляционный пакет "$(var.ProductName)"' ?>
 <?define Description = 'Инсталляционный пакет "$(var.ProductName)"' ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Codepage="1251" Id="40AD8AB2-27FA-49A8-9094-7A2AD536AB69" Language="1049" Manufacturer="$(var.Manufacturer)" Name="$(var.ProductName)" UpgradeCode="$(var.UpgradeCode)" Version="$(var.Version)">
+    <Product Codepage="1251" Id="*" Language="1049" Manufacturer="$(var.Manufacturer)" Name="$(var.ProductName)" UpgradeCode="$(var.UpgradeCode)" Version="$(var.Version)">
         <Package Comments="$(var.Comment)" Compressed="yes" Description="$(var.Description)" InstallScope="perMachine" InstallerVersion="200"/>
         <Media Cabinet="simple.cab" EmbedCab="yes" Id="1"/>
         <Directory Id="TARGETDIR" Name="SourceDir">

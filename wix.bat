@@ -10,4 +10,3 @@ FOR %%D IN (lib,win32,win64) DO "%WIX%\heat.exe" dir "%wixPrjDir%\%%D" -dr PROGR
 "%WIX%\candle.exe" -ddirwin32="%wixPrjDir%\win32" -ddirwin64="%wixPrjDir%\win64" -ddirlib="%wixPrjDir%\lib" -nologo "src\main\wix\*.wxs" "target\temp\*.wxs" -out target\temp\
 "%WIX%\light.exe" -nologo -out "target\btoReportNG.msi" "target\temp\*.wixobj"
 del target\btoReportNG.wixpdb
-pause

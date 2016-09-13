@@ -1,7 +1,5 @@
 package by.gto.btoreport.gui;
 
-import by.avest.crypto.ocsp.client.protocol.util.*;
-import by.avest.crypto.ocsp.client.protocol.util.Base64;
 import by.gto.helpers.VatHelpers;
 import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
@@ -46,7 +44,6 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("SqlDialectInspection")
@@ -841,6 +838,9 @@ public class MainController implements Initializable {
                         vd.setVatNumber(counter++);
 
                     }
+                    else {
+                        number = VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber());
+                    }
                     final String vatXml = makeVATXml(vd);
                     if (!issued) {
                         // записать в базу:
@@ -860,6 +860,7 @@ public class MainController implements Initializable {
                     conn.commit();
                 }
             } catch (Exception e) {
+                log.error(e.getMessage(), e);
                 conn.rollback();
                 throw e;
             }
@@ -916,7 +917,7 @@ public class MainController implements Initializable {
 
     private String makeVATXml(VatData vd) {
         String template = "<?xml version='1.0' encoding='UTF-8'?>\n" +
-                "<issuance xmlns='http://www.w3schools.com' sender='190471274'>\n" +
+                "<issuance xmlns='http://www.w3schools.com' sender='{ourUNP}'>\n" +
                 "    <general>\n" +
                 "        <number>{number}</number>\n" +
                 "        <!--<dateIssuance>{dateIssuance}</dateIssuance>-->\n" +

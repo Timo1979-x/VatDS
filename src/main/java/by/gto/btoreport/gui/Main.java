@@ -20,7 +20,7 @@ import java.net.URISyntaxException;
 
 public class Main extends Application {
     private static String dataDir = "d:\\";
-    private final static Logger log = Logger.getLogger(Main.class);
+    private static final Logger log = Logger.getLogger(Main.class);
     private static Stage stage = null;
     // тестовая площадка ЭСЧФ:
     //public static final String EINV_PORTAL_URL = "https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl";
@@ -98,7 +98,6 @@ public class Main extends Application {
                 logDir.getAbsolutePath() + "\\btoReportNG.log", true);
         rfAppender.setThreshold(Level.WARN);
         Logger.getRootLogger().addAppender(rfAppender);
-
 //        ConsoleAppender cAppender = new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"), "System.err");
 //        cAppender.setThreshold(Level.ALL);
 //        Logger.getRootLogger().addAppender(cAppender);
