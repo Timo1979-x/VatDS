@@ -504,6 +504,7 @@ public class MainController implements Initializable {
         try {
             refreshVats();
         } catch (Exception e) {
+            // тут не нужна никакая обработка и сообщения, чтобы не смущать пользователей при старте программы
         }
 
 //        comboBoxOwner.setCellFactory(

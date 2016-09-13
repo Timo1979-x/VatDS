@@ -63,19 +63,7 @@ public class Main extends Application {
             System.out.println(e.getMessage());
             throw e;
         }
-//        try {
-//            try {
-//                FileInputStream fis = new FileInputStream("nonexistent file");
-//                fis.read(new byte[20]);
-//            } catch (IOException ex) {
-//                //log.error(ex.getMessage(), ex);
-//                final SAXException la = new SAXException("la", ex);
-//                la.initCause(ex);
-//                throw la;
-//            }
-//        } catch (SAXException ex) {
-//            log.error(ex.getMessage(), ex);
-//        }
+
             //поддерживаемые настройки (можно задавать через ком. строку)
             // все отладочные сообщения java security (см. http://docs.oracle.com/javase/7/docs/technotes/guides/security/troubleshooting-security.html):
             // -Djava.security.debug=none

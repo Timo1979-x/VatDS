@@ -307,7 +307,7 @@ public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
                 try {
                     list.add(new X500Principal(p.getName()));
                 } catch (IllegalArgumentException var7) {
-                    ;
+                    log.error(var7.getMessage(), var7);
                 }
             }
         }

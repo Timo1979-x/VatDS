@@ -12,6 +12,7 @@ import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
+import org.apache.log4j.Logger;
 
 /**
  * @author  Michael Grecol
@@ -21,6 +22,7 @@ import net.sf.jasperreports.engine.JasperPrint;
  */
 public class JRViewerMain extends Application {
 	public static String[] prgArgs;
+    private final static Logger log = Logger.getLogger(JRViewerMain.class);
 	public static void main(String[] args){
 		prgArgs = args;
 		launch(args);
@@ -34,6 +36,7 @@ public class JRViewerMain extends Application {
 		try {
 			jasperPrint = JasperFillManager.fillReport("target/classes/TestReport.jasper", new HashMap(),  new JREmptyDataSource());
 		} catch (JRException e) {
+            log.error(e.getMessage(), e);
 		};
 		JRViewerFx viewer = new JRViewerFx(jasperPrint, JRViewerFxMode.REPORT_VIEW,primaryStage);
 		viewer.start(primaryStage);

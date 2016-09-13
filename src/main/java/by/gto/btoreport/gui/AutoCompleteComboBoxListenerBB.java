@@ -13,6 +13,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import org.apache.log4j.Logger;
 
 /**
  * Created by ltv on 29.07.2016.
@@ -26,7 +27,7 @@ public class AutoCompleteComboBoxListenerBB<T> implements EventHandler<KeyEvent>
     private ObservableList<T> originalItems;
 
     private boolean itemsUpdateInProgress;
-
+    private final static Logger log = Logger.getLogger(AutoCompleteComboBoxListenerBB.class);
     public AutoCompleteComboBoxListenerBB(ComboBox<T> comboBox) {
         this.comboBox = comboBox;
         sb = new StringBuilder();
@@ -112,6 +113,7 @@ public class AutoCompleteComboBoxListenerBB<T> implements EventHandler<KeyEvent>
         try {
             sb.delete(ir.getStart(), sb.length());
         } catch (Exception e) {
+            log.error(e.getMessage());
         }
 
         //ObservableList items = comboBox.getItems();
@@ -180,6 +182,7 @@ public class AutoCompleteComboBoxListenerBB<T> implements EventHandler<KeyEvent>
                     found = true;
                     break;
                 } catch (Exception e) {
+                    log.error(e.getMessage());
                 }
             }
         }
