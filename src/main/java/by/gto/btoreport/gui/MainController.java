@@ -616,7 +616,8 @@ public class MainController implements Initializable {
                 "AND EXTRACT(MONTH FROM bti.date_ot) = ?\n" +
                 "AND EXTRACT(year FROM bti.date_ot) = ?\n" +
                 "AND b.id_blanc_type = 1\n" +
-                "AND b.id_blanc_status = 2";
+                "AND b.id_blanc_status = 2\n" +
+                "AND stti.summa_oplaty > 0";
         try (Connection conn = ConnectionMySql.getInstance().getConn();
              PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, selectedMonth);
@@ -870,9 +871,7 @@ public class MainController implements Initializable {
             MainController.showInfoMessage("", resultMessage);
             lMessage.setText(resultMessage);
         } catch (Exception e) {
-
-            MainController.showErrorMessage("", e.getMessage());
-
+            MainController.showErrorMessage("Ошибка", e.getMessage());
             if (Main.verbose) {
                 log.error(e.getMessage(), e);
             } else {
