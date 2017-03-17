@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -50,7 +50,7 @@
     <build>
         <plugins>
 
-            <!--            <plugin>
+            <!--<plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>1.3.5.RELEASE</version>
@@ -109,7 +109,7 @@
                         </manifestEntries>
                     </archive>
                     <includes>
-                        <include>**/*.prop</include>
+                        <!--<include>**/*.prop</include>-->
                         <include>**/*.gif</include>
                         <include>**/*.png</include>
                         <include>**/*.xml</include>
@@ -254,7 +254,7 @@
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
-                <version>1.7.10</version>
+                <version>1.7.16</version>
                 <executions>
                     <execution>
                         <id>l4j-clui</id>
@@ -289,7 +289,7 @@
                                 <fileVersion>${project.version}.0</fileVersion>
                                 <txtFileVersion>${project.version}</txtFileVersion>
                                 <fileDescription>Статистические отчеты</fileDescription>
-                                <copyright>Copyright © 2016 ${product.company}</copyright>
+                                <copyright>Copyright © 2017 ${product.company}</copyright>
                                 <productVersion>${project.version}.0</productVersion>
                                 <txtProductVersion>${project.version}</txtProductVersion>
                                 <companyName>${product.company}</companyName>
