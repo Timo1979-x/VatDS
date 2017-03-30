@@ -1,0 +1,12 @@
+.miUpload > .label {
+    -fx-graphic: url("Upload-icon24.png");
+}
+.bUpload {
+    -fx-graphic: url("Upload-icon24.png");
+}
+.bCheckStates {
+    -fx-graphic: url("refresh-icon24.png");
+}
+.miCheckStates  > .label{
+    -fx-graphic: url("refresh-icon24.png");
+}

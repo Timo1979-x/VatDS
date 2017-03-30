@@ -7,6 +7,8 @@ import by.avest.crypto.pkcs11.provider.ProviderFactory;
 import by.avest.edoc.client.*;
 import by.avest.net.tls.AvTLSProvider;
 import by.gto.btoreport.gui.Main;
+import by.gto.model.CustomerInfo;
+import by.gto.model.VatStatusEnum;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -59,7 +61,10 @@ public class VatTool implements Closeable {
         String wsdlUrlString = getVatServiceUrl();
 //        URL wsdlUrl = new URL(wsdlUrlString);
 //        String refUrlString = String.format("https://%s/cxf/dictionary/grp/%%s?s=5", wsdlUrl.getHost());
-        this.service = new EVatService2(wsdlUrlString, "https://vat.gov.by:443/cxf/dictionary/grp/%s?s=5", new KeySelector());
+        this.service = new EVatService2(wsdlUrlString,
+                "https://vat.gov.by:443/cxf/dictionary/grp/%s?s=5",
+                "https://vat.gov.by/mnsi-mdm/ru/v1/dictionary_definition/13ad9cf32d2d4c6ebdf019e5856912f3/data/page?query={\"search_expression\":{\"logic_units\":[{\"field\":\"c_9a2972c73397577\",\"operand\":\"%%2b\",\"operator\":\"EQUAL\"},{\"field\":\"c_3bec4fc1b09c1f5\",\"operand\":\"%s\",\"operator\":\"EQUAL\"}],\"logical_operator\":\"AND\"},\"fields\":[\"c_2970d0a35a454c5\",\"c_3bec4fc1b09c1f5\",\"c_5b6824a22a5d13e\",\"c_5b6824a22a5d13e\",\"c_cb33cfe506d4b40\",\"c_1b955f759058f49\",\"c_29e955528f2035d\"],\"sort_field\":\"c_2970d0a35a454c5\",\"sort_direction\":\"ASC\"}&rnd=%s&size=200",
+                new KeySelector());
         this.service.login("");
         log.info("[OK] Авторизация успешна");
         this.printConnectionInfo();
@@ -311,7 +316,18 @@ public class VatTool implements Closeable {
         }
     }
 
-    public String checkUNPs(List<String> unps) throws Exception {
-        return this.service.checkUNPs(unps);
+    // TODO:  проверить
+    public VatStatusEnum getVatStatus(String vatNumber) {
+        AvEStatus status;
+        try {
+            status = this.service.getStatus(vatNumber);
+            return VatStatusEnum.valueOf(status.getStatus());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return VatStatusEnum.UNKNOWN;
+        }
+    }
+    public Map<String, CustomerInfo> checkUNPsWithAddresses(Map<String, CustomerInfo> unps) throws Exception {
+        return this.service.checkUNPsWithAddresses(unps);
     }
 }

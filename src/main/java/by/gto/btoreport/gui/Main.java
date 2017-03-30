@@ -36,12 +36,14 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception, IOException {
-        //primaryStage.setOnCloseRequest(e -> System.exit(0));
         stage = primaryStage;
-        FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/main.fxml"));
+        FXMLLoader loader = new FXMLLoader(Main.class.getClassLoader().getResource("fxml/main.fxml"));
+        Parent root = loader.load();
+        MainController controller = loader.<MainController>getController();
         primaryStage.setTitle("Отчеты для ДС");
-        primaryStage.setScene(new Scene(root));
+        final Scene rootScene = new Scene(root);
+        primaryStage.setScene(rootScene);
+        controller.setScene(rootScene);
         primaryStage.setResizable(true);
         Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
         primaryStage.getIcons().add(i);

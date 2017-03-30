@@ -1,17 +1,26 @@
 package by.gto.btoreport.gui;
 
+import by.gto.helpers.ExceptionHelpers;
+import by.gto.library.db.NamedParameterStatement;
+import javafx.application.Platform;
+import javafx.scene.Cursor;
+import by.gto.helpers.TableViewHelpers;
 import by.gto.helpers.VatHelpers;
+import by.gto.helpers.XmlHelper;
 import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
 import by.gto.jasperprintmysql.data.OwnerDataSW2;
+import by.gto.model.BranchInfo;
+import by.gto.model.CustomerInfo;
+import by.gto.model.VatData;
+import by.gto.model.VatStatusEnum;
 import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.Util;
 import by.gto.tools.VatTool;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -50,6 +59,7 @@ import java.util.stream.Collectors;
 public class MainController implements Initializable {
 
     private static final Logger log = Logger.getLogger(MainController.class);
+    private static final int REQUIRED_DB_VERSION = 181;
 
     @FXML
     public CheckBox cbPeriod;
@@ -86,11 +96,11 @@ public class MainController implements Initializable {
     @FXML
     public TableColumn colDate;
     @FXML
-    public TableColumn colWithoutVAT;
+    public TableColumn<VatData, BigDecimal> colWithoutVAT;
     @FXML
-    public TableColumn colVAT;
+    public TableColumn<VatData, BigDecimal> colVAT;
     @FXML
-    public TableColumn colWithVAT;
+    public TableColumn<VatData, BigDecimal> colWithVAT;
     @FXML
     public TableView vatTableView;
     @FXML
@@ -101,9 +111,11 @@ public class MainController implements Initializable {
     public TableColumn colBlankSeries;
     @FXML
     public TableColumn colBlankNumber;
+    public TableColumn <VatData, Integer> colVatState;
 
     private String report = "recordBook";
     private byte bankTransfer = 2;
+    private Scene thisScene;
 
     private ObservableList<VatData> vatData = FXCollections.observableArrayList();
     private ObservableList<Integer> years = FXCollections.observableArrayList(
@@ -111,8 +123,6 @@ public class MainController implements Initializable {
             2020, 2021, 2022, 2024, 2024, 2025, 2026, 2027, 2028, 2029,
             2030, 2031
     );
-    private int selectedYear;
-    private int selectedMonth;
 
     private ObservableList<String> months = FXCollections.observableArrayList(
             "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
@@ -473,25 +483,37 @@ public class MainController implements Initializable {
                 new PropertyValueFactory<VatData, String>("date"));
         colContractorUNP.setCellValueFactory(
                 new PropertyValueFactory<VatData, Integer>("contractorUnp"));
-        colWithoutVAT.setCellValueFactory(
-                new PropertyValueFactory<VatData, String>("withoutVAT"));
-        colWithVAT.setCellValueFactory(
-                new PropertyValueFactory<VatData, String>("withVAT"));
-        colVAT.setCellValueFactory(
-                new PropertyValueFactory<VatData, String>("VAT"));
+//        colWithoutVAT.setCellValueFactory(
+//                new PropertyValueFactory<VatData, String>("withoutVAT"));
+//        colWithVAT.setCellValueFactory(
+//                new PropertyValueFactory<VatData, String>("withVAT"));
+//        colVAT.setCellValueFactory(
+//                new PropertyValueFactory<VatData, String>("VAT"));
+
+        TableViewHelpers.initBigdecimalColumn(colWithoutVAT, "withoutVAT");
+        TableViewHelpers.initBigdecimalColumn(colWithVAT, "withVAT");
+        TableViewHelpers.initBigdecimalColumn(colVAT, "VAT");
         colBlankSeries.setCellValueFactory(
                 new PropertyValueFactory<VatData, String>("blankSeries"));
         colBlankNumber.setCellValueFactory(
                 new PropertyValueFactory<VatData, String>("blankNumber"));
 
-//        vatData.add(new VatData(1, 1, (short) 200, 10l, new Date(), 123123123, " Рога и",
-//                new BigDecimal("10.1"), new BigDecimal("12.2"), new BigDecimal("2.05")));
-//        vatData.add(new VatData(1, 1, (short) 200, 10l, new Date(), 123123123, " Рога и хвосты",
-//                new BigDecimal("10.1"), new BigDecimal("12.2"), new BigDecimal("2.05")));
+        colVatState.setCellValueFactory(new PropertyValueFactory<VatData, Integer>("vatState"));
+        colVatState.setCellFactory(column -> {
+            return new TableCell<VatData, Integer>() {
+                @Override
+                protected void updateItem(Integer item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty) {
+                        setText(VatStatusEnum.getByOrdinal(item == null ? 0 : item).toString());
+                    }
+                }
+            };
+        });
+
         vatTableView.setItems(vatData);
         vatTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         vatTableView.setItems(vatData);
-
 
         // загрузим данные за прошлый месяц
         Date d = new Date();
@@ -580,8 +602,8 @@ public class MainController implements Initializable {
         if (idxYear < 0 || idxMonth < 0) {
             return;
         }
-        selectedMonth = idxMonth + 1;
-        selectedYear = years.get(idxYear);
+        int selectedMonth = idxMonth + 1;
+        int selectedYear = years.get(idxYear);
 
 
         String query = "SELECT\n" +
@@ -597,7 +619,10 @@ public class MainController implements Initializable {
                 "  stti.summa_oplaty withVAT,\n" +
                 "  stti.summa_oplaty - stti.summa_no_tax VAT,\n" +
                 "  b.seria blankSeries,\n" +
-                "  b.number blankNumber\n" +
+                "  b.number blankNumber,\n" +
+                "  case when branchesSubquery.unp is null then false else true end hasBranches,\n" +
+                "  IFNULL(vats.state, 0) state,\n" +
+                "  vats.branch\n" +
                 "FROM ei_vats vats\n" +
                 "  RIGHT JOIN blanc_ts_info bti\n" +
                 "    ON bti.id_blanc_ts_info = vats.id_blank_ts_info\n" +
@@ -611,7 +636,8 @@ public class MainController implements Initializable {
                 "    AND bti.id_blanc = stti.id_blanc)\n" +
                 "  INNER JOIN blanc b\n" +
                 "    ON bti.id_blanc = b.id_blanc\n" +
-                "\n" +
+                "left join (SELECT DISTINCT bi.unp FROM ei_BRANCHES bi) branchesSubquery\n" +
+                "                  on (branchesSubquery.unp = oi.unp)\n" +
                 "WHERE oi.id_owner_type IN (2, 3)\n" +
                 "AND EXTRACT(MONTH FROM bti.date_ot) = ?\n" +
                 "AND EXTRACT(year FROM bti.date_ot) = ?\n" +
@@ -661,7 +687,10 @@ public class MainController implements Initializable {
                                     rs.getInt("unp"), rs.getString("name"),
                                     rs.getBigDecimal("withoutVAT"),
                                     rs.getBigDecimal("withVAT"),
-                                    rs.getBigDecimal("VAT")
+                                    rs.getBigDecimal("VAT"),
+                                    rs.getInt("state"),
+                                    rs.getBoolean("hasBranches"),
+                                    rs.getInt("branch")
                             )
                     );
                 }
@@ -672,25 +701,43 @@ public class MainController implements Initializable {
     }
 
     private boolean checkAndReportVersion() throws SQLException {
-        String query = "SELECT MAX(v.ver) FROM version v";
         try (Connection conn = ConnectionMySql.getInstance().getConn();
              Statement st = conn.createStatement()) {
-            try (ResultSet rs = st.executeQuery(query)) {
+            conn.setAutoCommit(false);
+            try (ResultSet rs = st.executeQuery("SELECT MAX(v.ver) FROM version v")) {
                 rs.next();
                 final int ver = rs.getInt(1);
-                if (ver >= 173) {
-                    return true;
-                } else {
+                if (ver < REQUIRED_DB_VERSION) {
                     MainController.showErrorMessage("Неправильная версия БД",
                             String.format("Для работы данной программы необходима\n" +
-                                    "база данных АРМ ДС версии 173\n" +
-                                    "(поставляется с АРМ ДС версии 3.0.0.22)\n" +
-                                    "Версия Вашей БД - %d", ver));
+                                    "база данных АРМ ДС версии %d\n" +
+                                    "(поставляется с АРМ ДС версии 3.0.4.0)\n" +
+                                    "Версия Вашей БД - %d", REQUIRED_DB_VERSION, ver));
                     return false;
                 }
 
             }
+            try (ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM ei_branches")) {
+                rs.next();
+                final int count = rs.getInt(1);
+                if (count == BranchInfo.data.size()) {
+                    return true;
+                }
+            }
+
+            st.executeUpdate("DELETE FROM ei_branches");
+            try (PreparedStatement ps1 = conn.prepareStatement("INSERT INTO ei_branches (unp, code, name) VALUES (?,?,?)")) {
+                for (BranchInfo bi : BranchInfo.data) {
+                    ps1.setInt(1, bi.getUnp());
+                    ps1.setInt(2, bi.getBranchCode());
+                    ps1.setString(3, StringUtils.substring(bi.getShortName(), 0, 100));
+                    ps1.addBatch();
+                }
+                ps1.executeBatch();
+            }
+            conn.commit();
         }
+        return true;
 
     }
 
@@ -712,29 +759,6 @@ public class MainController implements Initializable {
     }
 
     private void issueVATS() {
-        final ConfigReader config = ConfigReader.getInstance();
-        if (config.isUseProxy()) {
-            Authenticator.setDefault(new Authenticator() {
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(config.getProxyUser(), config.getProxyPass().toCharArray());
-                }
-            });
-            System.setProperty("https.proxyHost", config.getProxyHost());
-            System.setProperty("https.proxyPort", String.valueOf(config.getProxyPort()));
-            System.setProperty("https.proxyUser", config.getProxyUser());
-            System.setProperty("https.proxyPass", config.getProxyPass());
-        } else {
-            Authenticator.setDefault(null);
-            System.clearProperty("https.proxyHost");
-            System.clearProperty("https.proxyPort");
-            System.clearProperty("https.proxyUser");
-            System.clearProperty("https.proxyPass");
-        }
-        String proxyHost = System.getProperty("https.proxyHost");
-        String proxyPort = System.getProperty("https.proxyPort");
-        String proxyUser = System.getProperty("https.proxyUser");
-        String proxyPass = System.getProperty("https.proxyPass");
-
         if (vatTableView.getSelectionModel().getSelectedIndex() == -1) {
             MainController.showInfoMessage("", "Не выделено ни одной строки");
             return;
@@ -744,7 +768,7 @@ public class MainController implements Initializable {
         List<VatData> selectedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).collect(Collectors.toList());
         //int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
         short year = (short) Calendar.getInstance().get(Calendar.YEAR);
-        int unp = config.getUNP();
+
         long numberBegin, numberEnd;
         List<String> numbersUsed = new ArrayList<>();
         String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM ei_vat_settings ovs WHERE ovs.`year` = ?";
@@ -759,6 +783,9 @@ public class MainController implements Initializable {
              PreparedStatement psUsedVatNumbers = conn.prepareStatement(qUsedVatNumbers);
              PreparedStatement psIssueVat = conn.prepareStatement(qIssueVat);
         ) {
+            configureProxy();
+            final ConfigReader config = ConfigReader.getInstance();
+            int unp = config.getUNP();
             conn.setAutoCommit(false);
             psGetNumberRange.setInt(1, year);
             try (ResultSet rs = psGetNumberRange.executeQuery()) {
@@ -786,12 +813,28 @@ public class MainController implements Initializable {
 
             long counter = numberBegin;
             try (VatTool vt = new VatTool()) {
-                final List<String> unps = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
-                String unpResult = vt.checkUNPs(unps);
-                if (StringUtils.isNotEmpty(unpResult)) {
-                    showErrorMessage("Ошибка проверки УНП", unpResult);
+//                final List<String> unps = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
+                final List<String> allUnpsList = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
+                Map<String, String> unpInfo = getUNPsInfo(conn, allUnpsList);
+                final Map<String, String> unpCheckResult = vt.checkUNPsWithAddresses(unpInfo);
+//                String unpResult = vt.checkUNPs(unps);
+                List<String> badUNPs = unpCheckResult.keySet().stream().filter(s -> unpCheckResult.get(s) == null).collect(Collectors.toList());
+                saveCheckedUnps(conn, unpCheckResult);
+
+                if (badUNPs.size() > 0) {
+                    StringBuilder sb = new StringBuilder("<p>");
+                    for (String badUnp : badUNPs) {
+                        sb.append(badUnp).append(", ");
+                    }
+                    sb.setLength(sb.length() - 2);
+                    sb.append("</p>");
+                    showLargeMessageBox("Ошибка проверки УНП", sb.toString());
                     return;
                 }
+//                if (StringUtils.isNotEmpty(unpResult)) {
+//                    showErrorMessage("Ошибка проверки УНП", unpResult);
+//                    return;
+//                }
                 for (VatData vd : selectedRows) {
                     String number = null;
                     final boolean issued = vd.isVatIssued();
@@ -839,11 +882,10 @@ public class MainController implements Initializable {
                         vd.setVatUnp(unp);
                         vd.setVatNumber(counter++);
 
-                    }
-                    else {
+                    } else {
                         number = VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber());
                     }
-                    final String vatXml = makeVATXml(vd);
+                    final String vatXml = makeVATXml(vd, unpInfo);
                     if (!issued) {
                         // записать в базу:
                         // INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)
@@ -882,6 +924,48 @@ public class MainController implements Initializable {
         refreshVats();
     }
 
+    // TODO: debug
+    private void saveCheckedUnps(Connection conn, Map<String, CustomerInfo> goodUNPs) throws SQLException {
+        ResultSet rs = null;
+        try (PreparedStatement psInsert = conn.prepareStatement("insert into ei_checked_unps (UNP, name, address) values (?,?,?)");
+             PreparedStatement psUpdate = conn.prepareStatement("update ei_checked_unps set name = ?, address = ? where UNP=?");
+             PreparedStatement psCheck = conn.prepareStatement("select count(*) from ei_checked_unps where unp=?");
+        ) {
+
+            for (String unp : goodUNPs.keySet()) {
+                CustomerInfo customerInfo = goodUNPs.get(unp);
+
+                psCheck.setString(1, unp);
+                rs = psCheck.executeQuery();
+                rs.next();
+                String address = StringUtils.substring(customerInfo.getAddress(), 0, 150);
+                String name = StringUtils.substring(customerInfo.getName(), 0, 150);
+                if (rs.getInt(1) == 0) {
+                    psInsert.setInt(1, customerInfo.getUnp());
+                    psInsert.setString(2, name);
+                    psInsert.setString(3, address);
+                    psInsert.addBatch();
+                } else {
+                    psUpdate.setString(1, name);
+                    psUpdate.setString(2, address);
+                    psUpdate.setInt(3, customerInfo.getUnp());
+                    psUpdate.addBatch();
+                }
+
+            }
+            psInsert.executeBatch();
+            psUpdate.executeBatch();
+            conn.commit();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ignored) {
+                }
+            }
+        }
+    }
+
 //    private void sendVATs(Integer unp, Short year, long numberBegin, long numberEnd,
 //                          List<String> numbersUsed,
 //                          List<VatData> vats, Callback4<Integer, Short, Long, Integer, Void> callback) throws Exception {
@@ -915,7 +999,7 @@ public class MainController implements Initializable {
 //        }
 //    }
 
-    private String makeVATXml(VatData vd) {
+    private String makeVATXml(VatData vd, Map<String, String> unpInfo) {
         String template = "<?xml version='1.0' encoding='UTF-8'?>\n" +
                 "<issuance xmlns='http://www.w3schools.com' sender='{ourUNP}'>\n" +
                 "    <general>\n" +
@@ -955,7 +1039,8 @@ public class MainController implements Initializable {
                 "            <documents>\n" +
                 "                <document>\n" +
                 "                    <docType>\n" +
-                "                        <code>606</code>\n" +
+                "                        <code>601</code>\n" +
+                "                        <value>Диагностическая карта</value>\n" +
                 "                    </docType>\n" +
                 "                    <date>{actDate}</date>\n" +
                 "                    <blankCode></blankCode>\n" +
@@ -985,18 +1070,23 @@ public class MainController implements Initializable {
                 "    </roster>\n" +
                 "</issuance>";
         String sDate = String.format("%1$tY-%1$tm-%1$td", vd.get_date());
+        String customerUnp = String.format("%09d", vd.getContractorUnp());
+        String customerAddress = unpInfo.get(customerUnp);
+        if (null == customerAddress) {
+            customerAddress = "";
+        }
         final ConfigReader configReader = ConfigReader.getInstance();
         return template
                 .replace("{number}", VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
                 .replace("{dateIssuance}", sDate)
                 .replace("{dateTransaction}", sDate)
                 .replace("{actDate}", sDate)
-                .replace("{customerUnp}", String.format("%09d", vd.getContractorUnp()))
-                .replace("{customerName}", vd.getContractorName())
-                .replace("{customerAddress}", "")
-                .replace("{totalCostVat}", vd.getWithVAT())
-                .replace("{totalVat}", vd.getVAT())
-                .replace("{totalCost}", vd.getWithoutVAT())
+                .replace("{customerUnp}", customerUnp)
+                .replace("{customerName}", XmlHelper.replaceXmlSymbols(vd.getContractorName()))
+                .replace("{customerAddress}", XmlHelper.replaceXmlSymbols(customerAddress))
+                .replace("{totalCostVat}", vd.getWithVAT().toPlainString())
+                .replace("{totalVat}", vd.getVAT().toPlainString())
+                .replace("{totalCost}", vd.getWithoutVAT().toPlainString())
                 .replace("{actSeries}", vd.getBlankSeries())
                 .replace("{actNumber}", vd.getBlankNumber())
                 .replace("{serviceName}", configReader.getServiceName())
@@ -1005,7 +1095,7 @@ public class MainController implements Initializable {
                 .replace("{ourAddress}", ((ConfigReader) configReader).getOrgAddress());
     }
 
-    public void bIssueUploadAction(ActionEvent actionEvent) {
+    public void bUploadAction(ActionEvent actionEvent) {
         issueVATS();
     }
 
@@ -1018,223 +1108,169 @@ public class MainController implements Initializable {
         }
     }
 
-    public static class VatData {
-        int blancTsInfoId;
-        Integer vatId;
-        private SimpleStringProperty vatFullNumber;
-        private SimpleStringProperty date;
+    // TODO: debug
+    private Map<String, String> getUNPsInfo(Connection conn, List<String> allUnps) throws SQLException {
+        Map<String, String> result = new HashMap<>();
+        StringBuilder sb = new StringBuilder();
 
-
-        private Integer vatUnp;
-        private Short vatYear;
-        private Long vatNumber;
-
-        private Date _date;
-        private SimpleIntegerProperty contractorUnp;
-        private SimpleStringProperty contractorName;
-        private SimpleStringProperty withoutVAT;
-        private SimpleStringProperty withVAT;
-        private SimpleStringProperty VAT;
-
-        private SimpleStringProperty blankSeries;
-        private SimpleStringProperty blankNumber;
-
-        public VatData(int blancTsInfoId, Integer vatId,
-                       String blankSeries, Integer blankNumber,
-                       Integer vatUnp, Short vatYear, Long vatNumber,
-                       Date date, int contractorUnp, String contractorName, BigDecimal withoutVAT,
-                       BigDecimal withVAT, BigDecimal VAT) {
-            this.blancTsInfoId = blancTsInfoId;
-            this.vatId = vatId;
-            this.blankSeries = new SimpleStringProperty(blankSeries);
-            this.blankNumber = new SimpleStringProperty(String.valueOf(blankNumber));
-            this.vatUnp = vatUnp;
-            this.vatYear = vatYear;
-            this.vatNumber = vatNumber;
-            this.date = new SimpleStringProperty(String.format("%1$td.%1$tm.%1$tY", date));
-            this._date = date;
-            this.contractorUnp = new SimpleIntegerProperty(contractorUnp);
-            this.contractorName = new SimpleStringProperty(contractorName);
-            this.withoutVAT = new SimpleStringProperty(withoutVAT.toString());
-            this.withVAT = new SimpleStringProperty(withVAT.toString());
-            this.VAT = new SimpleStringProperty(VAT.toString());
-
-
-            if (isVatIssued()) {
-                this.vatFullNumber = new SimpleStringProperty(
-                        String.format("%09d-%04d-%010d", vatUnp, vatYear, vatNumber));
-            } else {
-                this.vatFullNumber = new SimpleStringProperty(null);
+        sb.append("select t1.u1, t2.name, t2.address from (");
+        for (String unp : allUnps) {
+            sb.append("select ").append(unp).append(" u1 union ");
+        }
+        sb.setLength(sb.length() - 6);
+        sb.append(") t1 left join ei_checked_unps t2 on (t1.u1 = t2.unp)");
+        try (Statement stmtUnp = conn.createStatement();
+             ResultSet rs = stmtUnp.executeQuery(sb.toString())) {
+            while (rs.next()) {
+                String address = rs.getString(2);
+                if (rs.wasNull()) {
+                    address = null;
+                }
+//                result.put(rs.getString(1),
+//                        new CustomerInfo(rs.getInt(1), rs.getString(2), rs.getString(3)) );
+                result.put(rs.getString(1), address);
             }
-//            StringBinding concat = Bindings.createStringBinding(() -> {
-//                if (VatData.this.getVatUnp() < 0) {
-//                    return "";
-//                }
-//                return String.format("%9d-%4d-%10d", VatData.this.getVatUnp(), VatData.this.getVatYear(), VatData.this.getVatNumber());
-//            }, vatUnpProperty(), vatYearProperty(), vatNumberProperty());
-//
-//            this.vatFullNumberProperty().bind(concat);
         }
-
-        public int getBlancTsInfoId() {
-            return blancTsInfoId;
-        }
-
-        public void setBlancTsInfoId(int blancTsInfoId) {
-            this.blancTsInfoId = blancTsInfoId;
-        }
+        return result;
+    }
 
 
-        public String getDate() {
-            return date.get();
+    public void showLargeMessageBox(String title, String htmlContent) {
+        Stage newStage = new Stage();
+        FXMLLoader loader = new FXMLLoader(Main.class.getClassLoader().getResource("fxml/messageBox.fxml"));
+        try {
+            Parent root = loader.load();
+            MessageBoxController controller = loader.<MessageBoxController>getController();
+            newStage.initModality(Modality.APPLICATION_MODAL);
+            newStage.setTitle(title);
+            final Scene scene = new Scene(root, 800, 600);
+            newStage.setScene(scene);
+            newStage.setResizable(true);
+            // TODO: пробовать убрать:
+            controller = loader.getController(); // ??
+
+            controller.loadContent(htmlContent);
+
+            Image i = new Image(Main.class.getClassLoader().getResourceAsStream("mainIcon.png"));
+            newStage.getIcons().add(i);
+            newStage.show();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    private void checkVatStates() {
+        if (vatTableView.getSelectionModel().getSelectedIndex() == -1) {
+            MainController.showInfoMessage("", "Не выделено ни одной строки");
+            return;
+        }
+        setCursor(Cursor.WAIT);
+        setStatusLine("Чтение статусов Счет-фактур с портала...");
+        ObservableList<Integer> selectedIndices = vatTableView.getSelectionModel().getSelectedIndices();
+
+        List<VatData> selectedIssuedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).filter(VatData::isVatIssued).collect(Collectors.toList());
+        configureProxy();
+//        Map<String, Integer> newVatStates = new HashMap<>();
+        String query2 = "update vats set state = :state where id = :id";
+        try (VatTool vt = new VatTool();
+             Connection conn = ConnectionMySql.getInstance().getConn();
+             NamedParameterStatement nps = new NamedParameterStatement(conn, query2)) {
+            for (VatData vd : selectedIssuedRows) {
+                VatStatusEnum vatStatus = vt.getVatStatus(vd.getVatFullNumber());
+                if (vatStatus.ordinal() != vd.getVatState()) {
+                    nps.setInt("state", vatStatus.ordinal());
+                    nps.setInt("id", vd.getVatId());
+                    boolean success = nps.execute();
+                    vd.setVatState(vatStatus.ordinal());
+                }
+            }
+
+            setStatusLine("Чтение статусов завершено успешно");
+        } catch (Exception e) {
+            if (Main.verbose) {
+                log.error(e.getMessage(), e);
+            } else {
+                log.error("[ОШИБКА] " + e.getMessage());
+            }
+            MainController.showErrorMessage("Ошибка", ExceptionHelpers.extractMessage(e));
+            setStatusLine("Возникла ошибка");
+        } finally {
+            setCursor(Cursor.DEFAULT);
+        }
+    }
+
+    private void setCursor(final Cursor c) {
+        //vatTableView.setCursor(c); - это почему-то не срабатывает
+
+        Thread th = new Thread(new Task() {
+            @Override
+            protected Integer call() throws Exception {
+                thisScene.setCursor(c); //Change cursor to wait style
+                return 0;
+            }
+        });
+//        th.setDaemon(true);
+        th.start();
+
+        try {
+            th.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
-        public void setDate(String date) {
-            this.date.set(date);
-        }
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                thisScene.setCursor(c);
+//            }
+//        });
+    }
 
-        public SimpleStringProperty dateProperty() {
-            return date;
-        }
+    private void setStatusLine(final String msg) {
+        Platform.runLater(() -> lMessage.setText(msg));
+    }
 
-        public int getContractorUnp() {
-            return contractorUnp.get();
-        }
+    public Scene getScene() {
+        return thisScene;
+    }
 
-        public void setContractorUnp(int contractorUnp) {
-            this.contractorUnp.set(contractorUnp);
-        }
+    public void setScene(Scene thisScene) {
+        this.thisScene = thisScene;
+    }
 
-        public SimpleIntegerProperty contractorUnpProperty() {
-            return contractorUnp;
+    private void configureProxy() {
+        final ConfigReader config = ConfigReader.getInstance();
+        if (config.isUseProxy()) {
+            Authenticator.setDefault(new Authenticator() {
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(config.getProxyUser(), config.getProxyPass().toCharArray());
+                }
+            });
+            System.setProperty("https.proxyHost", config.getProxyHost());
+            System.setProperty("https.proxyPort", String.valueOf(config.getProxyPort()));
+            System.setProperty("https.proxyUser", config.getProxyUser());
+            System.setProperty("https.proxyPass", config.getProxyPass());
+        } else {
+            Authenticator.setDefault(null);
+            System.clearProperty("https.proxyHost");
+            System.clearProperty("https.proxyPort");
+            System.clearProperty("https.proxyUser");
+            System.clearProperty("https.proxyPass");
         }
+    }
 
-        public String getContractorName() {
-            return contractorName.get();
-        }
+    public void bCheckStatesAction(ActionEvent actionEvent) {
+        checkVatStates();
+    }
 
-        public void setContractorName(String contractorName) {
-            this.contractorName.set(contractorName);
-        }
+    public void miTestAction(ActionEvent actionEvent) {
+    }
 
-        public SimpleStringProperty contractorNameProperty() {
-            return contractorName;
-        }
+    public void miCheckStatesAction(ActionEvent actionEvent) {
+        checkVatStates();
+    }
 
-        public String getWithoutVAT() {
-            return withoutVAT.get();
-        }
-
-        public void setWithoutVAT(String withoutVAT) {
-            this.withoutVAT.set(withoutVAT);
-        }
-
-        public SimpleStringProperty withoutVATProperty() {
-            return withoutVAT;
-        }
-
-        public String getWithVAT() {
-            return withVAT.get();
-        }
-
-        public void setWithVAT(String withVAT) {
-            this.withVAT.set(withVAT);
-        }
-
-        public SimpleStringProperty withVATProperty() {
-            return withVAT;
-        }
-
-        public String getVAT() {
-            return VAT.get();
-        }
-
-        public void setVAT(String VAT) {
-            this.VAT.set(VAT);
-        }
-
-        public SimpleStringProperty VATProperty() {
-            return VAT;
-        }
-
-        public String getVatFullNumber() {
-            return vatFullNumber.get();
-        }
-
-        public void setVatFullNumber(String vatFullNumber) {
-            this.vatFullNumber.set(vatFullNumber);
-        }
-
-        public SimpleStringProperty vatFullNumberProperty() {
-            return vatFullNumber;
-        }
-
-        public Date get_date() {
-            return _date;
-        }
-
-        public void set_date(Date _date) {
-            this._date = _date;
-        }
-
-        public boolean isVatIssued() {
-            return (vatUnp != null && vatYear != null && vatNumber != null);
-        }
-
-        public Integer getVatUnp() {
-            return vatUnp;
-        }
-
-        public void setVatUnp(Integer vatUnp) {
-            this.vatUnp = vatUnp;
-        }
-
-        public Short getVatYear() {
-            return vatYear;
-        }
-
-        public void setVatYear(Short vatYear) {
-            this.vatYear = vatYear;
-        }
-
-        public Long getVatNumber() {
-            return vatNumber;
-        }
-
-        public void setVatNumber(Long vatNumber) {
-            this.vatNumber = vatNumber;
-        }
-
-        public Integer getVatId() {
-            return vatId;
-        }
-
-        public void setVatId(Integer vatId) {
-            this.vatId = vatId;
-        }
-
-        public String getBlankSeries() {
-            return blankSeries.get();
-        }
-
-        public SimpleStringProperty blankSeriesProperty() {
-            return blankSeries;
-        }
-
-        public void setBlankSeries(String blankSeries) {
-            this.blankSeries.set(blankSeries);
-        }
-
-        public String getBlankNumber() {
-            return blankNumber.get();
-        }
-
-        public SimpleStringProperty blankNumberProperty() {
-            return blankNumber;
-        }
-
-        public void setBlankNumber(String blankNumber) {
-            this.blankNumber.set(blankNumber);
-        }
+    public void miUploadAction(ActionEvent actionEvent) {
+        issueVATS();
     }
 }
