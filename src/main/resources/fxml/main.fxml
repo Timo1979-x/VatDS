@@ -18,7 +18,7 @@
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="488.0" prefWidth="636.0" stylesheets="@fx.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.MainController">
+<AnchorPane fx:id="pRootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="488.0" prefWidth="636.0" stylesheets="@fx.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.MainController">
     <children>
         <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="519.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <menus>
@@ -32,7 +32,7 @@
             <Menu mnemonicParsing="false" text="ЭСЧФ">
               <items>
                 <MenuItem fx:id="miUpload" mnemonicParsing="false" onAction="#miUploadAction" styleClass="miUpload" text="Сформировать и отправить выделенные ЭСЧФ" />
-                  <MenuItem mnemonicParsing="false" styleClass="miCheckStates" onAction="#miCheckStatesAction" text="Получить состояние выделенных ЭСЧФ с портала" />
+                  <MenuItem mnemonicParsing="false" onAction="#miCheckStatesAction" styleClass="miCheckStates" text="Получить состояние выделенных ЭСЧФ с портала" />
               </items>
             </Menu>
                 <Menu mnemonicParsing="false" text="?">

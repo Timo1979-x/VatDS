@@ -1,5 +1,6 @@
 package by.gto.btoreport.gui;
 
+import by.gto.helpers.PathHelpers;
 import by.gto.tools.ConfigReader;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +20,6 @@ import java.net.PasswordAuthentication;
 import java.net.URISyntaxException;
 
 public class Main extends Application {
-    private static String dataDir = "d:\\";
     private static final Logger log = Logger.getLogger(Main.class);
     private static Stage stage = null;
     // тестовая площадка ЭСЧФ:
@@ -51,20 +51,14 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-
-    public static String getDataDir() {
-        return dataDir;
-    }
-
     public static void main(String[] args) throws IOException {
-        dataDir = System.getenv("APPDATA") + "\\Beltehosmotr\\btoReportNG";
-        ConfigReader.setFilePath(dataDir + "\\config.xml");
-        try {
-            initLogger();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        }
+        ConfigReader.setFilePath(PathHelpers.getDataDirectory() + "\\config.xml");
+//        try {
+//            initLogger();
+//        } catch (IOException e) {
+//            System.out.println(e.getMessage());
+//            throw e;
+//        }
 
             //поддерживаемые настройки (можно задавать через ком. строку)
             // все отладочные сообщения java security (см. http://docs.oracle.com/javase/7/docs/technotes/guides/security/troubleshooting-security.html):
@@ -75,22 +69,19 @@ public class Main extends Application {
             // -Dby.gto.btoreport.avest.alias="Республиканское унитарное сервисное предприятие \"БЕЛТЕХОСМОТР\"_02_06_16_17_17"
             // можно задать тестовую площадку:
             // -Dby.gto.btoreport.avest.url="https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl"
-            initAvest();
+//            initAvest();
 
             launch(args);
         }
 
-    private static void initLogger() throws IOException {
-        File logDir = new File(dataDir + "\\log");
+    public static void initLogger() throws IOException {
+        File logDir = new File(PathHelpers.getDataDirectory() + "\\log");
         logDir.mkdirs();
         final RollingFileAppender rfAppender = new RollingFileAppender(
                 new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"),
                 logDir.getAbsolutePath() + "\\btoReportNG.log", true);
         rfAppender.setThreshold(Level.WARN);
         Logger.getRootLogger().addAppender(rfAppender);
-//        ConsoleAppender cAppender = new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"), "System.err");
-//        cAppender.setThreshold(Level.ALL);
-//        Logger.getRootLogger().addAppender(cAppender);
     }
 
     private static void initAvest() {

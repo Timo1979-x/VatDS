@@ -1,12 +1,9 @@
 package by.gto.btoreport.gui;
 
-import by.gto.helpers.ExceptionHelpers;
+import by.gto.helpers.*;
 import by.gto.library.db.NamedParameterStatement;
 import javafx.application.Platform;
 import javafx.scene.Cursor;
-import by.gto.helpers.TableViewHelpers;
-import by.gto.helpers.VatHelpers;
-import by.gto.helpers.XmlHelper;
 import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
 import by.gto.jasperprintmysql.data.OwnerDataSW2;
@@ -34,7 +31,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.Effect;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -90,7 +91,7 @@ public class MainController implements Initializable {
     @FXML
     public ComboBox comboBoxMonth;
     @FXML
-    public TableColumn colContractorName;
+    public TableColumn<VatData, String>  colContractorName;
     @FXML
     public TableColumn colContractorUNP;
     @FXML
@@ -111,7 +112,8 @@ public class MainController implements Initializable {
     public TableColumn colBlankSeries;
     @FXML
     public TableColumn colBlankNumber;
-    public TableColumn <VatData, Integer> colVatState;
+    public TableColumn<VatData, Integer> colVatState;
+    public AnchorPane pRootPane;
 
     private String report = "recordBook";
     private byte bankTransfer = 2;
@@ -453,20 +455,45 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-//        ScrollBar table1HorizontalScrollBar = findScrollBar( vatTableView, Orientation.HORIZONTAL);
-//        ScrollBar table1VerticalScrollBar = findScrollBar( table, Orientation.VERTICAL);
-//        if(table1HorizontalScrollBar != null) {
-//            table1HorizontalScrollBar.setVisible(true);
-//        }
-//        if(table1VerticalScrollBar != null) {
-//            table1VerticalScrollBar.setVisible(true);
-//        }
+        String javaVersion = System.getProperty("java.runtime.version");
+        String message = null;
+        try {
+            if (null == javaVersion) {
 
-//        for (Object c : vatTableView.getColumns()) {
-//            ((TableColumn)c).setResizable(true);
-//            vatTableView.setColumnResizePolicy();
-//            System.out.println(c);
-//        }
+            } else {
+                String[] split = javaVersion.split("[\\._-]");
+                if (split.length >= 4) {
+                    if (Integer.valueOf(split[0]) >= 1 && Integer.valueOf(split[1]) >= 8
+                            && Integer.valueOf(split[2]) >= 0 && Integer.valueOf(split[3]) >= 121) {
+                        message = "Версия java = " + javaVersion + ".";
+                    }
+                } else {
+                    throw new Exception("");
+                }
+            }
+        } catch (Exception e) {
+            message = "Не смог определить версию Java, на которой работает программа";
+        }
+        if (null != message) {
+            showInfoMessage("Внимание", message + "\nИзвестно, что c версии 1.8.0_121 не работает криптопровайдер Авест");
+        }
+
+        try {
+            Main.initLogger();
+//            ConfigReader.createInstance();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            showErrorMessage("Продолжение работы невозможно", "Невозможно прочитать файл конфигурации или создать лог-файл.\n" +
+                    "Программа будет закрыта");
+            System.exit(-1);
+        }
+
+        if (!AvestHelpers.initAvest()) {
+            String errMsg = "Не установлен криптопровайдер Avest! Работа со счет-фактурами будет невозможна";
+            log.error(errMsg);
+            showErrorMessage("Ошибка", errMsg);
+        }
+
         dtpEnd.setValue(LocalDate.now());
         dtpStart.setValue(LocalDate.now());
 
@@ -474,21 +501,53 @@ public class MainController implements Initializable {
         comboBoxMonth.setItems(months);
         comboBoxYear.setItems(years);
 
+        colContractorName.setCellValueFactory(cellData -> cellData.getValue().contractorNameProperty());
+        colContractorName.setCellFactory(column -> {
+            return new TableCell<VatData, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
 
-        colContractorName.setCellValueFactory(
-                new PropertyValueFactory<VatData, String>("contractorName"));
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        setText(item);
+                        setGraphic(null);
+                        TableRow<VatData> currentRow = getTableRow();
+                        String style = "";
+                        if (currentRow.getItem().isVatIssued()) {
+                            style = "-fx-font-style: italic; -fx-font-weight: bold";
+                        }
+                        if (currentRow.getItem().isHasBranches()) {
+                            setText("---- Есть подразделения! ----");
+                        }
+//                        if (currentRow.getItem().isDup()) {
+//                            if (currentRow.getItem().isVatIssued()) {
+//                                style = "-fx-background-color: lightcoral;";
+//                            } else {
+//                                style = "-fx-background-color: lightsalmon; -fx-text-fill: black";
+//                            }
+//                        } else {
+//                            if (currentRow.getItem().isVatIssued()) {
+//                                style = "-fx-background-color: lightcyan; -fx-text-fill: black";
+//                            }
+//                        }
+                        currentRow.setStyle(style);
+
+                    }
+                }
+            };
+        });
+
+//        colContractorName.setCellValueFactory(
+//                new PropertyValueFactory<VatData, String>("contractorName"));
         colVATFullNumber.setCellValueFactory(
                 new PropertyValueFactory<VatData, String>("vatFullNumber"));
         colDate.setCellValueFactory(
                 new PropertyValueFactory<VatData, String>("date"));
         colContractorUNP.setCellValueFactory(
                 new PropertyValueFactory<VatData, Integer>("contractorUnp"));
-//        colWithoutVAT.setCellValueFactory(
-//                new PropertyValueFactory<VatData, String>("withoutVAT"));
-//        colWithVAT.setCellValueFactory(
-//                new PropertyValueFactory<VatData, String>("withVAT"));
-//        colVAT.setCellValueFactory(
-//                new PropertyValueFactory<VatData, String>("VAT"));
 
         TableViewHelpers.initBigdecimalColumn(colWithoutVAT, "withoutVAT");
         TableViewHelpers.initBigdecimalColumn(colWithVAT, "withVAT");
@@ -766,6 +825,12 @@ public class MainController implements Initializable {
         ObservableList<Integer> selectedIndices = vatTableView.getSelectionModel().getSelectedIndices();
 
         List<VatData> selectedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).collect(Collectors.toList());
+
+        if (selectedRows.stream().anyMatch(VatData::isHasBranches)) {
+            MainController.showInfoMessage("Обособленные подразделения", "В выделенных строках присутствуют организации с обособленными подразделениями.\n" +
+                    "В этой версии ПО работа с такими организациями не поддерживается.");
+            return;
+        }
         //int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
         short year = (short) Calendar.getInstance().get(Calendar.YEAR);
 
@@ -815,10 +880,10 @@ public class MainController implements Initializable {
             try (VatTool vt = new VatTool()) {
 //                final List<String> unps = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
                 final List<String> allUnpsList = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
-                Map<String, String> unpInfo = getUNPsInfo(conn, allUnpsList);
-                final Map<String, String> unpCheckResult = vt.checkUNPsWithAddresses(unpInfo);
+                Map<String, CustomerInfo> unpInfo = getUNPsInfo(conn, allUnpsList);
+                final Map<String, CustomerInfo> unpCheckResult = vt.checkUNPsWithAddresses(unpInfo);
 //                String unpResult = vt.checkUNPs(unps);
-                List<String> badUNPs = unpCheckResult.keySet().stream().filter(s -> unpCheckResult.get(s) == null).collect(Collectors.toList());
+                List<String> badUNPs = unpCheckResult.keySet().stream().filter(s -> unpCheckResult.get(s).getAddress() == null).collect(Collectors.toList());
                 saveCheckedUnps(conn, unpCheckResult);
 
                 if (badUNPs.size() > 0) {
@@ -831,6 +896,8 @@ public class MainController implements Initializable {
                     showLargeMessageBox("Ошибка проверки УНП", sb.toString());
                     return;
                 }
+
+                unpInfo.putAll(unpCheckResult);
 //                if (StringUtils.isNotEmpty(unpResult)) {
 //                    showErrorMessage("Ошибка проверки УНП", unpResult);
 //                    return;
@@ -999,7 +1066,7 @@ public class MainController implements Initializable {
 //        }
 //    }
 
-    private String makeVATXml(VatData vd, Map<String, String> unpInfo) {
+    private String makeVATXml(VatData vd, Map<String, CustomerInfo> unpInfo) {
         String template = "<?xml version='1.0' encoding='UTF-8'?>\n" +
                 "<issuance xmlns='http://www.w3schools.com' sender='{ourUNP}'>\n" +
                 "    <general>\n" +
@@ -1071,10 +1138,16 @@ public class MainController implements Initializable {
                 "</issuance>";
         String sDate = String.format("%1$tY-%1$tm-%1$td", vd.get_date());
         String customerUnp = String.format("%09d", vd.getContractorUnp());
-        String customerAddress = unpInfo.get(customerUnp);
+        CustomerInfo customerInfo = unpInfo.get(customerUnp);
+        String customerAddress = customerInfo.getAddress();
+        String customerName = customerInfo.getName();
         if (null == customerAddress) {
             customerAddress = "";
         }
+        if (null == customerName) {
+            customerName = "";
+        }
+
         final ConfigReader configReader = ConfigReader.getInstance();
         return template
                 .replace("{number}", VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
@@ -1082,7 +1155,8 @@ public class MainController implements Initializable {
                 .replace("{dateTransaction}", sDate)
                 .replace("{actDate}", sDate)
                 .replace("{customerUnp}", customerUnp)
-                .replace("{customerName}", XmlHelper.replaceXmlSymbols(vd.getContractorName()))
+                .replace("{customerName}", XmlHelper.replaceXmlSymbols(customerName))
+//                .replace("{customerName}", XmlHelper.replaceXmlSymbols(vd.getContractorName()))
                 .replace("{customerAddress}", XmlHelper.replaceXmlSymbols(customerAddress))
                 .replace("{totalCostVat}", vd.getWithVAT().toPlainString())
                 .replace("{totalVat}", vd.getVAT().toPlainString())
@@ -1109,8 +1183,8 @@ public class MainController implements Initializable {
     }
 
     // TODO: debug
-    private Map<String, String> getUNPsInfo(Connection conn, List<String> allUnps) throws SQLException {
-        Map<String, String> result = new HashMap<>();
+    private Map<String, CustomerInfo> getUNPsInfo(Connection conn, List<String> allUnps) throws SQLException {
+        Map<String, CustomerInfo> result = new HashMap<>();
         StringBuilder sb = new StringBuilder();
 
         sb.append("select t1.u1, t2.name, t2.address from (");
@@ -1122,13 +1196,8 @@ public class MainController implements Initializable {
         try (Statement stmtUnp = conn.createStatement();
              ResultSet rs = stmtUnp.executeQuery(sb.toString())) {
             while (rs.next()) {
-                String address = rs.getString(2);
-                if (rs.wasNull()) {
-                    address = null;
-                }
-//                result.put(rs.getString(1),
-//                        new CustomerInfo(rs.getInt(1), rs.getString(2), rs.getString(3)) );
-                result.put(rs.getString(1), address);
+                result.put(rs.getString(1),
+                        new CustomerInfo(rs.getInt(1), rs.getString(2), rs.getString(3)));
             }
         }
         return result;
@@ -1164,6 +1233,7 @@ public class MainController implements Initializable {
             MainController.showInfoMessage("", "Не выделено ни одной строки");
             return;
         }
+//        enableBlur(true);
         setCursor(Cursor.WAIT);
         setStatusLine("Чтение статусов Счет-фактур с портала...");
         ObservableList<Integer> selectedIndices = vatTableView.getSelectionModel().getSelectedIndices();
@@ -1171,7 +1241,7 @@ public class MainController implements Initializable {
         List<VatData> selectedIssuedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).filter(VatData::isVatIssued).collect(Collectors.toList());
         configureProxy();
 //        Map<String, Integer> newVatStates = new HashMap<>();
-        String query2 = "update vats set state = :state where id = :id";
+        String query2 = "update ei_vats set state = :state where id = :id";
         try (VatTool vt = new VatTool();
              Connection conn = ConnectionMySql.getInstance().getConn();
              NamedParameterStatement nps = new NamedParameterStatement(conn, query2)) {
@@ -1196,6 +1266,7 @@ public class MainController implements Initializable {
             setStatusLine("Возникла ошибка");
         } finally {
             setCursor(Cursor.DEFAULT);
+//            enableBlur(false);
         }
     }
 
@@ -1264,6 +1335,21 @@ public class MainController implements Initializable {
     }
 
     public void miTestAction(ActionEvent actionEvent) {
+        enableBlur();
+    }
+
+    private void enableBlur() {
+        Effect effect = pRootPane.getEffect();
+        if (null == effect) {
+//        ColorAdjust adj = new ColorAdjust(0, -0.9, -0.5, 0);
+            GaussianBlur blur = new GaussianBlur(10);
+//        adj.setInput(blur);
+            pRootPane.setEffect(blur);
+
+        } else {
+            pRootPane.setEffect(null);
+        }
+
     }
 
     public void miCheckStatesAction(ActionEvent actionEvent) {

@@ -6,19 +6,23 @@
 package by.avest.edoc.client;
 
 import by.avest.crypto.cert.verify.CertVerify;
-import by.avest.edoc.client.AvDoc;
-import by.avest.edoc.client.AvDocException;
-import by.avest.edoc.client.AvEDoc;
-import by.avest.edoc.client.AvEList;
-import by.avest.edoc.client.AvEStatus;
-import by.avest.edoc.client.AvETicket;
-import by.avest.edoc.client.CertStoreBuilderParams;
-import by.avest.edoc.client.InvoicesIntf;
-import by.avest.edoc.client.InvoicesService;
-import by.avest.edoc.client.PersonalKeyManager;
-import by.avest.edoc.client.XmlUtil;
+import by.gto.model.CustomerInfo;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.net.ssl.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.soap.SOAPBinding;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,22 +36,7 @@ import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.*;
-import javax.net.ssl.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.soap.SOAPBinding;
 
-import by.gto.model.CustomerInfo;
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public class EVatService2 {
     private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv 11.0) like Gecko";
@@ -65,7 +54,7 @@ public class EVatService2 {
         return wsdlLocation != null && !wsdlLocation.endsWith("?wsdl") ? wsdlLocation + "?wsdl" : wsdlLocation;
     }
 
-    public EVatService2(String wsdlLocation,  String unpQuery, String branchQuery, PersonalKeyManager2 keyManager) throws CertificateException, KeyStoreException, IOException, AvDocException {
+    public EVatService2(String wsdlLocation, String unpQuery, String branchQuery, PersonalKeyManager2 keyManager) throws CertificateException, KeyStoreException, IOException, AvDocException {
         this.wsdlLocation = fixWSDLLocation(wsdlLocation);
         this.unpQuery = unpQuery;
         this.branchQuery = branchQuery;
@@ -139,12 +128,15 @@ public class EVatService2 {
         return pbp;
     }
 
-    // TODO: отладить
-    public Map<String, CustomerInfo> checkUNPsWithAddresses(Map<String, CustomerInfo> unps) throws Exception {
+    public List<String> checkUNPs(List<String> unps) throws Exception {
+        // TODO: проверить, можно ли удалить
+//        KeyStore keyStore = KeyStore.getInstance("AvPersonal");
+//        keyStore.load(null, null);
+        // TODO: проверить, можно ли удалить
         this.builderParams = getBuilderParams();
         CertPathTrustManagerParameters trustManagerParams = new CertPathTrustManagerParameters(this.builderParams);
         String tmDefaultAlg = TrustManagerFactory.getDefaultAlgorithm();
-        TrustManagerFactory tmf;
+        TrustManagerFactory tmf = null;
         try {
             tmf = TrustManagerFactory.getInstance(tmDefaultAlg);
             tmf.init(trustManagerParams);
@@ -154,7 +146,107 @@ public class EVatService2 {
             throw new AvDocException("Неверный параметр алгоритма предоставления доверенных сертификатов.", e);
         }
 
-        SSLContext context;
+        SSLContext context = null;
+        try {
+            context = SSLContext.getInstance("AvTLS");
+        } catch (NoSuchAlgorithmException e) {
+            throw new AvDocException("Неверный алгоритм SSL протокола.", e);
+        }
+
+        TrustManager[] tm = tmf.getTrustManagers();
+        // KeyManager[] kms = new KeyManager[]{new KeyInteractiveSelector()};
+        context.init(null, tm, null);
+        SSLSocketFactory sf = context.getSocketFactory();
+
+        StringBuilder response = new StringBuilder();
+        List<String> badUnps = new ArrayList<>();
+        for (String unp : unps) {
+            String urlUnpQuery = String.format(unpQuery, unp);
+            SecureRandom random = new SecureRandom();
+            String urlBranchQuery = String.format(branchQuery, unp, new BigInteger(130, random).toString(32).substring(0, 9));
+            log.info("urlUnpQuery: " + urlUnpQuery + " branchQuery: " + branchQuery);
+
+            HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(urlUnpQuery).openConnection();
+            urlConnection.setSSLSocketFactory(sf);
+
+            // optional default is GET
+            urlConnection.setRequestMethod("GET");
+
+            //add request header
+            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+
+            int retries = 5;
+            boolean isTrue = false;
+            while (retries != 0) {
+                response.setLength(0);
+                try {
+                    try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
+                        String inputLine;
+                        while ((inputLine = in.readLine()) != null) {
+                            response.append(inputLine);
+                            retries = 0;
+                        }
+                    }
+                } catch (IOException e) {
+                    retries--;
+                    log.error(e, e);
+                }
+            }
+
+            try {
+                JSONObject o = new JSONObject(response);
+                JSONObject in = ((JSONObject) (o.get(unp)));
+                if (in == null) {
+                    badUnps.add(unp);
+                } else {
+                    String address = (String) in.get("address");
+                }
+            } catch (Exception e) {
+                badUnps.add(unp);
+            }
+
+//            urlConnection = (HttpsURLConnection) new URL(urlBranchQuery).openConnection();
+//            urlConnection.setSSLSocketFactory(sf);
+//            urlConnection.setRequestMethod("GET");
+//            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+//
+//            int responseCode = urlConnection.getResponseCode();
+//            retries = 5;
+//            while (retries != 0) {
+//                response.setLength(0);
+//                try {
+//                    try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
+//                        String inputLine;
+//                        while ((inputLine = in.readLine()) != null) {
+//                            response.append(inputLine);
+//                            retries = 0;
+//                        }
+//                    }
+//                } catch (IOException e) {
+//                    retries--;
+//                    log.error(e, e);
+//                }
+//            }
+        }
+        return badUnps;
+    }
+
+    // TODO: отладить
+    public Map<String, CustomerInfo> checkUNPsWithAddresses(Map<String, CustomerInfo> unps) throws Exception {
+        this.builderParams = getBuilderParams();
+        CertPathTrustManagerParameters trustManagerParams = new CertPathTrustManagerParameters(this.builderParams);
+        String tmDefaultAlg = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = null;
+        try {
+            tmf = TrustManagerFactory.getInstance(tmDefaultAlg);
+            tmf.init(trustManagerParams);
+        } catch (NoSuchAlgorithmException e) {
+            throw new AvDocException("Неверный алгоритм предоставления доверенных сертификатов.", e);
+        } catch (InvalidAlgorithmParameterException e) {
+            throw new AvDocException("Неверный параметр алгоритма предоставления доверенных сертификатов.", e);
+        }
+
+        SSLContext context = null;
         try {
             context = SSLContext.getInstance("AvTLS");
         } catch (NoSuchAlgorithmException e) {
@@ -169,11 +261,13 @@ public class EVatService2 {
         StringBuilder response = new StringBuilder();
         Map<String, CustomerInfo> checkedUNPs = new HashMap<>();
         for (String unp : unps.keySet()) {
-            if(unps.get(unp) != null) {
+            if(unps.get(unp).getAddress() != null) {
                 continue;
             }
             String urlUnpQuery = String.format(unpQuery, unp);
-            SecureRandom random = new SecureRandom();
+//            SecureRandom random = new SecureRandom();
+//            String urlBranchQuery = String.format(branchQuery, unp, new BigInteger(130, random).toString(32).substring(0, 9));
+            //log.info("urlUnpQuery: " + urlUnpQuery + " branchQuery: " + branchQuery);
 
             HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(urlUnpQuery).openConnection();
             urlConnection.setSSLSocketFactory(sf);
@@ -209,7 +303,8 @@ public class EVatService2 {
                 JSONObject o = new JSONObject(source);
                 JSONObject in = ((JSONObject) (o.get(unp)));
                 if (in != null) {
-                    customerAddress = (String) in.get("address");
+                    customerAddress = in.get("post_index") + ", " +(String) in.get("address");
+                    customerName = (String) in.get("name");
                 }
             } catch (Exception e) {
             }
@@ -217,96 +312,6 @@ public class EVatService2 {
         }
         return checkedUNPs;
     }
-
-//    public String checkUNPs(List<String> unps) throws Exception {
-//        // TODO: проверить, можно ли удалить
-////        KeyStore keyStore = KeyStore.getInstance("AvPersonal");
-////        keyStore.load(null, null);
-//        // TODO: проверить, можно ли удалить
-//        this.builderParams = getBuilderParams();
-//        CertPathTrustManagerParameters trustManagerParams = new CertPathTrustManagerParameters(this.builderParams);
-//        String tmDefaultAlg = TrustManagerFactory.getDefaultAlgorithm();
-//        TrustManagerFactory tmf = null;
-//        try {
-//            tmf = TrustManagerFactory.getInstance(tmDefaultAlg);
-//            tmf.init(trustManagerParams);
-//        } catch (NoSuchAlgorithmException e) {
-//            throw new AvDocException("Неверный алгоритм предоставления доверенных сертификатов.", e);
-//        } catch (InvalidAlgorithmParameterException e) {
-//            throw new AvDocException("Неверный параметр алгоритма предоставления доверенных сертификатов.", e);
-//        }
-//
-//        SSLContext context = null;
-//        try {
-//            context = SSLContext.getInstance("AvTLS");
-//        } catch (NoSuchAlgorithmException e) {
-//            throw new AvDocException("Неверный алгоритм SSL протокола.", e);
-//        }
-//
-//        TrustManager[] tm = tmf.getTrustManagers();
-//        // KeyManager[] kms = new KeyManager[]{new KeyInteractiveSelector()};
-//        context.init(null, tm, null);
-//        SSLSocketFactory sf = context.getSocketFactory();
-//
-//
-//        StringBuilder response = new StringBuilder();
-//        List<String> badUnps = new ArrayList<>();
-//        for(String unp: unps) {
-//            String url = String.format(refLocation, unp);
-//            log.info("url: " + url);
-//
-//            HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(url).openConnection();
-//            urlConnection.setSSLSocketFactory(sf);
-//
-//            // optional default is GET
-//            urlConnection.setRequestMethod("GET");
-//
-//            //add request header
-//            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
-//
-////        int responseCode = urlConnection.getResponseCode();
-////        System.out.println("\nSending 'GET' request to URL : " + url);
-////        System.out.println("Response Code : " + responseCode);
-//            // StringBuilder response = new StringBuilder();
-//            int retries = 5;
-//            boolean isTrue = false;
-//            while (retries != 0) {
-//                response.setLength(0);
-//                try {
-//                    try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"))) {
-//                        String inputLine;
-//                        while ((inputLine = in.readLine()) != null) {
-//                            response.append(inputLine);
-//                            //hashMapUNP.put(unp, inputLine);
-//                            //hashMapUNP.add(inputLine);
-//                            retries = 0;
-//                            isTrue = true;
-//                        }
-//                    }
-//                } catch (IOException e) {
-//                    retries--;
-//                    log.error(e, e);
-//                }
-//            }
-//
-//            if (!isTrue) {
-//                throw new Exception("Техническая ошибка при проверке существования УНП " + unp+
-//                ".\nПроверьте наличие связи.");
-//            }
-//            else if (response.toString().trim().equals("{}")){
-//                badUnps.add(unp);
-//            }
-//        }
-//        if(badUnps.size() > 0) {
-//            response.setLength(0);
-//            for (String badUnp : badUnps) {
-//                response.append(badUnp).append(" ");
-//            }
-//            return "Найдены незарегистрированные УНП: \n" + response.toString();
-//        } else  {
-//            return "";
-//        }
-//    }
 
     public void connect() throws KeyManagementException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException, AvDocException {
         this.port = this.openServicePort(this.wsdlLocation);

@@ -1,28 +1,22 @@
 package by.gto.tools;
 
 import by.avest.certstore.AvCertStoreProvider;
-import by.avest.crypto.ocsp.client.protocol.util.Base64;
 import by.avest.crypto.pkcs11.provider.AvestProvider;
 import by.avest.crypto.pkcs11.provider.ProviderFactory;
 import by.avest.edoc.client.*;
 import by.avest.net.tls.AvTLSProvider;
-import by.gto.btoreport.gui.Main;
 import by.gto.model.CustomerInfo;
 import by.gto.model.VatStatusEnum;
 import org.apache.log4j.Logger;
 
+import javax.xml.ws.soap.SOAPFaultException;
 import java.io.*;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.ws.soap.SOAPFaultException;
 
 /**
  * Created by Tim on 23.07.2016.
@@ -34,7 +28,7 @@ public class VatTool implements Closeable {
     private static byte[] xsdFixed;
     private EVatService2 service;
     //private static String xsddirname = VatTool.class.getClassLoader().getResource("xsd").getPath();
-    private static File outdir = new File(ConfigReader.getInstance().getVatPath() + "\\out");
+    private final File outdir;
     private boolean delete = false;
 
     private static AvestProvider avestProvider;
@@ -47,6 +41,7 @@ public class VatTool implements Closeable {
     public VatTool() throws UnrecoverableKeyException, CertificateException,
             NoSuchAlgorithmException, KeyStoreException, IOException, AvDocException,
             InvalidAlgorithmParameterException, KeyManagementException {
+        outdir = new File(ConfigReader.getInstance().getVatPath() + "\\out");
         AvestProvider avProv = null;
         AvTLSProvider tlsProv = null;
         AvCertStoreProvider storeProv = null;
@@ -137,36 +132,43 @@ public class VatTool implements Closeable {
     }
 
 
+    public VatStatusEnum getVatStatus(String vatNumber) {
+        AvEStatus status;
+        try {
+            status = this.service.getStatus(vatNumber);
+            return VatStatusEnum.valueOf(status.getStatus());
+//            return status.getStatus();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return VatStatusEnum.UNKNOWN;
+        }
+    }
 
     /**
-     * @param number номер проверяемой счет-фактуры
+     * @param vatNumber номер проверяемой счет-фактуры
      * @return 0 - с/ф не найдена (статус NOT_FOUND);
      * 1- с/ф найдена на портале, но еще может быть удалена (статусы IN_PROGRESS или IN_PROGRESS_ERROR);
      * 2 - с/ф найдена и уже останется на портале навечно (все остальные статусы)
      * 3- ошибка получения статуса
      */
-
-    public byte isNumberSpare(String number) throws Exception {
-        AvEStatus status = null;
-        try {
-            status = this.service.getStatus(number);
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            return 3;
+    public byte isNumberSpare(String vatNumber) throws Exception {
+        VatStatusEnum eStatus = getVatStatus(vatNumber);
+        switch (eStatus) {
+            case UNKNOWN:
+                return 3;
+            case DENIED:
+                throw new Exception(eStatus.getDescription());
+            case NOT_FOUND:
+                return 0;
+            case COMPLETED:
+            case COMPLETED_SIGNED:
+            case ON_AGREEMENT:
+            case ON_AGREEMENT_CANCEL:
+            case CANCELLED:
+                return 2;
+            default:
+                return 1;
         }
-        if ("DENIED".equals(status.getStatus())) {
-            throw new Exception(status.getMessage());
-        }
-        if ("NOT_FOUND".equals(status.getStatus())) return 0;
-        //if ("IN_PROGRESS".equals(status.getStatus()) || "IN_PROGRESS_ERROR".equals(status.getStatus())) return 1;
-        if ("COMPLETED".equals(status.getStatus())
-                || "COMPLETED_SIGNED".equals(status.getStatus())
-                || "ON_AGREEMENT".equals(status.getStatus())
-                || "CANCELLED".equals(status.getStatus())
-                || "ON_AGREEMENT_CANCEL".equals(status.getStatus())) {
-            return 2;
-        }
-        return 1;
     }
 
     public void doSignAndUploadString(String inXml) throws Exception {
@@ -316,17 +318,10 @@ public class VatTool implements Closeable {
         }
     }
 
-    // TODO:  проверить
-    public VatStatusEnum getVatStatus(String vatNumber) {
-        AvEStatus status;
-        try {
-            status = this.service.getStatus(vatNumber);
-            return VatStatusEnum.valueOf(status.getStatus());
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return VatStatusEnum.UNKNOWN;
-        }
+    public List<String> checkUNPs(List<String> unps) throws Exception {
+        return this.service.checkUNPs(unps);
     }
+
     public Map<String, CustomerInfo> checkUNPsWithAddresses(Map<String, CustomerInfo> unps) throws Exception {
         return this.service.checkUNPsWithAddresses(unps);
     }

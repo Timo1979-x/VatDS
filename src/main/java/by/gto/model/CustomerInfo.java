@@ -37,4 +37,13 @@ public class CustomerInfo {
     public void setUnp(int unp) {
         this.unp = unp;
     }
+
+    @Override
+    public String toString() {
+        return "CustomerInfo{" +
+                "unp=" + unp +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                '}';
+    }
 }
