@@ -17,149 +17,176 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="pRootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="488.0" prefWidth="636.0" stylesheets="@fx.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.MainController">
-    <children>
-        <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="519.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <menus>
-                <Menu mnemonicParsing="false" text="Действия">
+<StackPane fx:id="spRoot" minHeight="600.0" minWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.MainController">
+   <children>
+      <AnchorPane fx:id="apMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="601.0" prefWidth="636.0" stylesheets="@fx.css">
+          <children>
+              <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="519.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <menus>
+                      <Menu mnemonicParsing="false" text="Действия">
+                          <items>
+                              <MenuItem fx:id="miSettings" mnemonicParsing="false" onAction="#miSettingsClick" text="Настройки" />
+                              <MenuItem fx:id="miVATSettings" mnemonicParsing="false" onAction="#miVATSettingsAction" text="Настройки для ЭСЧФ" />
+                              <MenuItem fx:id="miQuit" mnemonicParsing="false" onAction="#miQuitClick" text="Выход" />
+                          </items>
+                      </Menu>
+                  <Menu mnemonicParsing="false" text="ЭСЧФ">
                     <items>
-                        <MenuItem fx:id="miSettings" mnemonicParsing="false" onAction="#miSettingsClick" text="Настройки" />
-                        <MenuItem fx:id="miVATSettings" mnemonicParsing="false" onAction="#miVATSettingsAction" text="Настройки для ЭСЧФ" />
-                        <MenuItem fx:id="miQuit" mnemonicParsing="false" onAction="#miQuitClick" text="Выход" />
+                      <MenuItem fx:id="miUpload" mnemonicParsing="false" onAction="#miUploadAction" styleClass="miUpload" text="Сформировать и отправить выделенные ЭСЧФ" />
+                        <MenuItem mnemonicParsing="false" onAction="#miCheckStatesAction" styleClass="miCheckStates" text="Получить состояние выделенных ЭСЧФ с портала" />
                     </items>
-                </Menu>
-            <Menu mnemonicParsing="false" text="ЭСЧФ">
-              <items>
-                <MenuItem fx:id="miUpload" mnemonicParsing="false" onAction="#miUploadAction" styleClass="miUpload" text="Сформировать и отправить выделенные ЭСЧФ" />
-                  <MenuItem mnemonicParsing="false" onAction="#miCheckStatesAction" styleClass="miCheckStates" text="Получить состояние выделенных ЭСЧФ с портала" />
-              </items>
-            </Menu>
-                <Menu mnemonicParsing="false" text="?">
-                    <items>
-                        <MenuItem fx:id="miAbout" mnemonicParsing="false" onAction="#miAboutClick" text="О программе" />
-                        <MenuItem fx:id="miCheckUpdates" mnemonicParsing="false" onAction="#miCheckUpdatesClick" text="Проверить обновления" />
-                  <MenuItem fx:id="miHelp" mnemonicParsing="false" onAction="#miHelpAction" text="Помощь" />
-                  <MenuItem fx:id="miTest" mnemonicParsing="false" onAction="#miTestAction" text="test" />
-
-                    </items>
-                </Menu>
-            </menus>
-        </MenuBar>
-        <TabPane layoutX="6.0" layoutY="25.0" prefHeight="408.0" prefWidth="551.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
-            <tabs>
-                <Tab text="Отчеты">
-                    <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                            <children>
-                                <TitledPane animated="false" collapsible="false" prefHeight="206.0" prefWidth="276.0" text="Дата" AnchorPane.leftAnchor="0.0">
-                                    <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="114.0" prefWidth="274.0">
-                                            <children>
-                                                <CheckBox fx:id="cbPeriod" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" onAction="#cbPeriodAction" text="За период" />
-                                                <DatePicker fx:id="dtpStart" layoutX="57.0" layoutY="27.0" prefHeight="25.0" prefWidth="159.0" />
-                                                <Label fx:id="lOver" layoutX="14.0" layoutY="31.0" text="за" />
-                                                <DatePicker fx:id="dtpEnd" disable="true" layoutX="57.0" layoutY="56.0" prefHeight="25.0" prefWidth="161.0" />
-                                                <Label fx:id="lBefore" disable="true" layoutX="12.0" layoutY="60.0" text="по" />
-                                            </children>
-                                        </AnchorPane>
-                                    </content>
-                                </TitledPane>
-                                <TitledPane animated="false" collapsible="false" layoutX="280.0" prefHeight="206.0" prefWidth="314.0" text="Тип отчета">
-                                    <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="285.0">
-                                            <children>
-                                                <RadioButton fx:id="rbForBto" layoutX="8.0" layoutY="6.0" mnemonicParsing="false" onAction="#rbForBtoAction" text="для БТО">
-                                                    <toggleGroup>
-                                                        <ToggleGroup fx:id="reportType1" />
-                                                    </toggleGroup>
-                                                </RadioButton>
-                                                <RadioButton fx:id="rbForSlutsk" layoutX="8.0" layoutY="29.0" mnemonicParsing="false" onAction="#rbForSlutskAction" text="для Слуцка" toggleGroup="$reportType1" />
-                                                <RadioButton fx:id="rbOrderbyTariff" layoutX="8.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbOrderbyTariffAction" text="по тарифам" toggleGroup="$reportType1" />
-                                                <RadioButton fx:id="rb3" disable="true" layoutX="8.0" layoutY="77.0" mnemonicParsing="false" text="Для БТО??" toggleGroup="$reportType1" />
-                                                <RadioButton fx:id="rb5" disable="true" layoutX="8.0" layoutY="102.0" mnemonicParsing="false" text="Для БТО" toggleGroup="$reportType1" />
-                                                <RadioButton fx:id="rbRecordBook" layoutX="137.0" layoutY="6.0" mnemonicParsing="false" onAction="#rbRecordBookAction" selected="true" text="Журнал">
-                                                    <toggleGroup>
-                                                        <ToggleGroup fx:id="reportType2" />
-                                                    </toggleGroup>
-                                                </RadioButton>
-                                                <RadioButton fx:id="rbIndividual" layoutX="137.0" layoutY="29.0" mnemonicParsing="false" onAction="#rbIndividualAction" text="Физ. лица" toggleGroup="$reportType2" />
-                                                <RadioButton fx:id="rbCorporate" layoutX="137.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbCorporateAction" text="Юр. лица" toggleGroup="$reportType2" />
-                                                <RadioButton fx:id="rbActive" layoutX="137.0" layoutY="77.0" mnemonicParsing="false" onAction="#rbActiveAction" text="Активные" toggleGroup="$reportType2" />
-                                            </children>
-                                        </AnchorPane>
-                                    </content>
-                                </TitledPane>
-                                <TitledPane animated="false" collapsible="false" layoutY="208.0" prefHeight="193.0" prefWidth="594.0" text="Параметры">
-                                    <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="161.0" prefWidth="592.0">
-                                            <children>
-                                                <CheckBox fx:id="cbCorporate" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" selected="true" text="Юр. лица" />
-                                                <CheckBox fx:id="cbIndividual" layoutX="129.0" layoutY="6.0" mnemonicParsing="false" selected="true" text="Физ. лица" />
-                                                <CheckBox fx:id="cbOwner" layoutX="14.0" layoutY="30.0" mnemonicParsing="false" onAction="#cbOwnerAction" text="собственник" />
-                                                <RadioButton fx:id="rbBankTransferAll" layoutX="440.0" layoutY="15.0" mnemonicParsing="false" onAction="#rbBankTransferAllAction" selected="true" text="нал и безнал">
-                                                    <toggleGroup>
-                                                        <ToggleGroup fx:id="nal" />
-                                                    </toggleGroup>
-                                                </RadioButton>
-                                                <RadioButton fx:id="rbBankTransferFalse" layoutX="441.0" layoutY="37.0" mnemonicParsing="false" onAction="#rbBankTransferFalseAction" text="нал" toggleGroup="$nal" />
-                                                <RadioButton fx:id="rbBankTransferTrue" layoutX="441.0" layoutY="60.0" mnemonicParsing="false" onAction="#rbBankTransferTrueAction" text="безнал" toggleGroup="$nal" />
-                                                <ComboBox fx:id="comboBoxOwner" disable="true" editable="true" layoutX="12.0" layoutY="54.0" prefHeight="25.0" prefWidth="422.0" />
-                                                <ComboBox fx:id="comboBoxUNP" disable="true" editable="true" layoutX="67.0" layoutY="82.0" prefHeight="25.0" prefWidth="366.0" />
-                                                <Label fx:id="lUNP" disable="true" layoutX="14.0" layoutY="87.0" text="УНП" />
-                                                <Button fx:id="bShowReport" layoutX="2.0" layoutY="106.0" mnemonicParsing="false" onAction="#bShowReportClick" text="Просмотр" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" />
-                                            </children>
-                                        </AnchorPane>
-                                    </content>
-                                </TitledPane>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
-                <Tab text="ЭСЧФ">
-                    <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                            <children>
-                                <ComboBox fx:id="comboBoxYear" layoutY="2.0" onAction="#comboBoxYearAction" prefHeight="25.0" prefWidth="108.0" promptText="год" />
-                                <ComboBox fx:id="comboBoxMonth" layoutX="108.0" layoutY="2.0" onAction="#comboBoxMonthAction" prefHeight="25.0" prefWidth="107.0" promptText="месяц" />
-                                <TableView fx:id="vatTableView" layoutY="37.0" prefHeight="332.0" prefWidth="600.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="37.0">
-                                    <columns>
-                                        <TableColumn fx:id="colContractorName" prefWidth="239.0" text="Наименование ЗАКАЗЧИКА" />
-                                        <TableColumn fx:id="colContractorUNP" prefWidth="78.0" text="УНП" />
-                                        <TableColumn fx:id="colDate" prefWidth="75.0" text="Дата" />
-                                        <TableColumn fx:id="colVATFullNumber" prefWidth="200.0" text="№ ЭСЧФ" />
-                              <TableColumn prefWidth="75.0" text="Сумма">
-                                 <columns>
-                                                <TableColumn fx:id="colWithoutVAT" prefWidth="75.0" text="Без НДС" />
-                                                <TableColumn fx:id="colVAT" prefWidth="75.0" text="НДС" />
-                                              <TableColumn fx:id="colWithVAT" prefWidth="75.0" text="Сумма" />
-                                 </columns>
-                              </TableColumn>
-                              <TableColumn prefWidth="75.0" text="карта">
-                                 <columns>
-                                              <TableColumn fx:id="colBlankSeries" prefWidth="75.0" text="Серия" />
-                                                <TableColumn fx:id="colBlankNumber" prefWidth="75.0" text="Номер" />
-                                 </columns>
-                              </TableColumn>
-                              <TableColumn fx:id="colVatState" prefWidth="75.0" text="Состояние" />
-                                        <TableColumn maxWidth="10.0" prefWidth="10.0" />
-                                    </columns>
-                                </TableView>
-                                <Button fx:id="bCheckStates" layoutX="586.0" layoutY="1.0" mnemonicParsing="false" onAction="#bCheckStatesAction" styleClass="bCheckStates" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="1.0">
-                           <tooltip>
-                              <Tooltip text="Получить состояние выделенных ЭСЧФ с портала" />
-                           </tooltip></Button>
-                        <Button fx:id="bIssueUpload" layoutX="539.0" layoutY="1.0" mnemonicParsing="false" onAction="#bUploadAction" styleClass="bUpload" AnchorPane.rightAnchor="53.0" AnchorPane.topAnchor="1.0">
-                           <tooltip>
-                              <Tooltip text="Сформировать и отправить выделенные ЭСЧФ" />
-                           </tooltip>
-                        </Button>
-                            </children>
-                        </AnchorPane>
-                    </content>
-                </Tab>
-            </tabs>
-        </TabPane>
-        <Label fx:id="lMessage" layoutY="430.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-    </children>
-</AnchorPane>
+                  </Menu>
+                      <Menu mnemonicParsing="false" text="?">
+                          <items>
+                              <MenuItem fx:id="miAbout" mnemonicParsing="false" onAction="#miAboutClick" text="О программе" />
+                              <MenuItem fx:id="miCheckUpdates" mnemonicParsing="false" onAction="#miCheckUpdatesClick" text="Проверить обновления" />
+                        <MenuItem fx:id="miHelp" mnemonicParsing="false" onAction="#miHelpAction" text="Помощь" />
+                        <MenuItem fx:id="miTest" mnemonicParsing="false" onAction="#miTestAction" text="test" visible="false" />
+      
+                          </items>
+                      </Menu>
+                  </menus>
+              </MenuBar>
+              <TabPane layoutY="31.0" prefHeight="543.0" prefWidth="636.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="27.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="31.0">
+                  <tabs>
+                      <Tab text="Отчеты">
+                          <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                  <children>
+                                      <TitledPane animated="false" collapsible="false" prefHeight="206.0" prefWidth="276.0" text="Дата" AnchorPane.leftAnchor="0.0">
+                                          <content>
+                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="114.0" prefWidth="274.0">
+                                                  <children>
+                                                      <CheckBox fx:id="cbPeriod" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" onAction="#cbPeriodAction" text="За период" />
+                                                      <DatePicker fx:id="dtpStart" layoutX="57.0" layoutY="27.0" prefHeight="31.0" prefWidth="161.0" />
+                                                      <Label fx:id="lOver" layoutX="14.0" layoutY="31.0" text="за" />
+                                                      <DatePicker fx:id="dtpEnd" disable="true" layoutX="57.0" layoutY="62.0" prefHeight="31.0" prefWidth="161.0" />
+                                                      <Label fx:id="lBefore" disable="true" layoutX="12.0" layoutY="66.0" text="по" />
+                                                  </children>
+                                              </AnchorPane>
+                                          </content>
+                                      </TitledPane>
+                                      <TitledPane animated="false" collapsible="false" layoutX="280.0" prefHeight="206.0" prefWidth="314.0" text="Тип отчета">
+                                          <content>
+                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="285.0">
+                                                  <children>
+                                                      <RadioButton fx:id="rbForBto" layoutX="8.0" layoutY="6.0" mnemonicParsing="false" onAction="#rbForBtoAction" text="для БТО">
+                                                          <toggleGroup>
+                                                              <ToggleGroup fx:id="reportType1" />
+                                                          </toggleGroup>
+                                                      </RadioButton>
+                                                      <RadioButton fx:id="rbForSlutsk" layoutX="8.0" layoutY="29.0" mnemonicParsing="false" onAction="#rbForSlutskAction" text="для Слуцка" toggleGroup="$reportType1" />
+                                                      <RadioButton fx:id="rbOrderbyTariff" layoutX="8.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbOrderbyTariffAction" text="по тарифам" toggleGroup="$reportType1" />
+                                                      <RadioButton fx:id="rb3" disable="true" layoutX="8.0" layoutY="77.0" mnemonicParsing="false" text="Для БТО??" toggleGroup="$reportType1" />
+                                                      <RadioButton fx:id="rb5" disable="true" layoutX="8.0" layoutY="102.0" mnemonicParsing="false" text="Для БТО" toggleGroup="$reportType1" />
+                                                      <RadioButton fx:id="rbRecordBook" layoutX="137.0" layoutY="6.0" mnemonicParsing="false" onAction="#rbRecordBookAction" selected="true" text="Журнал">
+                                                          <toggleGroup>
+                                                              <ToggleGroup fx:id="reportType2" />
+                                                          </toggleGroup>
+                                                      </RadioButton>
+                                                      <RadioButton fx:id="rbIndividual" layoutX="137.0" layoutY="29.0" mnemonicParsing="false" onAction="#rbIndividualAction" text="Физ. лица" toggleGroup="$reportType2" />
+                                                      <RadioButton fx:id="rbCorporate" layoutX="137.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbCorporateAction" text="Юр. лица" toggleGroup="$reportType2" />
+                                                      <RadioButton fx:id="rbActive" layoutX="137.0" layoutY="77.0" mnemonicParsing="false" onAction="#rbActiveAction" text="Активные" toggleGroup="$reportType2" />
+                                                  </children>
+                                              </AnchorPane>
+                                          </content>
+                                      </TitledPane>
+                                      <TitledPane animated="false" collapsible="false" layoutY="208.0" prefHeight="210.0" prefWidth="594.0" text="Параметры">
+                                          <content>
+                                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="188.0" prefWidth="592.0">
+                                                  <children>
+                                                      <CheckBox fx:id="cbCorporate" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" selected="true" text="Юр. лица" />
+                                                      <CheckBox fx:id="cbIndividual" layoutX="129.0" layoutY="6.0" mnemonicParsing="false" selected="true" text="Физ. лица" />
+                                                      <CheckBox fx:id="cbOwner" layoutX="14.0" layoutY="30.0" mnemonicParsing="false" onAction="#cbOwnerAction" text="собственник" />
+                                                      <RadioButton fx:id="rbBankTransferAll" layoutX="440.0" layoutY="15.0" mnemonicParsing="false" onAction="#rbBankTransferAllAction" selected="true" text="нал и безнал">
+                                                          <toggleGroup>
+                                                              <ToggleGroup fx:id="nal" />
+                                                          </toggleGroup>
+                                                      </RadioButton>
+                                                      <RadioButton fx:id="rbBankTransferFalse" layoutX="441.0" layoutY="37.0" mnemonicParsing="false" onAction="#rbBankTransferFalseAction" text="нал" toggleGroup="$nal" />
+                                                      <RadioButton fx:id="rbBankTransferTrue" layoutX="441.0" layoutY="60.0" mnemonicParsing="false" onAction="#rbBankTransferTrueAction" text="безнал" toggleGroup="$nal" />
+                                                      <ComboBox fx:id="comboBoxOwner" disable="true" editable="true" layoutX="12.0" layoutY="54.0" prefHeight="25.0" prefWidth="422.0" />
+                                                      <ComboBox fx:id="comboBoxUNP" disable="true" editable="true" layoutX="68.0" layoutY="89.0" prefHeight="25.0" prefWidth="366.0" />
+                                                      <Label fx:id="lUNP" disable="true" layoutX="15.0" layoutY="94.0" text="УНП" />
+                                                      <Button fx:id="bShowReport" layoutY="120.0" mnemonicParsing="false" onAction="#bShowReportClick" text="Просмотр" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" />
+                                                  </children>
+                                              </AnchorPane>
+                                          </content>
+                                      </TitledPane>
+                                  </children>
+                              </AnchorPane>
+                          </content>
+                      </Tab>
+                      <Tab text="ЭСЧФ">
+                          <content>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                  <children>
+                                      <ComboBox fx:id="comboBoxYear" layoutY="2.0" onAction="#comboBoxYearAction" prefHeight="25.0" prefWidth="108.0" promptText="год" />
+                                      <ComboBox fx:id="comboBoxMonth" layoutX="108.0" layoutY="2.0" onAction="#comboBoxMonthAction" prefHeight="25.0" prefWidth="107.0" promptText="месяц" />
+                                      <TableView fx:id="vatTableView" layoutY="37.0" prefHeight="332.0" prefWidth="600.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="37.0">
+                                          <columns>
+                                              <TableColumn fx:id="colContractorName" prefWidth="239.0" text="Наименование ЗАКАЗЧИКА" />
+                                              <TableColumn fx:id="colContractorUNP" prefWidth="78.0" text="УНП" />
+                                              <TableColumn fx:id="colDate" prefWidth="75.0" text="Дата" />
+                                              <TableColumn fx:id="colVATFullNumber" prefWidth="200.0" text="№ ЭСЧФ" />
+                                    <TableColumn prefWidth="75.0" text="Сумма">
+                                       <columns>
+                                                      <TableColumn fx:id="colWithoutVAT" prefWidth="75.0" text="Без НДС" />
+                                                      <TableColumn fx:id="colVAT" prefWidth="75.0" text="НДС" />
+                                                    <TableColumn fx:id="colWithVAT" prefWidth="75.0" text="Сумма" />
+                                       </columns>
+                                    </TableColumn>
+                                    <TableColumn prefWidth="75.0" text="карта">
+                                       <columns>
+                                                    <TableColumn fx:id="colBlankSeries" prefWidth="75.0" text="Серия" />
+                                                      <TableColumn fx:id="colBlankNumber" prefWidth="75.0" text="Номер" />
+                                       </columns>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colVatState" prefWidth="75.0" text="Состояние" />
+                                              <TableColumn maxWidth="10.0" prefWidth="10.0" />
+                                          </columns>
+                                      </TableView>
+                                      <Button fx:id="bCheckStates" layoutX="586.0" layoutY="1.0" mnemonicParsing="false" onAction="#bCheckStatesAction" styleClass="bCheckStates" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="1.0">
+                                 <tooltip>
+                                    <Tooltip text="Получить состояние выделенных ЭСЧФ с портала" />
+                                 </tooltip>
+                              </Button>
+                              <Button fx:id="bIssueUpload" layoutX="539.0" layoutY="1.0" mnemonicParsing="false" onAction="#bUploadAction" styleClass="bUpload" AnchorPane.rightAnchor="53.0" AnchorPane.topAnchor="1.0">
+                                 <tooltip>
+                                    <Tooltip text="Сформировать и отправить выделенные ЭСЧФ" />
+                                 </tooltip>
+                              </Button>
+                                  </children>
+                              </AnchorPane>
+                          </content>
+                      </Tab>
+                  </tabs>
+              </TabPane>
+              <Label fx:id="lMessage" layoutY="430.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+          </children>
+      </AnchorPane>
+      <GridPane fx:id="gpMessage" disable="true" stylesheets="@fx.css" visible="false">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label fx:id="lMessage1" contentDisplay="TOP" graphicTextGap="10.0" prefHeight="143.0" styleClass="progressLabel" text="sdsdsdsd fefef ef efef ef e fef effe efefefefeefe   efef1  fefefef e ef ef    efefef" textAlignment="CENTER" wrapText="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+               <font>
+                  <Font name="Arial" size="28.0" />
+               </font>
+            </Label>
+         </children>
+      </GridPane>
+   </children>
+</StackPane>

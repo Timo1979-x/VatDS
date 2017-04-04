@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public final class ChooseFromListController implements Initializable {
@@ -24,6 +25,7 @@ public final class ChooseFromListController implements Initializable {
     public Label lMessage;
     private int keyIndex;
     private String password;
+    private String alias;
     @FXML
     public Button bCancel;
 
@@ -33,6 +35,7 @@ public final class ChooseFromListController implements Initializable {
     public void bCancelAction(ActionEvent actionEvent) {
         keyIndex = -1;
         password = null;
+        alias=null;
         Stage stage = (Stage) bCancel.getScene().getWindow();
         stage.close();
     }
@@ -43,6 +46,7 @@ public final class ChooseFromListController implements Initializable {
 
     public void closeOk() {
         keyIndex = lList.getSelectionModel().getSelectedIndex();
+        alias = (String)lList.getSelectionModel().getSelectedItem();
         password = ePassword.getText();
         Stage stage = (Stage) bCancel.getScene().getWindow();
         stage.close();
@@ -53,9 +57,12 @@ public final class ChooseFromListController implements Initializable {
         lMessage.setText(msg);
     }
 
-    public int getKeyIndex() {
+    private int getKeyIndex() {
         return keyIndex;
     }
+    public String getAlias() {
+            return alias;
+        }
 
     public String getPassword() {
         return password;
@@ -65,19 +72,20 @@ public final class ChooseFromListController implements Initializable {
         ePassword.setText(pass);
     }
 
-    public void setListItems(String[] items) {
+    public void setListItems(List<String> items) {
         listItems.clear();
         listItems.addAll(items);
+        lList.getSelectionModel().clearSelection();
+//        lList.getSelectionModel().select((items.size() == 1) ? 0 : -1);
 
-        lList.getSelectionModel().select((items.length == 1) ? 0 : -1);
-        final String alias = System.getProperty("by.gto.btoreport.avest.alias");
-        if (alias != null) {
-            for (int i = 0; i < items.length; i++) {
-                if (alias.equals(items[i])) {
-                    lList.getSelectionModel().select(i);
-                }
-            }
-        }
+//        final String alias = System.getProperty("by.gto.btoreport.avest.alias");
+//        if (alias != null) {
+//            for (int i = 0; i < items.size(); i++) {
+//                if (alias.equals(items[i])) {
+//                    lList.getSelectionModel().select(i);
+//                }
+//            }
+//        }
     }
 
     @Override

@@ -36,11 +36,15 @@ public class VatTool implements Closeable {
     private static AvCertStoreProvider avCertStoreProvider;
     private long numberBegin;
     private long numberEnd;
+    private String keyAlias;
+    private String password;
     private List<Long> numbersUsed = new ArrayList<>();
 
-    public VatTool() throws UnrecoverableKeyException, CertificateException,
+    public VatTool(String keyAlias, String password) throws UnrecoverableKeyException, CertificateException,
             NoSuchAlgorithmException, KeyStoreException, IOException, AvDocException,
             InvalidAlgorithmParameterException, KeyManagementException {
+        this.keyAlias = keyAlias;
+        this.password = password;
         outdir = new File(ConfigReader.getInstance().getVatPath() + "\\out");
         AvestProvider avProv = null;
         AvTLSProvider tlsProv = null;
@@ -59,7 +63,7 @@ public class VatTool implements Closeable {
         this.service = new EVatService2(wsdlUrlString,
                 "https://vat.gov.by:443/cxf/dictionary/grp/%s?s=5",
                 "https://vat.gov.by/mnsi-mdm/ru/v1/dictionary_definition/13ad9cf32d2d4c6ebdf019e5856912f3/data/page?query={\"search_expression\":{\"logic_units\":[{\"field\":\"c_9a2972c73397577\",\"operand\":\"%%2b\",\"operator\":\"EQUAL\"},{\"field\":\"c_3bec4fc1b09c1f5\",\"operand\":\"%s\",\"operator\":\"EQUAL\"}],\"logical_operator\":\"AND\"},\"fields\":[\"c_2970d0a35a454c5\",\"c_3bec4fc1b09c1f5\",\"c_5b6824a22a5d13e\",\"c_5b6824a22a5d13e\",\"c_cb33cfe506d4b40\",\"c_1b955f759058f49\",\"c_29e955528f2035d\"],\"sort_field\":\"c_2970d0a35a454c5\",\"sort_direction\":\"ASC\"}&rnd=%s&size=200",
-                new KeySelector());
+                new KeySelectorSimple(keyAlias, password));
         this.service.login("");
         log.info("[OK] Авторизация успешна");
         this.printConnectionInfo();

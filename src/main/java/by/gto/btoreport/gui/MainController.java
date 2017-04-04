@@ -1,12 +1,10 @@
 package by.gto.btoreport.gui;
 
 import by.gto.helpers.*;
-import by.gto.library.db.NamedParameterStatement;
-import javafx.application.Platform;
-import javafx.scene.Cursor;
 import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
 import by.gto.jasperprintmysql.data.OwnerDataSW2;
+import by.gto.library.db.NamedParameterStatement;
 import by.gto.model.BranchInfo;
 import by.gto.model.CustomerInfo;
 import by.gto.model.VatData;
@@ -15,8 +13,11 @@ import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.Util;
 import by.gto.tools.VatTool;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -24,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -36,6 +38,8 @@ import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -47,6 +51,10 @@ import java.awt.*;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -91,7 +99,7 @@ public class MainController implements Initializable {
     @FXML
     public ComboBox comboBoxMonth;
     @FXML
-    public TableColumn<VatData, String>  colContractorName;
+    public TableColumn<VatData, String> colContractorName;
     @FXML
     public TableColumn colContractorUNP;
     @FXML
@@ -113,7 +121,10 @@ public class MainController implements Initializable {
     @FXML
     public TableColumn colBlankNumber;
     public TableColumn<VatData, Integer> colVatState;
-    public AnchorPane pRootPane;
+    public AnchorPane apMain;
+    public GridPane gpMessage;
+    public StackPane spRoot;
+    public Label lMessage1;
 
     private String report = "recordBook";
     private byte bankTransfer = 2;
@@ -125,6 +136,8 @@ public class MainController implements Initializable {
             2020, 2021, 2022, 2024, 2024, 2025, 2026, 2027, 2028, 2029,
             2030, 2031
     );
+
+    public SimpleStringProperty messageText = new SimpleStringProperty();
 
     private ObservableList<String> months = FXCollections.observableArrayList(
             "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
@@ -181,7 +194,21 @@ public class MainController implements Initializable {
         }
     }
 
-    public static Object[] chooseFromList(String title, String[] items) throws IOException {
+    public static Object[] chooseCredentialsFromList(String title) {
+        KeyStore ks;
+        List<String> items = new ArrayList<>();
+        try {
+            ks = KeyStore.getInstance("AvPersonal");
+            ks.load((InputStream) null, (char[]) null);
+            Enumeration<String> aliases = ks.aliases();
+            while (aliases.hasMoreElements()) {
+                String a = aliases.nextElement();
+                items.add(a);
+                System.out.println(a);
+            }
+        } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         Stage newStage = new Stage();
         FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/chooseFromList.fxml"));
         Object[] result = new Object[]{-1, null};
@@ -195,21 +222,24 @@ public class MainController implements Initializable {
             newStage.setResizable(true);
             controller = loader.getController();
             controller.setListItems(items);
-            final String pass = System.getProperty("by.gto.btoreport.avest.password");
-            if (pass != null) {
-                controller.setPassword(pass);
+
+            final String alias = System.getProperty("by.gto.btoreport.avest.alias");
+            if (alias != null) {
+                int i = items.indexOf(alias);
+                if (i != -1) {
+                    controller.lList.getSelectionModel().select(i);
+                    final String pass = System.getProperty("by.gto.btoreport.avest.password");
+                    if (pass != null) {
+                        controller.setPassword(pass);
+                    }
+                }
             }
-            log.info("chooseFromList: before newStage.showAndWait();");
             newStage.showAndWait();
-            log.info("chooseFromList: after newStage.showAndWait();");
-            result[0] = controller.getKeyIndex();
+            result[0] = controller.getAlias();
             result[1] = controller.getPassword();
         } catch (IOException e) {
             if (Main.verbose) {
                 log.error(e.getMessage(), e);
-            }
-            if (Main.debug) {
-                throw e;
             }
         }
         return result;
@@ -622,6 +652,15 @@ public class MainController implements Initializable {
 
         new AutoCompleteComboBoxListener(comboBoxOwner);
         //new ComboBoxAutoComplete<String>(comboBoxOwner);
+
+
+        apMain.prefWidthProperty().bind(spRoot.widthProperty());
+        apMain.prefHeightProperty().bind(spRoot.heightProperty());
+//        gpMessage.prefWidthProperty().bind(spRoot.widthProperty());
+//        gpMessage.prefHeightProperty().bind(spRoot.heightProperty());
+        lMessage.textProperty().bind(messageText);
+        lMessage1.textProperty().bind(messageText);
+        lMessage1.prefWidthProperty().bind(gpMessage.widthProperty());
     }
 
     public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
@@ -831,164 +870,171 @@ public class MainController implements Initializable {
                     "В этой версии ПО работа с такими организациями не поддерживается.");
             return;
         }
-        //int year = 1900 + vatData.get((int) selectedIndices.get(0)).get_date().getYear();
         short year = (short) Calendar.getInstance().get(Calendar.YEAR);
 
-        long numberBegin, numberEnd;
-        List<String> numbersUsed = new ArrayList<>();
-        String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM ei_vat_settings ovs WHERE ovs.`year` = ?";
-        String qUsedVatNumbers = "SELECT ov.`number` FROM ei_vats ov\n" +
-                "  WHERE ov.`number` >= ? AND ov.`number` <= ? AND ov.unp = ?  AND ov.`year` = ?\n" +
-                "\n" +
-                "  ORDER BY ov.`number`";
-        String qIssueVat = "INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)\n" +
-                "  VALUES (?, ?, ?, ?);";
-        try (Connection conn = ConnectionMySql.getInstance().getConn();
-             PreparedStatement psGetNumberRange = conn.prepareStatement(qGetNumberRange);
-             PreparedStatement psUsedVatNumbers = conn.prepareStatement(qUsedVatNumbers);
-             PreparedStatement psIssueVat = conn.prepareStatement(qIssueVat);
-        ) {
-            configureProxy();
-            final ConfigReader config = ConfigReader.getInstance();
-            int unp = config.getUNP();
-            conn.setAutoCommit(false);
-            psGetNumberRange.setInt(1, year);
-            try (ResultSet rs = psGetNumberRange.executeQuery()) {
-                if (!rs.next()) {
-                    throw new Exception("Не заданы номера счетов-фактур на требуемый год");
-                } else {
-                    numberBegin = rs.getLong(1);
-                    numberEnd = rs.getLong(2);
-                }
-            }
-
-            psUsedVatNumbers.setLong(1, numberBegin);
-            psUsedVatNumbers.setLong(2, numberEnd);
-            psUsedVatNumbers.setInt(3, unp);
-            psUsedVatNumbers.setInt(4, year);
-            try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
-                while (rs.next()) {
-                    numbersUsed.add(VatHelpers.vatNumber(unp, year, rs.getLong(1)));
-                }
-            }
-
-            // отправка:
-            String dir = config.getVatPath();
-            new File(dir).mkdirs();
-
-            long counter = numberBegin;
-            try (VatTool vt = new VatTool()) {
-//                final List<String> unps = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
-                final List<String> allUnpsList = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
-                Map<String, CustomerInfo> unpInfo = getUNPsInfo(conn, allUnpsList);
-                final Map<String, CustomerInfo> unpCheckResult = vt.checkUNPsWithAddresses(unpInfo);
-//                String unpResult = vt.checkUNPs(unps);
-                List<String> badUNPs = unpCheckResult.keySet().stream().filter(s -> unpCheckResult.get(s).getAddress() == null).collect(Collectors.toList());
-                saveCheckedUnps(conn, unpCheckResult);
-
-                if (badUNPs.size() > 0) {
-                    StringBuilder sb = new StringBuilder("<p>");
-                    for (String badUnp : badUNPs) {
-                        sb.append(badUnp).append(", ");
+        Object[] credentials = chooseCredentialsFromList("Выберите ключ и введите пароль");
+        if (credentials[0] == null) {
+            return;
+        }
+        beforeStartLongTask("Формирование и отправка счет-фактур");
+        final String keyAlias = (String) credentials[0];
+        final String password = (String) credentials[1];
+        Thread th = new Thread(new Task() {
+            @Override
+            protected Object call() throws Exception {
+                long numberBegin, numberEnd;
+                List<String> numbersUsed = new ArrayList<>();
+                String qGetNumberRange = "SELECT ovs.`begin`, ovs.`end` FROM ei_vat_settings ovs WHERE ovs.`year` = ?";
+                String qUsedVatNumbers = "SELECT ov.`number` FROM ei_vats ov\n" +
+                        "  WHERE ov.`number` >= ? AND ov.`number` <= ? AND ov.unp = ?  AND ov.`year` = ?\n" +
+                        "\n" +
+                        "  ORDER BY ov.`number`";
+                String qIssueVat = "INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)\n" +
+                        "  VALUES (?, ?, ?, ?);";
+                try (Connection conn = ConnectionMySql.getInstance().getConn();
+                     PreparedStatement psGetNumberRange = conn.prepareStatement(qGetNumberRange);
+                     PreparedStatement psUsedVatNumbers = conn.prepareStatement(qUsedVatNumbers);
+                     PreparedStatement psIssueVat = conn.prepareStatement(qIssueVat);
+                ) {
+                    configureProxy();
+                    final ConfigReader config = ConfigReader.getInstance();
+                    int unp = config.getUNP();
+                    conn.setAutoCommit(false);
+                    psGetNumberRange.setInt(1, year);
+                    try (ResultSet rs = psGetNumberRange.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new Exception("Не заданы номера счетов-фактур на требуемый год");
+                        } else {
+                            numberBegin = rs.getLong(1);
+                            numberEnd = rs.getLong(2);
+                        }
                     }
-                    sb.setLength(sb.length() - 2);
-                    sb.append("</p>");
-                    showLargeMessageBox("Ошибка проверки УНП", sb.toString());
-                    return;
-                }
 
-                unpInfo.putAll(unpCheckResult);
-//                if (StringUtils.isNotEmpty(unpResult)) {
-//                    showErrorMessage("Ошибка проверки УНП", unpResult);
-//                    return;
-//                }
-                for (VatData vd : selectedRows) {
-                    String number = null;
-                    final boolean issued = vd.isVatIssued();
-                    if (!issued) {
-                        // подобрать номер из настроенных, но еще не задействованный:
-                        for (; counter <= numberEnd; counter++) {
-                            number = VatHelpers.vatNumber(unp, year, counter);
-                            if (numbersUsed.contains(number)) {
-                                continue;
+                    psUsedVatNumbers.setLong(1, numberBegin);
+                    psUsedVatNumbers.setLong(2, numberEnd);
+                    psUsedVatNumbers.setInt(3, unp);
+                    psUsedVatNumbers.setInt(4, year);
+                    try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
+                        while (rs.next()) {
+                            numbersUsed.add(VatHelpers.vatNumber(unp, year, rs.getLong(1)));
+                        }
+                    }
+
+                    // отправка:
+                    String dir = config.getVatPath();
+                    new File(dir).mkdirs();
+
+                    long counter = numberBegin;
+                    try (VatTool vt = new VatTool(keyAlias, password)) {
+                        final List<String> allUnpsList = selectedRows.stream().map(vd -> String.valueOf(vd.getContractorUnp())).distinct().collect(Collectors.toList());
+                        Map<String, CustomerInfo> unpInfo = getUNPsInfo(conn, allUnpsList);
+                        final Map<String, CustomerInfo> unpCheckResult = vt.checkUNPsWithAddresses(unpInfo);
+                        List<String> badUNPs = unpCheckResult.keySet().stream().filter(s -> unpCheckResult.get(s).getAddress() == null).collect(Collectors.toList());
+                        saveCheckedUnps(conn, unpCheckResult);
+
+                        if (badUNPs.size() > 0) {
+                            StringBuilder sb = new StringBuilder("<p>");
+                            for (String badUnp : badUNPs) {
+                                sb.append(badUnp).append(", ");
                             }
-                            final byte status = vt.isNumberSpare(number);
-                            if (status == 3) {
-                                throw new Exception("Ошибка получения статуса ЭСЧФ.\n" +
-                                        "Проверьте настройки, подключение к\n" +
-                                        "интернету и попробуйте позже");
-                            }
-                            if (status == 2) {
-                                // пометим номер как занятый
-                                psUsedVatNumbers.setLong(1, counter);
-                                psUsedVatNumbers.setLong(2, counter);
-                                psUsedVatNumbers.setInt(3, unp);
-                                psUsedVatNumbers.setInt(4, year);
-                                try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
-                                    if (!rs.next()) {
-                                        psIssueVat.setNull(1, Types.INTEGER);
-                                        psIssueVat.setInt(2, unp);
-                                        psIssueVat.setShort(3, year);
-                                        psIssueVat.setLong(4, counter);
-                                        psIssueVat.executeUpdate();
+                            sb.setLength(sb.length() - 2);
+                            sb.append("</p>");
+                            Platform.runLater(() -> showLargeMessageBox("Ошибка проверки УНП", sb.toString()));
+                            return null;
+                        }
+
+                        unpInfo.putAll(unpCheckResult);
+                        for (VatData vd : selectedRows) {
+                            String number = null;
+                            final boolean issued = vd.isVatIssued();
+                            if (!issued) {
+                                // подобрать номер из настроенных, но еще не задействованный:
+                                for (; counter <= numberEnd; counter++) {
+                                    number = VatHelpers.vatNumber(unp, year, counter);
+                                    if (numbersUsed.contains(number)) {
+                                        continue;
+                                    }
+                                    final byte status = vt.isNumberSpare(number);
+                                    if (status == 3) {
+                                        throw new Exception("Ошибка получения статуса ЭСЧФ.\n" +
+                                                "Проверьте настройки, подключение к\n" +
+                                                "интернету и попробуйте позже");
+                                    }
+                                    if (status == 2) {
+                                        // пометим номер как занятый
+                                        psUsedVatNumbers.setLong(1, counter);
+                                        psUsedVatNumbers.setLong(2, counter);
+                                        psUsedVatNumbers.setInt(3, unp);
+                                        psUsedVatNumbers.setInt(4, year);
+                                        try (ResultSet rs = psUsedVatNumbers.executeQuery()) {
+                                            if (!rs.next()) {
+                                                psIssueVat.setNull(1, Types.INTEGER);
+                                                psIssueVat.setInt(2, unp);
+                                                psIssueVat.setShort(3, year);
+                                                psIssueVat.setLong(4, counter);
+                                                psIssueVat.executeUpdate();
+                                            }
+                                        }
+
+                                        conn.commit();
+                                    }
+
+                                    if (status == 0) {
+                                        break;
                                     }
                                 }
 
-                                conn.commit();
+                                if (counter > numberEnd) {
+                                    throw new Exception(String.format("Не осталось свободных настроенных номеров счет-фактур"));
+                                }
+                                vd.setVatYear(year);
+                                vd.setVatUnp(unp);
+                                vd.setVatNumber(counter++);
+
+                            } else {
+                                number = VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber());
                             }
-
-                            if (status == 0) {
-                                break;
+                            final String vatXml = makeVATXml(vd, unpInfo);
+                            if (!issued) {
+                                // записать в базу:
+                                // INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)
+                                psIssueVat.setInt(1, vd.getBlancTsInfoId());
+                                psIssueVat.setInt(2, vd.getVatUnp());
+                                psIssueVat.setShort(3, vd.getVatYear());
+                                psIssueVat.setLong(4, vd.getVatNumber());
+                                psIssueVat.executeUpdate();
                             }
+                            vt.doSignAndUploadString(vatXml);
+                            try (FileOutputStream fos = new FileOutputStream(dir + File.separator + number + ".xml");
+                                 OutputStreamWriter fw = new OutputStreamWriter(fos, "UTF-8");
+                                 BufferedWriter bw = new BufferedWriter(fw)) {
+                                bw.write(vatXml, 0, vatXml.length());
+                            }
+                            conn.commit();
                         }
+                    } catch (Exception e) {
+                        log.error(e.getMessage(), e);
+                        conn.rollback();
+                        throw e;
+                    }
 
-                        if (counter > numberEnd) {
-                            throw new Exception(String.format("Не осталось свободных настроенных номеров счет-фактур"));
-                        }
-                        vd.setVatYear(year);
-                        vd.setVatUnp(unp);
-                        vd.setVatNumber(counter++);
-
+                    final String resultMessage = "Загрузка на портал ЭСЧФ завершена успешно";
+                    Platform.runLater(() -> MainController.showInfoMessage("", resultMessage));
+                    Platform.runLater(() -> afterFinishLongTask(resultMessage));
+                } catch (Exception e) {
+                    Platform.runLater(() -> MainController.showErrorMessage("Ошибка", e.getMessage()));
+                    if (Main.verbose) {
+                        log.error(e.getMessage(), e);
                     } else {
-                        number = VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber());
+                        log.error("[ОШИБКА] " + e.getMessage());
                     }
-                    final String vatXml = makeVATXml(vd, unpInfo);
-                    if (!issued) {
-                        // записать в базу:
-                        // INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)
-                        psIssueVat.setInt(1, vd.getBlancTsInfoId());
-                        psIssueVat.setInt(2, vd.getVatUnp());
-                        psIssueVat.setShort(3, vd.getVatYear());
-                        psIssueVat.setLong(4, vd.getVatNumber());
-                        psIssueVat.executeUpdate();
-                    }
-                    vt.doSignAndUploadString(vatXml);
-                    try (FileOutputStream fos = new FileOutputStream(dir + File.separator + number + ".xml");
-                         OutputStreamWriter fw = new OutputStreamWriter(fos, "UTF-8");
-                         BufferedWriter bw = new BufferedWriter(fw)) {
-                        bw.write(vatXml, 0, vatXml.length());
-                    }
-                    conn.commit();
+                    Platform.runLater(() -> afterFinishLongTask("Возникла ошибка"));
                 }
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                conn.rollback();
-                throw e;
+                refreshVats();
+                return null;
             }
-
-            final String resultMessage = "Загрузка на портал ЭСЧФ завершена успешно";
-            MainController.showInfoMessage("", resultMessage);
-            lMessage.setText(resultMessage);
-        } catch (Exception e) {
-            MainController.showErrorMessage("Ошибка", e.getMessage());
-            if (Main.verbose) {
-                log.error(e.getMessage(), e);
-            } else {
-                log.error("[ОШИБКА] " + e.getMessage());
-            }
-            lMessage.setText("Возникла ошибка");
-        }
-        refreshVats();
+        });
+        th.start();
     }
 
     // TODO: debug
@@ -1233,72 +1279,73 @@ public class MainController implements Initializable {
             MainController.showInfoMessage("", "Не выделено ни одной строки");
             return;
         }
-//        enableBlur(true);
-        setCursor(Cursor.WAIT);
-        setStatusLine("Чтение статусов Счет-фактур с портала...");
         ObservableList<Integer> selectedIndices = vatTableView.getSelectionModel().getSelectedIndices();
-
         List<VatData> selectedIssuedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).filter(VatData::isVatIssued).collect(Collectors.toList());
         configureProxy();
-//        Map<String, Integer> newVatStates = new HashMap<>();
-        String query2 = "update ei_vats set state = :state where id = :id";
-        try (VatTool vt = new VatTool();
-             Connection conn = ConnectionMySql.getInstance().getConn();
-             NamedParameterStatement nps = new NamedParameterStatement(conn, query2)) {
-            for (VatData vd : selectedIssuedRows) {
-                VatStatusEnum vatStatus = vt.getVatStatus(vd.getVatFullNumber());
-                if (vatStatus.ordinal() != vd.getVatState()) {
-                    nps.setInt("state", vatStatus.ordinal());
-                    nps.setInt("id", vd.getVatId());
-                    boolean success = nps.execute();
-                    vd.setVatState(vatStatus.ordinal());
-                }
-            }
-
-            setStatusLine("Чтение статусов завершено успешно");
-        } catch (Exception e) {
-            if (Main.verbose) {
-                log.error(e.getMessage(), e);
-            } else {
-                log.error("[ОШИБКА] " + e.getMessage());
-            }
-            MainController.showErrorMessage("Ошибка", ExceptionHelpers.extractMessage(e));
-            setStatusLine("Возникла ошибка");
-        } finally {
-            setCursor(Cursor.DEFAULT);
-//            enableBlur(false);
+        Object[] credentials = chooseCredentialsFromList("Выберите ключ и введите пароль");
+        if (credentials[0] == null) {
+            return;
         }
-    }
 
-    private void setCursor(final Cursor c) {
-        //vatTableView.setCursor(c); - это почему-то не срабатывает
+        beforeStartLongTask("Чтение статусов счет-фактур с портала...");
+        final String keyAlias = (String) credentials[0];
+        final String password = (String) credentials[1];
 
         Thread th = new Thread(new Task() {
             @Override
             protected Integer call() throws Exception {
-                thisScene.setCursor(c); //Change cursor to wait style
-                return 0;
+                String query2 = "update ei_vats set state = :state where id = :id";
+                try (VatTool vt = new VatTool(keyAlias, password);
+                     Connection conn = ConnectionMySql.getInstance().getConn();
+                     NamedParameterStatement nps = new NamedParameterStatement(conn, query2)) {
+                    for (VatData vd : selectedIssuedRows) {
+                        VatStatusEnum vatStatus = vt.getVatStatus(vd.getVatFullNumber());
+                        if (vatStatus.ordinal() != vd.getVatState()) {
+                            nps.setInt("state", vatStatus.ordinal());
+                            nps.setInt("id", vd.getVatId());
+                            boolean success = nps.execute();
+                            vd.setVatState(vatStatus.ordinal());
+                        }
+                    }
+                    Platform.runLater(() -> afterFinishLongTask("Чтение статусов завершено успешно"));
+                } catch (Exception e) {
+                    if (Main.verbose) {
+                        log.error(e.getMessage(), e);
+                    } else {
+                        log.error("[ОШИБКА] " + e.getMessage());
+                    }
+                    Platform.runLater(() -> MainController.showErrorMessage("Ошибка", ExceptionHelpers.extractMessage(e)));
+                    messageText.set("Возникла ошибка");
+                } finally {
+                    afterFinishLongTask(null);
+                }
+                return null;
             }
         });
-//        th.setDaemon(true);
         th.start();
-
-        try {
-            th.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                thisScene.setCursor(c);
-//            }
-//        });
     }
 
-    private void setStatusLine(final String msg) {
-        Platform.runLater(() -> lMessage.setText(msg));
+    private void beforeStartLongTask(String message) {
+        apMain.setCursor(Cursor.WAIT);
+        apMain.setDisable(true);
+        gpMessage.setDisable(false);
+        gpMessage.setVisible(true);
+        apMain.setEffect(createBlurEffect());
+        if (message != null) {
+            messageText.set(message);
+        }
+    }
+
+    private void afterFinishLongTask(String message) {
+        apMain.setCursor(Cursor.DEFAULT);
+        apMain.setDisable(false);
+        gpMessage.setDisable(true);
+        gpMessage.setVisible(false);
+        apMain.setEffect(null);
+        if (message != null) {
+            messageText.set(message);
+        }
+
     }
 
     public Scene getScene() {
@@ -1335,21 +1382,15 @@ public class MainController implements Initializable {
     }
 
     public void miTestAction(ActionEvent actionEvent) {
-        enableBlur();
     }
 
-    private void enableBlur() {
-        Effect effect = pRootPane.getEffect();
-        if (null == effect) {
-//        ColorAdjust adj = new ColorAdjust(0, -0.9, -0.5, 0);
-            GaussianBlur blur = new GaussianBlur(10);
-//        adj.setInput(blur);
-            pRootPane.setEffect(blur);
-
-        } else {
-            pRootPane.setEffect(null);
-        }
-
+    private Effect createBlurEffect() {
+        Effect e;
+        ColorAdjust adj = new ColorAdjust(0, -0.9, -0.5, 0);
+        GaussianBlur blur = new GaussianBlur(2);
+        adj.setInput(blur);
+        e = adj;
+        return e;
     }
 
     public void miCheckStatesAction(ActionEvent actionEvent) {

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,13 +51,9 @@ public class KeySelector extends PersonalKeyManager2 {
     }
 
     public String chooseAlias(String[] aliases) throws IOException {
-//        for (String alias : aliases) {
-//            final PrivateKey pk = this.getPrivateKey(alias);
-//            System.out.println(pk);
-//        }
         log.info("start chooseAlias");
         passwords.clear();
-        Object[] result = MainController.chooseFromList("Выберите ключ", aliases);
+        Object[] result = MainController.chooseCredentialsFromList("Выберите ключ");
         int idx = (int) result[0];
         if (idx >= 0) {
             String alias = aliases[idx];
