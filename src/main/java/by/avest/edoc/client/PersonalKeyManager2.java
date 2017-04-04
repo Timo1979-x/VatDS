@@ -74,7 +74,7 @@ public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
                         this.password = value.toCharArray();
                     }
                 } catch (IOException var9) {
-                    throw new AvLoginException(var9);
+                    throw new AvLoginException("Ошибка", var9);
                 }
             }
 
@@ -250,7 +250,7 @@ public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
                 CertVerifyResult e = this.cv.verify(cert, new Date());
                 return e.isCertValid();
             } catch (InvalidAlgorithmParameterException var3) {
-                throw new AvLoginException(var3);
+                throw new AvLoginException("Ошибка", var3);
             }
         } else {
             return true;
@@ -265,7 +265,7 @@ public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
             try {
                 aliases = this.ks.aliases();
             } catch (KeyStoreException var6) {
-                throw new AvLoginException(var6);
+                throw new AvLoginException("Ошибка", var6);
             }
 
             while(aliases.hasMoreElements()) {
@@ -370,13 +370,13 @@ public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
                 this.privkey = (PrivateKey)this.ks.getKey(alias, this.getPassword(alias));
             }
         } catch (KeyStoreException var3) {
-            throw new AvLoginException(var3);
+            throw new AvLoginException("Ошибка", var3);
         } catch (UnrecoverableKeyException var4) {
-            throw new AvLoginException(var4);
+            throw new AvLoginException("Ошибка", var4);
         } catch (NoSuchAlgorithmException var5) {
-            throw new AvLoginException(var5);
+            throw new AvLoginException("Ошибка", var5);
         } catch (IOException var6) {
-            throw new AvLoginException(var6);
+            throw new AvLoginException("Ошибка", var6);
         }
 
         return this.privkey;
@@ -399,7 +399,7 @@ public abstract class PersonalKeyManager2 extends X509ExtendedKeyManager {
                 this.certchain = (X509Certificate[])((X509Certificate[])this.ks.getCertificateChain(alias));
             }
         } catch (KeyStoreException var3) {
-            throw new AvLoginException(var3);
+            throw new AvLoginException("Ошибка", var3);
         }
 
         return this.certchain;

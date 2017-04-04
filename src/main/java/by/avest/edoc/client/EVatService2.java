@@ -64,11 +64,36 @@ public class EVatService2 {
         this.trustManagers = CertStoreBuilderParams.getTrustManagers(this.builderParams);
     }
 
-    public AvEDoc createEDoc() {
-        PrivateKey key = this.getMngrKey();
-        X509Certificate cert = this.getMngrCert();
-        AvEDoc result = new AvEDoc(key, cert, new CertVerify(this.builderParams, true));
+    private void ensureLoggedIn() {
+        if (this.alias == null) {
+            throw new AvLoginException("Логин не был выполнен.");
+        }
+    }
+
+    private void ensureConnected() throws AvDocException {
+        if (this.port == null) {
+            throw new AvDocException("Подключение не было выполнено.");
+        }
+    }
+
+    private X509Certificate[] getMngrChain() {
+        X509Certificate[] result = this.keyManager.getCertificateChain(this.alias);
         return result;
+    }
+
+    public AvEDoc createEDoc() {
+
+        this.ensureLoggedIn();
+        PrivateKey key = this.getMngrKey();
+        X509Certificate[] chain = this.getMngrChain();
+        AvEDoc result = new AvEDoc(key, chain, this.builderParams);
+        return result;
+
+
+//        PrivateKey key = this.getMngrKey();
+//        X509Certificate cert = this.getMngrCert();
+//        AvEDoc result = new AvEDoc(key, cert, new CertVerify(this.builderParams, true));
+//        return result;
     }
 
     private PrivateKey getMngrKey() {
@@ -261,7 +286,7 @@ public class EVatService2 {
         StringBuilder response = new StringBuilder();
         Map<String, CustomerInfo> checkedUNPs = new HashMap<>();
         for (String unp : unps.keySet()) {
-            if(unps.get(unp).getAddress() != null) {
+            if (unps.get(unp).getAddress() != null) {
                 continue;
             }
             String urlUnpQuery = String.format(unpQuery, unp);
@@ -303,7 +328,7 @@ public class EVatService2 {
                 JSONObject o = new JSONObject(source);
                 JSONObject in = ((JSONObject) (o.get(unp)));
                 if (in != null) {
-                    customerAddress = in.get("post_index") + ", " +(String) in.get("address");
+                    customerAddress = in.get("post_index") + ", " + (String) in.get("address");
                     customerName = (String) in.get("name");
                 }
             } catch (Exception e) {
@@ -346,48 +371,55 @@ public class EVatService2 {
     }
 
     public AvETicket sendEDoc(AvEDoc eDoc) throws IOException, AvDocException, ParseException {
+        this.ensureLoggedIn();
+        this.ensureConnected();
         AvDoc document = eDoc.getDocument();
         String generalNumber = document.getXmlNodeValue("/issuance/general/number");
         if (generalNumber == null) {
             throw new AvDocException("Документ не содержит элемент \'/issuance/general/number\'.");
         } else {
-            Object response = null;
-            byte[] response1;
-            if (eDoc.getSignCount() == 1) {
-                response1 = this.port.put(eDoc.getEncoded());
+            byte[] response = null;
+            if(eDoc.getSignCount() == 1) {
+                response = this.port.put(eDoc.getEncoded());
             } else {
-                response1 = this.port.putFinal(eDoc.getEncoded());
+                response = this.port.putFinal(eDoc.getEncoded());
             }
 
-            AvETicket ticket = new AvETicket(new CertVerify(this.builderParams, true));
+            AvETicket ticket = new AvETicket(this.builderParams);
             ticket.setOidValue(generalNumber);
-            ticket.load(response1);
+            ticket.load(response);
             return ticket;
         }
     }
 
     public AvEList getList(Date date) throws IOException, AvDocException, ParseException {
+        this.ensureLoggedIn();
+        this.ensureConnected();
         Document selector = createSelectorByDate(XmlUtil.date2String(date));
         byte[] list = this.port.list(XmlUtil.xml2ByteArray(selector));
-        AvEList result = new AvEList(new CertVerify(this.builderParams, true));
+        AvEList result = new AvEList(this.builderParams);
         result.load(list);
         return result;
     }
 
     public AvEStatus getStatus(String invNum) throws AvDocException, IOException, ParseException {
+        this.ensureLoggedIn();
+        this.ensureConnected();
         Document selector = createSelectorByInvNum(invNum);
         byte[] list = this.port.status(XmlUtil.xml2ByteArray(selector));
-        AvEStatus result = new AvEStatus(new CertVerify(this.builderParams, true));
+        AvEStatus result = new AvEStatus(this.builderParams);
         result.load(list);
         return result;
     }
 
     public AvEDoc getEDoc(String invNum) throws IOException, AvDocException, ParseException {
+        this.ensureLoggedIn();
+        this.ensureConnected();
         Document selector = createSelectorByInvNum(invNum);
         byte[] invoice = this.port.get(XmlUtil.xml2ByteArray(selector));
         PrivateKey key = this.getMngrKey();
-        X509Certificate cert = this.getMngrCert();
-        AvEDoc result = new AvEDoc(key, cert, new CertVerify(this.builderParams, true));
+        X509Certificate[] chain = this.getMngrChain();
+        AvEDoc result = new AvEDoc(key, chain, this.builderParams);
         result.load(invoice);
         return result;
     }
