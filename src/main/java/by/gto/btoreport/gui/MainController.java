@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
 public class MainController implements Initializable {
 
     private static final Logger log = Logger.getLogger(MainController.class);
-    private static final int REQUIRED_DB_VERSION = 181;
+    private static final int REQUIRED_DB_VERSION = 182;
 
     @FXML
     public CheckBox cbPeriod;
@@ -809,7 +809,7 @@ public class MainController implements Initializable {
                     MainController.showErrorMessage("Неправильная версия БД",
                             String.format("Для работы данной программы необходима\n" +
                                     "база данных АРМ ДС версии %d\n" +
-                                    "(поставляется с АРМ ДС версии 3.0.4.0)\n" +
+                                    "(поставляется с АРМ ДС версии 3.0.4.1 или более поздней)\n" +
                                     "Версия Вашей БД - %d", REQUIRED_DB_VERSION, ver));
                     return false;
                 }
