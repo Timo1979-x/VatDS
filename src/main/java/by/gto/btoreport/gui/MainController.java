@@ -158,41 +158,41 @@ public class MainController implements Initializable {
         a.showAndWait();
     }
 
-    public static String passwordPrompt(String title, int minLength) throws IOException {
-        Stage newStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/passwordPrompt.fxml"));
-        try {
-            Parent root = loader.load();
-
-            PasswordPromptController controller = loader.<PasswordPromptController>getController();
-            newStage.initModality(Modality.APPLICATION_MODAL);
-            newStage.setTitle(title);
-            newStage.setScene(new Scene(root));
-            newStage.setResizable(false);
-            controller = (PasswordPromptController) loader.getController();
-            controller.setCaption(title);
-            String result;
-            do {
-                newStage.showAndWait();
-                result = controller.getResult();
-                if (null != result && result.length() < minLength) {
-                    controller.setMessage("Минимальная длина пароля " + minLength + " символов");
-                } else {
-                    break;
-                }
-            } while (true);
-            return result;
-
-        } catch (Exception e) {
-            if (Main.verbose) {
-                log.error(e.getMessage(), e);
-            }
-            if (Main.debug) {
-                throw e;
-            }
-            return null;
-        }
-    }
+//    public static String passwordPrompt(String title, int minLength) throws IOException {
+//        Stage newStage = new Stage();
+//        FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/passwordPrompt.fxml"));
+//        try {
+//            Parent root = loader.load();
+//
+//            PasswordPromptController controller = loader.<PasswordPromptController>getController();
+//            newStage.initModality(Modality.APPLICATION_MODAL);
+//            newStage.setTitle(title);
+//            newStage.setScene(new Scene(root));
+//            newStage.setResizable(false);
+//            controller = (PasswordPromptController) loader.getController();
+//            controller.setCaption(title);
+//            String result;
+//            do {
+//                newStage.showAndWait();
+//                result = controller.getResult();
+//                if (null != result && result.length() < minLength) {
+//                    controller.setMessage("Минимальная длина пароля " + minLength + " символов");
+//                } else {
+//                    break;
+//                }
+//            } while (true);
+//            return result;
+//
+//        } catch (Exception e) {
+//            if (Main.verbose) {
+//                log.error(e.getMessage(), e);
+//            }
+//            if (Main.debug) {
+//                throw e;
+//            }
+//            return null;
+//        }
+//    }
 
     public static Object[] chooseCredentialsFromList(String title) {
         KeyStore ks;
@@ -233,6 +233,9 @@ public class MainController implements Initializable {
                         controller.setPassword(pass);
                     }
                 }
+            }
+            if(controller.lList.getSelectionModel().getSelectedIndex() == -1 && controller.lList.getItems().size() == 1) {
+                controller.lList.getSelectionModel().select(0);
             }
             newStage.showAndWait();
             result[0] = controller.getAlias();

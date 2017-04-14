@@ -1,5 +1,7 @@
 package by.gto.btoreport.gui;
 
+import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,6 +25,8 @@ public final class ChooseFromListController implements Initializable {
     public TextField ePassword;
     @FXML
     public Label lMessage;
+    @FXML
+    public Button bOk;
     private int keyIndex;
     private String password;
     private String alias;
@@ -35,7 +39,7 @@ public final class ChooseFromListController implements Initializable {
     public void bCancelAction(ActionEvent actionEvent) {
         keyIndex = -1;
         password = null;
-        alias=null;
+        alias = null;
         Stage stage = (Stage) bCancel.getScene().getWindow();
         stage.close();
     }
@@ -46,7 +50,7 @@ public final class ChooseFromListController implements Initializable {
 
     public void closeOk() {
         keyIndex = lList.getSelectionModel().getSelectedIndex();
-        alias = (String)lList.getSelectionModel().getSelectedItem();
+        alias = (String) lList.getSelectionModel().getSelectedItem();
         password = ePassword.getText();
         Stage stage = (Stage) bCancel.getScene().getWindow();
         stage.close();
@@ -60,9 +64,10 @@ public final class ChooseFromListController implements Initializable {
     private int getKeyIndex() {
         return keyIndex;
     }
+
     public String getAlias() {
-            return alias;
-        }
+        return alias;
+    }
 
     public String getPassword() {
         return password;
@@ -91,6 +96,11 @@ public final class ChooseFromListController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         lList.setItems(listItems);
+
+        bOk.disableProperty().bind(
+                lList.getSelectionModel().selectedIndexProperty().isEqualTo(-1).or(ePassword.lengthProperty().isEqualTo(0))
+        );
+        Platform.runLater(() -> ePassword.requestFocus());
     }
 
     public void lListOnMouseClicked(MouseEvent mouseEvent) {
