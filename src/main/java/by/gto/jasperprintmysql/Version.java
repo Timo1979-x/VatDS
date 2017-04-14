@@ -2,10 +2,10 @@ package by.gto.jasperprintmysql;
 
 public final class Version {
 
-    private static final String VERSION = "0.3.2";
+    private static final String VERSION = "0.3.3";
     private static final String GROUPID = "by.gto";
     private static final String ARTIFACTID = "btoReportNG";
-    private static final String DATEBUILD = "2017-04-04 09:50";
+    private static final String DATEBUILD = "2017-04-06 10:59";
 
     public static String getDATEBUILD() {
         return DATEBUILD;
