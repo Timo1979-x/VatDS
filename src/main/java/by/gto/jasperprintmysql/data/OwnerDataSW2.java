@@ -50,7 +50,7 @@ public class OwnerDataSW2 extends SwingWorker {
                 try (Connection conn = ConnectionMySql.getInstance().getConn(); Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(Query)) {
                     while (rs.next()) {
                         listOwner.add(StringUtils.trim(rs.getString(2)));
-                        listOwner.add(StringUtils.trim(rs.getString(2)) + " 1");
+//                        listOwner.add(StringUtils.trim(rs.getString(2)) + " 1");
                         if (rs.getString(3) != null) {
                             listOwnerUNP.add(rs.getString(3).trim());
                         }

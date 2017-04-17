@@ -6,6 +6,7 @@ import by.gto.tools.ConnectionMySql;
 import com.mgrecol.jasper.jasperviewerfx.JRViewerFx;
 import com.mgrecol.jasper.jasperviewerfx.JRViewerFxMode;
 import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.StringUtils;
 import javafx.stage.Stage;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRResultSetDataSource;
@@ -148,11 +149,11 @@ public class App {
 
                     stringBuilder.append(" and o.id_owner_type in (").append(sb).append(") ");
 
-                    if (owner != null) {
+                    if (!StringUtils.isNullOrEmpty(owner)) {
                         stringBuilder.append(" and o.name like \"%").append(owner).append("%\"");
                     }
 
-                    if (ownerUNP != null) {
+                    if (!StringUtils.isNullOrEmpty(ownerUNP)) {
                         stringBuilder.append(" and o.unp=").append(ownerUNP);
                     }
 

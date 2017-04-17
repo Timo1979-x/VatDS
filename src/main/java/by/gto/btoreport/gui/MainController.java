@@ -17,16 +17,13 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -85,9 +82,9 @@ public class MainController implements Initializable {
     @FXML
     public CheckBox cbIndividual;
     @FXML
-    public ComboBox comboBoxOwner;
+    public ComboBox<String> comboBoxOwner;
     @FXML
-    public ComboBox comboBoxUNP;
+    public ComboBox<String> comboBoxUNP;
     @FXML
     public Label lUNP;
     @FXML
@@ -121,9 +118,12 @@ public class MainController implements Initializable {
     @FXML
     public TableColumn colBlankNumber;
     public TableColumn<VatData, Integer> colVatState;
+    @FXML
     public AnchorPane apMain;
+    @FXML
     public GridPane gpMessage;
     public StackPane spRoot;
+    @FXML
     public Label lMessage1;
 
     private String report = "recordBook";
@@ -653,8 +653,9 @@ public class MainController implements Initializable {
 //                    }
 //                });
 
-        new AutoCompleteComboBoxListener(comboBoxOwner);
-        //new ComboBoxAutoComplete<String>(comboBoxOwner);
+
+        new AutoCompleteComboBoxListener<>(comboBoxOwner);
+        new AutoCompleteComboBoxListener<>(comboBoxUNP);
 
 
         apMain.prefWidthProperty().bind(spRoot.widthProperty());
