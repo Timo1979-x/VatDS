@@ -1,5 +1,6 @@
 package by.gto.jasperprintmysql;
 
+import by.gto.btoreport.gui.MainController;
 import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import com.mgrecol.jasper.jasperviewerfx.JRViewerFx;
@@ -12,7 +13,6 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import org.apache.log4j.Logger;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.ResultSet;
@@ -27,17 +27,6 @@ import java.util.Map;
 
 public class App {
     private final static Logger log = Logger.getLogger(App.class);
-
-    /**
-     * @param title
-     * @param message
-     */
-    public static void showMessage(String title, String message) {
-        JFrame frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //JOptionPane.showMessageDialog(frame, setMessage);
-        JOptionPane.showMessageDialog(frame, message, title, 0);
-    }
 
     public static void print(LocalDateTime fromDate, LocalDateTime beforeDate, String report, List<Integer> owner_type, String owner, String ownerUNP, byte bankTransfer) {
         //   report = "report1";
@@ -60,7 +49,6 @@ public class App {
 
 //        System.out.println(String.format("%s %s %s", startMonth, relationship, endMonth));
         try {
-            javax.swing.UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             JasperPrint jasperPrint;
             try (Connection conn = ConnectionMySql.getInstance().getConn();
                  Statement st = conn.createStatement();) {
@@ -72,6 +60,7 @@ public class App {
                 map.put("owner_type", owner_type);
                 map.put("NDS", ConfigReader.getInstance().getNDS());
                 map.put("bankTransfer", bankTransfer);
+                map.put("version", Version.getVERSION() + " от " + Version.getDATEBUILD());
 
                 Iterator<Integer> it = owner_type.iterator();
                 StringBuilder sb = new StringBuilder();
@@ -213,16 +202,16 @@ public class App {
                         }
 
                     } catch (JRException | ExceptionInInitializerError e) {
-                        showMessage("Ошибка", "Ошибка подключения к серверу.");
+                        MainController.showErrorMessage("Ошибка", "Ошибка подключения к серверу.");
                         log.error(e.getMessage(), e);
                     } catch (Exception e) {
-                        showMessage("Ошибка", "Нифига не понятная ошибка");
+                        MainController.showErrorMessage("Ошибка", "Нифига не понятная ошибка");
                         log.error(e.getMessage(),e);
                     }
                 }
             }
-        } catch (IOException | ClassNotFoundException | IllegalAccessException | InstantiationException | SQLException | UnsupportedLookAndFeelException | NullPointerException ex) {
-            showMessage("jasper JRException", ex.toString());
+        } catch (IOException | SQLException | NullPointerException ex) {
+            MainController.showErrorMessage("jasper JRException", ex.toString());
             log.error(ex.getMessage(), ex);
         }
     }

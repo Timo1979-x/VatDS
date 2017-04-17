@@ -85,14 +85,10 @@
                                                       <RadioButton fx:id="rbOrderbyTariff" layoutX="8.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbOrderbyTariffAction" text="по тарифам" toggleGroup="$reportType1" />
                                                       <RadioButton fx:id="rb3" disable="true" layoutX="8.0" layoutY="77.0" mnemonicParsing="false" text="Для БТО??" toggleGroup="$reportType1" />
                                                       <RadioButton fx:id="rb5" disable="true" layoutX="8.0" layoutY="102.0" mnemonicParsing="false" text="Для БТО" toggleGroup="$reportType1" />
-                                                      <RadioButton fx:id="rbRecordBook" layoutX="137.0" layoutY="6.0" mnemonicParsing="false" onAction="#rbRecordBookAction" selected="true" text="Журнал">
-                                                          <toggleGroup>
-                                                              <ToggleGroup fx:id="reportType2" />
-                                                          </toggleGroup>
-                                                      </RadioButton>
-                                                      <RadioButton fx:id="rbIndividual" layoutX="137.0" layoutY="29.0" mnemonicParsing="false" onAction="#rbIndividualAction" text="Физ. лица" toggleGroup="$reportType2" />
-                                                      <RadioButton fx:id="rbCorporate" layoutX="137.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbCorporateAction" text="Юр. лица" toggleGroup="$reportType2" />
-                                                      <RadioButton fx:id="rbActive" layoutX="137.0" layoutY="77.0" mnemonicParsing="false" onAction="#rbActiveAction" text="Активные" toggleGroup="$reportType2" />
+                                                      <RadioButton fx:id="rbRecordBook" layoutX="137.0" layoutY="6.0" mnemonicParsing="false" onAction="#rbRecordBookAction" selected="true" text="Журнал" toggleGroup="$reportType1" />
+                                                      <RadioButton fx:id="rbIndividual" layoutX="137.0" layoutY="29.0" mnemonicParsing="false" onAction="#rbIndividualAction" text="Физ. лица" toggleGroup="$reportType1" />
+                                                      <RadioButton fx:id="rbCorporate" layoutX="137.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbCorporateAction" text="Юр. лица" toggleGroup="$reportType1" />
+                                                      <RadioButton fx:id="rbActive" layoutX="137.0" layoutY="77.0" mnemonicParsing="false" onAction="#rbActiveAction" text="Активные" toggleGroup="$reportType1" />
                                                   </children>
                                               </AnchorPane>
                                           </content>

@@ -75,13 +75,14 @@ public class JRViewerFx extends Application {
             Parent page = (Parent) loader.load(fxmlStream);
             Scene scene = new Scene(page);
             primaryStage.setScene(scene);
-
+            primaryStage.setMaximized(true);
 			primaryStage.show();
             primaryStage.setTitle("Предварительный просмотр");
             Object o = loader.getController();
             if (o instanceof JRViewerFxController) {
                 JRViewerFxController jrViewerFxController = (JRViewerFxController) o;
                 jrViewerFxController.setJasperPrint(jasperPrint);
+                jrViewerFxController.setParentStage(primaryStage);
                 jrViewerFxController.show();
             }
         } catch (Exception ex) {

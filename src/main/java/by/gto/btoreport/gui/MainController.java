@@ -275,7 +275,7 @@ public class MainController implements Initializable {
     }
 
     public void miQuitClick(ActionEvent actionEvent) {
-
+        Main.getStage().close();
     }
 
     public void miCheckUpdatesClick(ActionEvent actionEvent) {
@@ -468,22 +468,22 @@ public class MainController implements Initializable {
         bShowReport.setDisable(false);
     }
 
-    private ScrollBar findScrollBar(TableView<?> table, Orientation orientation) {
-
-        // this would be the preferred solution, but it doesn't work. it always gives back the vertical scrollbar
-        //      return (ScrollBar) table.lookup(".scroll-bar:horizontal");
-        //
-        // => we have to search all scrollbars and return the one with the proper orientation
-
-        Set<Node> set = table.lookupAll(".scroll-bar");
-        for (Node node : set) {
-            ScrollBar bar = (ScrollBar) node;
-            if (bar.getOrientation() == orientation) {
-                return bar;
-            }
-        }
-        return null;
-    }
+//    private ScrollBar findScrollBar(TableView<?> table, Orientation orientation) {
+//
+//        // this would be the preferred solution, but it doesn't work. it always gives back the vertical scrollbar
+//        //      return (ScrollBar) table.lookup(".scroll-bar:horizontal");
+//        //
+//        // => we have to search all scrollbars and return the one with the proper orientation
+//
+//        Set<Node> set = table.lookupAll(".scroll-bar");
+//        for (Node node : set) {
+//            ScrollBar bar = (ScrollBar) node;
+//            if (bar.getOrientation() == orientation) {
+//                return bar;
+//            }
+//        }
+//        return null;
+//    }
 
 
     @Override
