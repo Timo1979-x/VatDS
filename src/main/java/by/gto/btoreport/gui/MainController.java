@@ -621,39 +621,6 @@ public class MainController implements Initializable {
             // тут не нужна никакая обработка и сообщения, чтобы не смущать пользователей при старте программы
         }
 
-//        comboBoxOwner.setCellFactory(
-//                new Callback<ListView<String>, ListCell<String>>() {
-//                    @Override
-//                    public ListCell<String> call(ListView<String> param) {
-//                        final ListCell<String> cell = new ListCell<String>() {
-//                            {
-//                                super.setPrefWidth(100);
-//                            }
-//
-//                            @Override
-//                            public void updateItem(String item,
-//                                                   boolean empty) {
-//                                super.updateItem(item, empty);
-//                                if (item != null) {
-//                                    setText(item);
-//                                    if (item.contains("КОСКО")) {
-//                                        empty = true;
-//                                        setTextFill(Color.RED);
-//                                    } else if (item.contains("ОСИПОВИ")) {
-//                                        setTextFill(Color.GREEN);
-//                                    } else {
-//                                        setTextFill(Color.BLACK);
-//                                    }
-//                                } else {
-//                                    setText(null);
-//                                }
-//                            }
-//                        };
-//                        return cell;
-//                    }
-//                });
-
-
         new AutoCompleteComboBoxListener<>(comboBoxOwner);
         new AutoCompleteComboBoxListener<>(comboBoxUNP);
 
@@ -1212,7 +1179,7 @@ public class MainController implements Initializable {
                 .replace("{totalVat}", vd.getVAT().toPlainString())
                 .replace("{totalCost}", vd.getWithoutVAT().toPlainString())
                 .replace("{actSeries}", vd.getBlankSeries())
-                .replace("{actNumber}", vd.getBlankNumber())
+                .replace("{actNumber}", StringUtils.leftPad(vd.getBlankNumber(), 7, '0'))
                 .replace("{serviceName}", configReader.getServiceName())
                 .replace("{ourUNP}", String.format("%09d", configReader.getUNP()))
                 .replace("{ourName}", configReader.getOrgName())
