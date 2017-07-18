@@ -33,6 +33,7 @@
                             <items>
                                 <MenuItem fx:id="miSettings" mnemonicParsing="false" onAction="#miSettingsClick" text="Настройки" />
                                 <MenuItem fx:id="miVATSettings" mnemonicParsing="false" onAction="#miVATSettingsAction" text="Настройки для ЭСЧФ" />
+                        <MenuItem fx:id="miImportRegistry" mnemonicParsing="false" onAction="#miImportRegistryAction" text="Импортировать реестр договоров" />
                                 <MenuItem fx:id="miQuit" mnemonicParsing="false" onAction="#miQuitClick" text="Выход" />
                             </items>
                         </Menu>

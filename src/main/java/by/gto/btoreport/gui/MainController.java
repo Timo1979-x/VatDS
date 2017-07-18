@@ -37,6 +37,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -59,6 +60,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
+import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("SqlDialectInspection")
@@ -151,6 +153,9 @@ public class MainController implements Initializable {
         a.showAndWait();
     }
 
+    public static void showInfoMessage(String message) {
+        showInfoMessage("", message);
+    }
     public static void showInfoMessage(String title, String message) {
         Alert a = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.CLOSE);
         a.setTitle(title);
@@ -234,7 +239,7 @@ public class MainController implements Initializable {
                     }
                 }
             }
-            if(controller.lList.getSelectionModel().getSelectedIndex() == -1 && controller.lList.getItems().size() == 1) {
+            if (controller.lList.getSelectionModel().getSelectedIndex() == -1 && controller.lList.getItems().size() == 1) {
                 controller.lList.getSelectionModel().select(0);
             }
             newStage.showAndWait();
@@ -1370,5 +1375,56 @@ public class MainController implements Initializable {
 
     public void miUploadAction(ActionEvent actionEvent) {
         issueVATS();
+    }
+
+    public void miImportRegistryAction(ActionEvent actionEvent) {
+        Preferences prefs = Preferences.userNodeForPackage(Main.class);
+
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Выберите файл с реестром договоров ");
+        final String lastImportDir = prefs.get("lastImportDir", null);
+        if (lastImportDir != null) {
+            fc.setInitialDirectory(new File(lastImportDir));
+        }
+        File file = fc.showOpenDialog(Main.getStage());
+        if (file == null) {
+            return;
+        }
+
+        prefs.put("lastImportDir", file.getParentFile().getAbsolutePath());
+        try {
+            importIntoDB(file);
+        } catch (Exception e) {
+            showErrorMessage("Ошибка", e.getMessage());
+        }
+    }
+
+    private void importIntoDB(File file) {
+        StringBuilder sbMessages = new StringBuilder();
+        final List<ExcelLoader.AgreementData> agreements = ExcelLoader.importRegistryFile(file, sbMessages);
+
+        if (sbMessages.length() > 0) {
+            showErrorMessage("Ошибки загрузки реестра", sbMessages.toString());
+            return;
+        }
+
+        String insertQuery = "INSERT INTO ei_agreements (unp, agr_num, agr_date) VALUES (?, ?, ?)";
+        try (Connection conn = ConnectionMySql.getInstance().getConn();
+             Statement stDelete = conn.createStatement();
+             PreparedStatement psInsert = conn.prepareStatement(insertQuery)) {
+            conn.setAutoCommit(false);
+            stDelete.executeUpdate("DELETE FROM ei_agreements");
+            for (ExcelLoader.AgreementData agreement : agreements) {
+                psInsert.setInt(1, agreement.getUnp());
+                psInsert.setString(2, agreement.getNumber());
+                psInsert.setDate(3, new java.sql.Date(agreement.getDate().getTime()));
+                psInsert.addBatch();
+            }
+            psInsert.executeBatch();
+            conn.commit();
+            showInfoMessage("Загружено " + agreements.size() + " договоров");
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }
