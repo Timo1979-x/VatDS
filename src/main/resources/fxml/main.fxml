@@ -37,7 +37,7 @@
                                 <MenuItem fx:id="miQuit" mnemonicParsing="false" onAction="#miQuitClick" text="Выход" />
                             </items>
                         </Menu>
-                        <Menu mnemonicParsing="false" text="ЭСЧФ">
+                        <Menu fx:id="menuVAT" mnemonicParsing="false" text="ЭСЧФ">
                             <items>
                                 <MenuItem fx:id="miUpload" mnemonicParsing="false" onAction="#miUploadAction" styleClass="miUpload" text="Сформировать и отправить выделенные ЭСЧФ" />
                                 <MenuItem mnemonicParsing="false" onAction="#miCheckStatesAction" styleClass="miCheckStates" text="Получить состояние выделенных ЭСЧФ с портала" />
@@ -120,33 +120,40 @@
                                 </AnchorPane>
                             </content>
                         </Tab>
-                        <Tab text="ЭСЧФ">
+                        <Tab fx:id="tabVAT" text="ЭСЧФ">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>
                                         <ComboBox fx:id="comboBoxYear" layoutY="2.0" onAction="#comboBoxYearAction" prefHeight="25.0" prefWidth="108.0" promptText="год" />
                                         <ComboBox fx:id="comboBoxMonth" layoutX="108.0" layoutY="2.0" onAction="#comboBoxMonthAction" prefHeight="25.0" prefWidth="107.0" promptText="месяц" />
-                                        <TableView fx:id="vatTableView" layoutY="37.0" prefHeight="332.0" prefWidth="600.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="37.0">
+                                        <TableView fx:id="vatTableView" editable="true" layoutY="37.0" prefHeight="332.0" prefWidth="600.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="37.0">
                                             <columns>
-                                                <TableColumn fx:id="colContractorName" prefWidth="239.0" text="Наименование ЗАКАЗЧИКА" />
-                                                <TableColumn fx:id="colContractorUNP" prefWidth="78.0" text="УНП" />
-                                                <TableColumn fx:id="colDate" prefWidth="75.0" text="Дата" />
-                                                <TableColumn fx:id="colVATFullNumber" prefWidth="200.0" text="№ ЭСЧФ" />
-                                                <TableColumn prefWidth="75.0" text="Сумма">
+                                                <TableColumn fx:id="colContractorName" editable="false" prefWidth="239.0" text="Наименование ЗАКАЗЧИКА" />
+                                                <TableColumn fx:id="colContractorUNP" editable="false" prefWidth="78.0" text="УНП" />
+                                                <TableColumn fx:id="colDate" editable="false" prefWidth="75.0" text="Дата" />
+                                                <TableColumn fx:id="colVATFullNumber" editable="false" prefWidth="200.0" text="№ ЭСЧФ" />
+                                                <TableColumn editable="false" prefWidth="75.0" text="Сумма">
                                                     <columns>
-                                                        <TableColumn fx:id="colWithoutVAT" prefWidth="75.0" text="Без НДС" />
-                                                        <TableColumn fx:id="colVAT" prefWidth="75.0" text="НДС" />
-                                                        <TableColumn fx:id="colWithVAT" prefWidth="75.0" text="Сумма" />
+                                                        <TableColumn fx:id="colWithoutVAT" editable="false" prefWidth="75.0" text="Без НДС" />
+                                                        <TableColumn fx:id="colVAT" editable="false" prefWidth="75.0" text="НДС" />
+                                                        <TableColumn fx:id="colWithVAT" editable="false" prefWidth="75.0" text="Сумма" />
                                                     </columns>
                                                 </TableColumn>
-                                                <TableColumn prefWidth="75.0" text="карта">
+                                                <TableColumn editable="false" prefWidth="75.0" text="карта">
                                                     <columns>
-                                                        <TableColumn fx:id="colBlankSeries" prefWidth="75.0" text="Серия" />
-                                                        <TableColumn fx:id="colBlankNumber" prefWidth="75.0" text="Номер" />
+                                                        <TableColumn fx:id="colBlankSeries" editable="false" prefWidth="75.0" text="Серия" />
+                                                        <TableColumn fx:id="colBlankNumber" editable="false" prefWidth="75.0" text="Номер" />
                                                     </columns>
                                                 </TableColumn>
-                                                <TableColumn fx:id="colVatState" prefWidth="75.0" text="Состояние" />
-                                                <TableColumn maxWidth="10.0" prefWidth="10.0" />
+                                    <TableColumn editable="false" prefWidth="75.0" text="Договор">
+                                       <columns>
+                                          <TableColumn fx:id="colAgrNumber" prefWidth="75.0" text="№" />
+                                          <TableColumn fx:id="colAgrDate" prefWidth="75.0" text="Дата" />
+                                       </columns>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colBranch" prefWidth="75.0" text="Подразделение" />
+                                                <TableColumn fx:id="colVatState" editable="false" prefWidth="75.0" text="Состояние" />
+                                                <TableColumn editable="false" maxWidth="10.0" prefWidth="10.0" />
                                             </columns>
                                         </TableView>
                                         <Button fx:id="bCheckStates" layoutX="586.0" layoutY="1.0" mnemonicParsing="false" onAction="#bCheckStatesAction" styleClass="bCheckStates" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="1.0">

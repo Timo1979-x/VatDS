@@ -1,10 +1,14 @@
 package by.gto.model;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+import java.util.Observable;
 
 public class VatData {
     private int blancTsInfoId;
@@ -19,6 +23,8 @@ public class VatData {
     private Date _date;
     private SimpleIntegerProperty contractorUnp;
     private SimpleStringProperty contractorName;
+    private SimpleStringProperty agreementNumber;
+    private SimpleObjectProperty<Date> agreementDate;
     private BigDecimal withoutVAT;
     private BigDecimal withVAT;
     private BigDecimal VAT;
@@ -26,15 +32,17 @@ public class VatData {
     private SimpleStringProperty blankSeries;
     private SimpleStringProperty blankNumber;
     private SimpleIntegerProperty vatState;
-    private Integer branch;
-    private boolean hasBranches;
+    private SimpleObjectProperty<Integer> branch;
+    private ObservableList<AgreementData> agreementOptions = null;
+    private ObservableList<BranchInfo> branches = null;
 
 
     public VatData(int blancTsInfoId, Integer vatId,
                    String blankSeries, Integer blankNumber,
                    Integer vatUnp, Short vatYear, Long vatNumber,
                    Date date, int contractorUnp, String contractorName, BigDecimal withoutVAT,
-                   BigDecimal withVAT, BigDecimal VAT,  int vatState, boolean hasBranches, int branch) {
+                   BigDecimal withVAT, BigDecimal VAT, int vatState, Integer branch,
+                   String agreementNumber, Date agreementDate) {
         this.blancTsInfoId = blancTsInfoId;
         this.vatId = vatId;
         this.blankSeries = new SimpleStringProperty(blankSeries);
@@ -50,9 +58,10 @@ public class VatData {
         this.withVAT = withVAT;
         this.VAT = VAT;
         this.vatState = new SimpleIntegerProperty(vatState);
-        this.hasBranches = hasBranches;
-        this.branch = branch;
-
+//        this.hasBranches = hasBranches;
+        this.branch = new SimpleObjectProperty<>(branch);
+        this.agreementNumber = new SimpleStringProperty(agreementNumber);
+        this.agreementDate = new SimpleObjectProperty<>(agreementDate);
 
         if (isVatIssued()) {
             this.vatFullNumber = new SimpleStringProperty(
@@ -223,19 +232,64 @@ public class VatData {
         this.withVAT = withVAT;
     }
 
+    public boolean isHasBranches() {
+        return branches != null && branches.size() > 0;
+    }
+
+//    public void setHasBranches(boolean hasBranches) {
+//        this.hasBranches = hasBranches;
+//    }
+
+    public String getAgreementNumber() {
+        return agreementNumber.get();
+    }
+
+    public SimpleStringProperty agreementNumberProperty() {
+        return agreementNumber;
+    }
+
+    public void setAgreementNumber(String agreementNumber) {
+        this.agreementNumber.set(agreementNumber);
+    }
+
+    public ObservableList<AgreementData> getAgreementOptions() {
+        return agreementOptions;
+    }
+
+    public void setAgreementOptions(ObservableList<AgreementData> agreementOptions) {
+        this.agreementOptions = agreementOptions;
+    }
+
+    public Date getAgreementDate() {
+        return agreementDate.get();
+    }
+
+    public SimpleObjectProperty<Date> agreementDateProperty() {
+        return agreementDate;
+    }
+
+    public void setAgreementDate(Date agreementDate) {
+        this.agreementDate.set(agreementDate);
+    }
+
+    public ObservableList<BranchInfo> getBranches() {
+        return branches;
+    }
+
+    public void setBranches(ObservableList<BranchInfo> branches) {
+        this.branches = branches;
+    }
+
+
     public Integer getBranch() {
+        return branch.get();
+    }
+
+    public SimpleObjectProperty<Integer> branchProperty() {
         return branch;
     }
 
     public void setBranch(Integer branch) {
-        this.branch = branch;
-    }
-
-    public boolean isHasBranches() {
-        return hasBranches;
-    }
-
-    public void setHasBranches(boolean hasBranches) {
-        this.hasBranches = hasBranches;
+        this.branch.set(branch);
     }
 }

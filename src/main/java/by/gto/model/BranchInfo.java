@@ -1,12 +1,13 @@
 package by.gto.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.util.*;
 
 public class BranchInfo {
     // Список приведен на 27.03.2017г. (1641 запись)
-    public static List<BranchInfo> data = Arrays.asList(
+    private static List<BranchInfo> data = Arrays.asList(
             new BranchInfo(100003006, "Представительство ЗАСО \"ТАСК\" в г. Минске", 9001),
             new BranchInfo(100003006, "Представительство ЗАСО \"ТАСК\" в г. Минске 2", 9002),
             new BranchInfo(100003006, "Представителство ЗАСО \"ТАСК\" в г. Минск 3", 9003),
@@ -1648,6 +1649,23 @@ public class BranchInfo {
             new BranchInfo(807000163, "Представительство ЗАО \"ТК Банк\" в Исламской Республике Иран", 9001),
             new BranchInfo(811001182, "Автошкола \"Мастер\"", 81),
             new BranchInfo(811001182, "Автошкола \"Старт\"", 94));
+
+    public static Map<Integer, ObservableList<BranchInfo>> mapUnp2BranchList;
+
+    static {
+        Map<Integer, ObservableList<BranchInfo>> m = new HashMap<>();
+        for (BranchInfo bi : data) {
+            ObservableList<BranchInfo> l = m.get(bi.unp);
+            if (null == l) {
+                l = FXCollections.<BranchInfo>observableArrayList();
+                m.put(bi.unp, l);
+            }
+            l.add(bi);
+        }
+        mapUnp2BranchList = Collections.unmodifiableMap(m);
+        data = null;// collect garbage
+    }
+
     private int unp;
     private String shortName;
     private int branchCode;
@@ -1680,6 +1698,11 @@ public class BranchInfo {
 
     public void setBranchCode(int branchCode) {
         this.branchCode = branchCode;
+    }
+
+    @Override
+    public String toString() {
+        return branchCode + " " + shortName;
     }
 }
 

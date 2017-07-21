@@ -1,5 +1,6 @@
 package by.gto.helpers;
 
+import by.gto.model.AgreementData;
 import by.gto.model.BranchInfo;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -67,7 +68,7 @@ public class ExcelLoader {
 //        }
 //    }
 
-    public synchronized static List<AgreementData> importRegistryFile(File file, StringBuilder errorList) {
+    public synchronized static List<AgreementData> loadRegistryFile(File file, StringBuilder errorList) {
         Workbook wb = null;
         boolean wasErrors = false;
         try {
@@ -246,42 +247,5 @@ public class ExcelLoader {
     }
 
 
-    public static class AgreementData {
-        private int unp;
-        private String number;
-        private Date date;
 
-        public AgreementData() {
-        }
-
-        public AgreementData(int unp, String number, Date date) {
-            this.unp = unp;
-            this.number = number;
-            this.date = date;
-        }
-
-        public int getUnp() {
-            return unp;
-        }
-
-        public void setUnp(int unp) {
-            this.unp = unp;
-        }
-
-        public String getNumber() {
-            return number;
-        }
-
-        public void setNumber(String number) {
-            this.number = number;
-        }
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
-    }
 }

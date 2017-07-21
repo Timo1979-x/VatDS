@@ -15,14 +15,17 @@
             <Directory Id="ProgramFilesFolder" Name="PFiles">
                 <Directory Id="BTODIR" Name="$(var.ManufacturerShortName)">
                     <Directory Id="PROGRAMDIR" Name="$(var.ProductShortName)">
-                        <Component Guid="*" Id="BTOREPORTNG.EXE">
-                            <File Id="BTOREPORTNG.EXE" Name="btoReportNG.exe" Source="$(env.wixPrjDir)\btoReportNG.exe"/>
-                            <Shortcut Id="desktopShortcutBTOREPORTNG.EXE" Directory="DesktopFolder" Name="btoReportNG" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
-                            <Shortcut Id="programShortcutBTOREPORTNG.EXE" Directory="ProgramMenuDir" Name="btoReportNG" Advertise="yes" Icon="DesktopIcon.ico" IconIndex="0" />
+                        <Component Guid="*" Id="BTOREPORTNG_COMP.EXE">
+                            <File Id="BTOREPORTNG.EXE" Name="btoReportNG.exe" Source="$(env.wixPrjDir)\btoReportNG.exe">
+                            <Shortcut Id="desktopShortcutBTOREPORTNG.EXE" Directory="DesktopFolder" Name="btoReportNG" Icon="DesktopIcon.ico" IconIndex="0"/>
+                            <Shortcut Id="programShortcutBTOREPORTNG.EXE" Directory="ProgramMenuDir" Name="btoReportNG" Icon="DesktopIcon.ico" IconIndex="0"/> 
+                            </File>
+                            <!-- <Shortcut Id="programShortcutBTOREPORTNG.EXE" Directory="ProgramMenuDir" Name="btoReportNG" Icon="DesktopIcon.ico" IconIndex="0"/> -->
                         </Component>
-                        <Component Guid="*" Id="VAT_MANUAL.DOC">
-                            <File Id="VAT_MANUAL.DOC" Name="vat_manual.doc" Source="$(env.wixPrjDir)\vat_manual.doc"/>
-                            <Shortcut Id="programShortcutVAT_MANUAL.DOC" Directory="ProgramMenuDir" Name="btoReportDoc" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="WordIcon.ico" IconIndex="0" />
+                        <Component Guid="*" Id="VAT_MANUAL_COMP.DOC">
+                            <File Id="VAT_MANUAL.DOC" Name="vat_manual.doc" Source="$(env.wixPrjDir)\vat_manual.doc">
+                            <Shortcut Id="programShortcutVAT_MANUAL.DOC" Directory="ProgramMenuDir" Name="Инструкция по работе с ЭСЧФ по НДС" WorkingDirectory="INSTALLDIR" Icon="WordIcon.ico" IconIndex="0"/>
+                            </File>
                         </Component>
                     </Directory>
                 </Directory>
@@ -40,8 +43,8 @@
             </Directory>
         </Directory>
         <Feature Id="DefaultFeature" Level="1" Title="Main Feature">
-            <ComponentRef Id="BTOREPORTNG.EXE"/>
-            <ComponentRef Id="VAT_MANUAL.DOC"/>
+            <ComponentRef Id="BTOREPORTNG_COMP.EXE"/>
+            <ComponentRef Id="VAT_MANUAL_COMP.DOC"/>
             <ComponentGroupRef Id="compGrouplib"/>
             <ComponentGroupRef Id="compGroupwin32"/>
             <ComponentGroupRef Id="compGroupwin64"/>

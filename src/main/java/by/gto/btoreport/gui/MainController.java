@@ -5,10 +5,7 @@ import by.gto.jasperprintmysql.App;
 import by.gto.jasperprintmysql.Version;
 import by.gto.jasperprintmysql.data.OwnerDataSW2;
 import by.gto.library.db.NamedParameterStatement;
-import by.gto.model.BranchInfo;
-import by.gto.model.CustomerInfo;
-import by.gto.model.VatData;
-import by.gto.model.VatStatusEnum;
+import by.gto.model.*;
 import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.Util;
@@ -29,6 +26,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Effect;
@@ -41,6 +39,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -67,7 +66,7 @@ import java.util.stream.Collectors;
 public class MainController implements Initializable {
 
     private static final Logger log = Logger.getLogger(MainController.class);
-    private static final int REQUIRED_DB_VERSION = 182;
+    private static final int REQUIRED_DB_VERSION = 190;
 
     @FXML
     public CheckBox cbPeriod;
@@ -126,7 +125,17 @@ public class MainController implements Initializable {
     public GridPane gpMessage;
     public StackPane spRoot;
     @FXML
+    public TableColumn<VatData, String> colAgrNumber;
+    @FXML
     public Label lMessage1;
+    @FXML
+    public TableColumn<VatData, Date> colAgrDate;
+    @FXML
+    public TableColumn<VatData, Integer> colBranch;
+    @FXML
+    public Menu menuVAT;
+    @FXML
+    public Tab tabVAT;
 
     private String report = "recordBook";
     private byte bankTransfer = 2;
@@ -156,6 +165,7 @@ public class MainController implements Initializable {
     public static void showInfoMessage(String message) {
         showInfoMessage("", message);
     }
+
     public static void showInfoMessage(String title, String message) {
         Alert a = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.CLOSE);
         a.setTitle(title);
@@ -557,9 +567,9 @@ public class MainController implements Initializable {
                         if (currentRow.getItem().isVatIssued()) {
                             style = "-fx-font-style: italic; -fx-font-weight: bold";
                         }
-                        if (currentRow.getItem().isHasBranches()) {
-                            setText("---- Есть подразделения! ----");
-                        }
+//                        if (currentRow.getItem().isHasBranches()) {
+//                            setText("---- Есть подразделения! ----");
+//                        }
 //                        if (currentRow.getItem().isDup()) {
 //                            if (currentRow.getItem().isVatIssued()) {
 //                                style = "-fx-background-color: lightcoral;";
@@ -608,6 +618,27 @@ public class MainController implements Initializable {
             };
         });
 
+        colAgrNumber.setCellValueFactory(new PropertyValueFactory<>("agreementNumber"));
+        colAgrNumber.setCellFactory(new Callback<TableColumn<VatData, String>, TableCell<VatData, String>>() {
+            public TableCell call(TableColumn p) {
+                return new AgreementComboBoxCell();
+            }
+        });
+
+        colAgrDate.setCellValueFactory(new PropertyValueFactory<>("agreementDate"));
+//        colAgrDate.setCellFactory(new Callback<TableColumn<VatData, String>, TableCell<VatData, String>>() {
+//            public TableCell call(TableColumn p) {
+//                return new ComboBoxCell();
+//            }
+//        });
+
+        colBranch.setCellValueFactory(new PropertyValueFactory<VatData, Integer>("branch"));
+        colBranch.setCellFactory(new Callback<TableColumn<VatData, Integer>, TableCell<VatData, Integer>>() {
+            public TableCell call(TableColumn p) {
+                return new BranchComboBoxCell();
+            }
+        });
+
         vatTableView.setItems(vatData);
         vatTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         vatTableView.setItems(vatData);
@@ -620,10 +651,32 @@ public class MainController implements Initializable {
 
         comboBoxMonth.getSelectionModel().select(m);
         comboBoxYear.getSelectionModel().select(years.indexOf(y));
+        int ver;
         try {
-            refreshVats();
-        } catch (Exception e) {
-            // тут не нужна никакая обработка и сообщения, чтобы не смущать пользователей при старте программы
+            ver = checkDBVersion();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ver = -1;
+        }
+        if (ver < 0) {
+            MainController.showErrorMessage("Ошибка",
+                    "Не удалось проверить версию БД");
+
+        } else if (ver > 0) {
+            MainController.showErrorMessage("Неправильная версия БД",
+                    String.format("Для работы с ЭСЧФ необходима\n" +
+                            "база данных АРМ ДС версии %d\n" +
+                            "(поставляется с АРМ ДС версии 3.1.0.0 или более поздней)\n" +
+                            "Версия Вашей БД - %d", REQUIRED_DB_VERSION, ver));
+        }
+        if (ver != 0) {
+            disableVATControls(true);
+        } else {
+            try {
+                refreshVats();
+            } catch (Exception e) {
+                // тут не нужна никакая обработка и сообщения, чтобы не смущать пользователей при старте программы
+            }
         }
 
         new AutoCompleteComboBoxListener<>(comboBoxOwner);
@@ -637,6 +690,11 @@ public class MainController implements Initializable {
         lMessage.textProperty().bind(messageText);
         lMessage1.textProperty().bind(messageText);
         lMessage1.prefWidthProperty().bind(gpMessage.widthProperty());
+    }
+
+    private void disableVATControls(boolean disable) {
+        menuVAT.setDisable(disable);
+        tabVAT.setDisable(disable);
     }
 
     public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
@@ -670,7 +728,7 @@ public class MainController implements Initializable {
         });
     }
 
-    private void refreshVats() {
+    private void refreshVats() throws SQLException {
         int idxYear = comboBoxYear.getSelectionModel().getSelectedIndex();
         int idxMonth = comboBoxMonth.getSelectionModel().getSelectedIndex();
         if (idxYear < 0 || idxMonth < 0) {
@@ -679,8 +737,9 @@ public class MainController implements Initializable {
         int selectedMonth = idxMonth + 1;
         int selectedYear = years.get(idxYear);
 
+//        Map<Integer, ObservableList<BranchInfo>> unpsForBranches = new HashMap<>();
 
-        String query = "SELECT\n" +
+        String querySelectVats = "SELECT\n" +
                 "  bti.id_blanc_ts_info bti_id,\n" +
                 "  vats.id vats_id,\n" +
                 "  vats.unp v_unp,\n" +
@@ -694,9 +753,11 @@ public class MainController implements Initializable {
                 "  stti.summa_oplaty - stti.summa_no_tax VAT,\n" +
                 "  b.seria blankSeries,\n" +
                 "  b.number blankNumber,\n" +
-                "  case when branchesSubquery.unp is null then false else true end hasBranches,\n" +
+                "--  case when branchesSubquery.unp is null then false else true end hasBranches,\n" +
                 "  IFNULL(vats.state, 0) state,\n" +
-                "  vats.branch\n" +
+                "  vats.branch,\n" +
+                "  vats.agr_num,\n" +
+                "  vats.agr_date\n" +
                 "FROM ei_vats vats\n" +
                 "  RIGHT JOIN blanc_ts_info bti\n" +
                 "    ON bti.id_blanc_ts_info = vats.id_blank_ts_info\n" +
@@ -710,8 +771,8 @@ public class MainController implements Initializable {
                 "    AND bti.id_blanc = stti.id_blanc)\n" +
                 "  INNER JOIN blanc b\n" +
                 "    ON bti.id_blanc = b.id_blanc\n" +
-                "left join (SELECT DISTINCT bi.unp FROM ei_BRANCHES bi) branchesSubquery\n" +
-                "                  on (branchesSubquery.unp = oi.unp)\n" +
+                "-- left join (SELECT DISTINCT bi.unp FROM ei_BRANCHES bi) branchesSubquery\n" +
+                "--                  on (branchesSubquery.unp = oi.unp)\n" +
                 "WHERE oi.id_owner_type IN (2, 3)\n" +
                 "AND EXTRACT(MONTH FROM bti.date_ot) = ?\n" +
                 "AND EXTRACT(year FROM bti.date_ot) = ?\n" +
@@ -719,19 +780,19 @@ public class MainController implements Initializable {
                 "AND b.id_blanc_status = 2\n" +
                 "AND stti.summa_oplaty > 0";
         try (Connection conn = ConnectionMySql.getInstance().getConn();
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, selectedMonth);
-            ps.setInt(2, selectedYear);
-            if (!checkAndReportVersion()) {
-                return;
-            }
+             PreparedStatement psSelectVats = conn.prepareStatement(querySelectVats)
+        ) {
+            psSelectVats.setInt(1, selectedMonth);
+            psSelectVats.setInt(2, selectedYear);
 
-            try (ResultSet rs = ps.executeQuery()) {
+
+            try (ResultSet rs = psSelectVats.executeQuery()) {
                 vatData.clear();
                 while (rs.next()) {
                     Integer vatUNP;
                     Integer vatId;
                     Integer blankNumber;
+                    Integer branch;
 
                     Short vatYear;
                     Long vatNumber;
@@ -746,35 +807,116 @@ public class MainController implements Initializable {
                     iTemp = rs.getInt("vats_id");
                     vatId = (rs.wasNull() ? null : iTemp);
 
+                    iTemp = rs.getInt("branch");
+                    branch = (rs.wasNull() ? null : iTemp);
+
                     short sTemp = rs.getShort("v_year");
                     vatYear = (rs.wasNull() ? null : sTemp);
 
                     long lTemp = rs.getLong("v_number");
                     vatNumber = (rs.wasNull() ? null : lTemp);
-                    vatData.add(
-                            new VatData(
-                                    rs.getInt("bti_id"), vatId,
-                                    rs.getString("blankSeries"),
-                                    blankNumber,
-                                    vatUNP, vatYear,
-                                    vatNumber, rs.getDate("date1"),
-                                    rs.getInt("unp"), rs.getString("name"),
-                                    rs.getBigDecimal("withoutVAT"),
-                                    rs.getBigDecimal("withVAT"),
-                                    rs.getBigDecimal("VAT"),
-                                    rs.getInt("state"),
-                                    rs.getBoolean("hasBranches"),
-                                    rs.getInt("branch")
-                            )
+                    int contractorUnp = rs.getInt("unp");
+                    VatData vd = new VatData(
+                            rs.getInt("bti_id"), vatId,
+                            rs.getString("blankSeries"),
+                            blankNumber,
+                            vatUNP, vatYear,
+                            vatNumber, rs.getDate("date1"),
+                            contractorUnp, rs.getString("name"),
+                            rs.getBigDecimal("withoutVAT"),
+                            rs.getBigDecimal("withVAT"),
+                            rs.getBigDecimal("VAT"),
+                            rs.getInt("state"),
+//                            rs.getBoolean("hasBranches"),
+                            branch,
+                            rs.getString("agr_num"),
+                            rs.getDate("agr_date")
                     );
+                    vatData.add(vd);
                 }
             }
+
+            for (VatData vd : vatData) {
+                if (vd.isVatIssued()) {
+                    continue;
+                }
+//                    ObservableList<BranchInfo> b = unpsForBranches.get(vd.getContractorUnp());
+                ObservableList<BranchInfo> b = BranchInfo.mapUnp2BranchList.get(vd.getContractorUnp());
+                if (b != null && b.size() > 0) {
+                    vd.setBranches(b);
+                }
+            }
+            fillAgreementChoises(conn);
+
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
+            throw e;
         }
     }
 
-    private boolean checkAndReportVersion() throws SQLException {
+    private void fillAgreementChoises(Connection conn) throws SQLException {
+        Map<Integer, ObservableList<AgreementData>> unpsForAgreements = new HashMap<>();
+        for (VatData vd : vatData) {
+            if (!vd.isVatIssued()) {
+                unpsForAgreements.put(vd.getContractorUnp(), FXCollections.<AgreementData>observableArrayList());
+            }
+        }
+        if (unpsForAgreements.size() > 0) {
+            StringBuilder qSelectAgreements = new StringBuilder("select id, unp, arg_num, agr_date FROM ei_agreements where active=1 and unp in (");
+
+            for (Map.Entry<Integer, ObservableList<AgreementData>> pair : unpsForAgreements.entrySet()) {
+                qSelectAgreements.append(pair.getKey()).append(',');
+            }
+            qSelectAgreements.setLength(qSelectAgreements.length() - 1);
+            qSelectAgreements.append(") ORDER BY unp, agr_date desc");
+            try (Statement sSelect = conn.createStatement();
+                 ResultSet rs = sSelect.executeQuery(qSelectAgreements.toString())) {
+                while (rs.next()) {
+                    Integer unp = rs.getInt("unp");
+                    unpsForAgreements.get(unp).add(new AgreementData(rs.getInt("id"), unp, rs.getString("arg_num"), rs.getDate("agr_date")));
+                }
+            }
+        }
+        for (VatData vd : vatData) {
+            if (vd.isVatIssued()) {
+                continue;
+            }
+            int contractorUnp = vd.getContractorUnp();
+            ObservableList<AgreementData> l = unpsForAgreements.get(contractorUnp);
+            AgreementData ad;
+            switch (l.size()) {
+                case 0:
+                    vd.setAgreementOptions(null);
+                    vd.setAgreementDate(null);
+                    vd.setAgreementNumber(null);
+                    break;
+                case 1:
+                    ad = l.get(0);
+                    vd.setAgreementOptions(null);
+                    vd.setAgreementNumber(ad.getNumber());
+                    vd.setAgreementDate(ad.getDate());
+                    break;
+                default:
+                    ad = l.get(0);
+                    vd.setAgreementOptions(l);
+                    if(vd.getAgreementNumber() == null) {
+                        vd.setAgreementNumber(ad.getNumber());
+                        vd.setAgreementDate(ad.getDate());
+                    }
+                    break;
+            }
+        }
+        vatTableView.refresh();
+    }
+
+    /**
+     * Проверяет, что версия структуры БД подходит этой версии программы
+     * Также при необходимости обновляет В БД список организаций с подразделениями
+     *
+     * @return 0 если версия подходит. Версию БД, если она меньше требуемой
+     * @throws SQLException
+     */
+    private int checkDBVersion() throws SQLException {
         try (Connection conn = ConnectionMySql.getInstance().getConn();
              Statement st = conn.createStatement()) {
             conn.setAutoCommit(false);
@@ -782,36 +924,31 @@ public class MainController implements Initializable {
                 rs.next();
                 final int ver = rs.getInt(1);
                 if (ver < REQUIRED_DB_VERSION) {
-                    MainController.showErrorMessage("Неправильная версия БД",
-                            String.format("Для работы данной программы необходима\n" +
-                                    "база данных АРМ ДС версии %d\n" +
-                                    "(поставляется с АРМ ДС версии 3.0.4.1 или более поздней)\n" +
-                                    "Версия Вашей БД - %d", REQUIRED_DB_VERSION, ver));
-                    return false;
+                    return ver;
                 }
 
             }
-            try (ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM ei_branches")) {
-                rs.next();
-                final int count = rs.getInt(1);
-                if (count == BranchInfo.data.size()) {
-                    return true;
-                }
-            }
-
-            st.executeUpdate("DELETE FROM ei_branches");
-            try (PreparedStatement ps1 = conn.prepareStatement("INSERT INTO ei_branches (unp, code, name) VALUES (?,?,?)")) {
-                for (BranchInfo bi : BranchInfo.data) {
-                    ps1.setInt(1, bi.getUnp());
-                    ps1.setInt(2, bi.getBranchCode());
-                    ps1.setString(3, StringUtils.substring(bi.getShortName(), 0, 100));
-                    ps1.addBatch();
-                }
-                ps1.executeBatch();
-            }
-            conn.commit();
+//            try (ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM ei_branches")) {
+//                rs.next();
+//                final int count = rs.getInt(1);
+//                if (count == BranchInfo.data.size()) {
+//                    return 0;
+//                }
+//            }
+//
+//            st.executeUpdate("DELETE FROM ei_branches");
+//            try (PreparedStatement ps1 = conn.prepareStatement("INSERT INTO ei_branches (unp, code, name) VALUES (?,?,?)")) {
+//                for (BranchInfo bi : BranchInfo.data) {
+//                    ps1.setInt(1, bi.getUnp());
+//                    ps1.setInt(2, bi.getBranchCode());
+//                    ps1.setString(3, StringUtils.substring(bi.getShortName(), 0, 100));
+//                    ps1.addBatch();
+//                }
+//                ps1.executeBatch();
+//            }
+//            conn.commit();
         }
-        return true;
+        return 0;
 
     }
 
@@ -833,6 +970,7 @@ public class MainController implements Initializable {
     }
 
     private void issueVATS() {
+        StringBuilder sb = new StringBuilder();
         if (vatTableView.getSelectionModel().getSelectedIndex() == -1) {
             MainController.showInfoMessage("", "Не выделено ни одной строки");
             return;
@@ -841,9 +979,26 @@ public class MainController implements Initializable {
 
         List<VatData> selectedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).collect(Collectors.toList());
 
-        if (selectedRows.stream().anyMatch(VatData::isHasBranches)) {
-            MainController.showInfoMessage("Обособленные подразделения", "В выделенных строках присутствуют организации с обособленными подразделениями.\n" +
-                    "В этой версии ПО работа с такими организациями не поддерживается.");
+        List<VatData> insufficientInputData = selectedRows.stream().filter(item -> item.isHasBranches() && item.getBranch() == null).collect(Collectors.toList());
+        if (!insufficientInputData.isEmpty()) {
+            sb.append("<h3>В выделенных строках присутствуют организации с обособленными подразделениями, " +
+                    "для которых не указано подразделение:</h3>");
+            for (VatData record : insufficientInputData) {
+                sb.append("<p>").append(record.getContractorUnp()).append(" ").append(record.getDate()).append("</p>");
+            }
+        }
+
+        insufficientInputData = selectedRows.stream().filter(item -> StringUtils.isEmpty(item.getAgreementNumber()) || item.getAgreementDate() == null).collect(Collectors.toList());
+        if (!insufficientInputData.isEmpty()) {
+            sb.append("<h3>В выделенных строках присутствуют организации, для которых не прописан договор, " +
+                    "или договор не выбран из списка (если заключено несколько договоров с одной организацией:</h3>");
+            for (VatData record : insufficientInputData) {
+                sb.append("<p>").append(record.getContractorUnp()).append(" ").append(record.getDate()).append("</p>");
+            }
+        }
+
+        if (sb.length() > 0) {
+            MainController.showLargeMessageBox("Незаполненные данные", sb.toString(), Modality.NONE);
             return;
         }
         short year = (short) Calendar.getInstance().get(Calendar.YEAR);
@@ -865,8 +1020,8 @@ public class MainController implements Initializable {
                         "  WHERE ov.`number` >= ? AND ov.`number` <= ? AND ov.unp = ?  AND ov.`year` = ?\n" +
                         "\n" +
                         "  ORDER BY ov.`number`";
-                String qIssueVat = "INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`)\n" +
-                        "  VALUES (?, ?, ?, ?);";
+                String qIssueVat = "INSERT ei_vats(id_blank_ts_info, unp, `year`, `number`, branch, agr_num, agr_date)\n" +
+                        "  VALUES (?, ?, ?, ?, ?, ?, ?);";
                 try (Connection conn = ConnectionMySql.getInstance().getConn();
                      PreparedStatement psGetNumberRange = conn.prepareStatement(qGetNumberRange);
                      PreparedStatement psUsedVatNumbers = conn.prepareStatement(qUsedVatNumbers);
@@ -948,6 +1103,9 @@ public class MainController implements Initializable {
                                                 psIssueVat.setInt(2, unp);
                                                 psIssueVat.setShort(3, year);
                                                 psIssueVat.setLong(4, counter);
+                                                psIssueVat.setNull(5, Types.INTEGER);
+                                                psIssueVat.setString(6, "");
+                                                psIssueVat.setDate(7, new java.sql.Date(0));
                                                 psIssueVat.executeUpdate();
                                             }
                                         }
@@ -978,6 +1136,18 @@ public class MainController implements Initializable {
                                 psIssueVat.setInt(2, vd.getVatUnp());
                                 psIssueVat.setShort(3, vd.getVatYear());
                                 psIssueVat.setLong(4, vd.getVatNumber());
+                                Integer branch = vd.getBranch();
+                                if (branch == null) {
+                                    psIssueVat.setNull(5, Types.INTEGER);
+                                } else {
+                                    psIssueVat.setInt(5, vd.getBranch());
+                                }
+                                psIssueVat.setString(6, vd.getAgreementNumber());
+                                java.sql.Date agrDate = null;
+                                if (vd.getAgreementDate() != null) {
+                                    agrDate = new java.sql.Date(vd.getAgreementDate().getTime());
+                                }
+                                psIssueVat.setDate(7, agrDate);
                                 psIssueVat.executeUpdate();
                             }
                             vt.doSignAndUploadString(vatXml);
@@ -1006,11 +1176,16 @@ public class MainController implements Initializable {
                     }
                     Platform.runLater(() -> afterFinishLongTask("Возникла ошибка"));
                 }
-                refreshVats();
+                try {
+                    refreshVats();
+                } catch (Exception e) {
+                    Platform.runLater(() -> MainController.showErrorMessage("Ошибка", e.getMessage()));
+                }
                 return null;
             }
         });
         th.start();
+
     }
 
     // TODO: debug
@@ -1116,6 +1291,7 @@ public class MainController implements Initializable {
                 "        <bigCompany>false</bigCompany>\n" +
                 "        <countryCode>112</countryCode>\n" +
                 "        <unp>{customerUnp}</unp>\n" +
+                "        <branchCode>{branchCode}</branchCode>\n" +
                 "        <name>{customerName}</name>\n" +
                 "        <address>{customerAddress}</address>\n" +
                 "    </recipient>\n" +
@@ -1125,6 +1301,8 @@ public class MainController implements Initializable {
                 "    </senderReceiver>\n" +
                 "    <deliveryCondition>\n" +
                 "        <contract>\n" +
+                "            <number>{agrNum}</number>\n" +
+                "            <date>{agrDate}</date>\n" +
                 "            <documents>\n" +
                 "                <document>\n" +
                 "                    <docType>\n" +
@@ -1159,6 +1337,7 @@ public class MainController implements Initializable {
                 "    </roster>\n" +
                 "</issuance>";
         String sDate = String.format("%1$tY-%1$tm-%1$td", vd.get_date());
+        String sAgrDate = String.format("%1$tY-%1$tm-%1$td", vd.getAgreementDate());
         String customerUnp = String.format("%09d", vd.getContractorUnp());
         CustomerInfo customerInfo = unpInfo.get(customerUnp);
         String customerAddress = customerInfo.getAddress();
@@ -1171,15 +1350,21 @@ public class MainController implements Initializable {
         }
 
         final ConfigReader configReader = ConfigReader.getInstance();
+        if (vd.getBranch() == null) {
+            template = template.replace("<branchCode>{branchCode}</branchCode>", "");
+        }
         return template
                 .replace("{number}", VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
                 .replace("{dateIssuance}", sDate)
                 .replace("{dateTransaction}", sDate)
                 .replace("{actDate}", sDate)
                 .replace("{customerUnp}", customerUnp)
+                .replace("{branchCode}", String.valueOf(vd.getBranch()))
                 .replace("{customerName}", XmlHelper.replaceXmlSymbols(customerName))
 //                .replace("{customerName}", XmlHelper.replaceXmlSymbols(vd.getContractorName()))
                 .replace("{customerAddress}", XmlHelper.replaceXmlSymbols(customerAddress))
+                .replace("{agrDate}", sAgrDate)
+                .replace("{agrNum}", XmlHelper.replaceXmlSymbols(vd.getAgreementNumber()))
                 .replace("{totalCostVat}", vd.getWithVAT().toPlainString())
                 .replace("{totalVat}", vd.getVAT().toPlainString())
                 .replace("{totalCost}", vd.getWithoutVAT().toPlainString())
@@ -1226,13 +1411,13 @@ public class MainController implements Initializable {
     }
 
 
-    public void showLargeMessageBox(String title, String htmlContent) {
+    public static void showLargeMessageBox(String title, String htmlContent, Modality m) {
         Stage newStage = new Stage();
         FXMLLoader loader = new FXMLLoader(Main.class.getClassLoader().getResource("fxml/messageBox.fxml"));
         try {
             Parent root = loader.load();
             MessageBoxController controller = loader.<MessageBoxController>getController();
-            newStage.initModality(Modality.APPLICATION_MODAL);
+            newStage.initModality(m);
             newStage.setTitle(title);
             final Scene scene = new Scene(root, 800, 600);
             newStage.setScene(scene);
@@ -1242,12 +1427,16 @@ public class MainController implements Initializable {
 
             controller.loadContent(htmlContent);
 
-            Image i = new Image(Main.class.getClassLoader().getResourceAsStream("mainIcon.png"));
+            Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
             newStage.getIcons().add(i);
             newStage.show();
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    public static void showLargeMessageBox(String title, String htmlContent) {
+        showLargeMessageBox(title, htmlContent, Modality.APPLICATION_MODAL);
     }
 
     private void checkVatStates() {
@@ -1358,6 +1547,7 @@ public class MainController implements Initializable {
     }
 
     public void miTestAction(ActionEvent actionEvent) {
+        showInfoMessage(vatData.get(0).getAgreementNumber() + " " + vatData.get(0).getAgreementDate());
     }
 
     private Effect createBlurEffect() {
@@ -1401,30 +1591,32 @@ public class MainController implements Initializable {
 
     private void importIntoDB(File file) {
         StringBuilder sbMessages = new StringBuilder();
-        final List<ExcelLoader.AgreementData> agreements = ExcelLoader.importRegistryFile(file, sbMessages);
+        final List<AgreementData> agreements = ExcelLoader.loadRegistryFile(file, sbMessages);
 
         if (sbMessages.length() > 0) {
             showErrorMessage("Ошибки загрузки реестра", sbMessages.toString());
             return;
         }
 
-        String insertQuery = "INSERT INTO ei_agreements (unp, agr_num, agr_date) VALUES (?, ?, ?)";
+        String insertQuery = "INSERT INTO ei_agreements (unp, arg_num, agr_date) VALUES (?, ?, ?)";
         try (Connection conn = ConnectionMySql.getInstance().getConn();
              Statement stDelete = conn.createStatement();
              PreparedStatement psInsert = conn.prepareStatement(insertQuery)) {
             conn.setAutoCommit(false);
             stDelete.executeUpdate("DELETE FROM ei_agreements");
-            for (ExcelLoader.AgreementData agreement : agreements) {
+            for (AgreementData agreement : agreements) {
                 psInsert.setInt(1, agreement.getUnp());
                 psInsert.setString(2, agreement.getNumber());
                 psInsert.setDate(3, new java.sql.Date(agreement.getDate().getTime()));
                 psInsert.addBatch();
             }
             psInsert.executeBatch();
+            fillAgreementChoises(conn);
             conn.commit();
             showInfoMessage("Загружено " + agreements.size() + " договоров");
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
+            MainController.showErrorMessage("", e.toString());
         }
     }
 }
