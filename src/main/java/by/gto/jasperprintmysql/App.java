@@ -37,14 +37,14 @@ public class App {
 
         if (result < 0) {
 //            relationship = "is earlier than";
-            beforeDate = beforeDate.plusDays(1).minusSeconds(1);
+            //beforeDate = beforeDate.plusDays(1).minusSeconds(1);
         } else if (result == 0) {
 //            relationship = "is the same time as";
-            beforeDate = beforeDate.plusDays(1).minusSeconds(1);
+           // beforeDate = beforeDate.plusDays(1).minusSeconds(1);
         } else {
 //            relationship = "is later than";
             LocalDateTime dt = fromDate;
-            fromDate = beforeDate;
+            fromDate = beforeDate.minusDays(1).plusSeconds(1);
             beforeDate = dt.plusDays(1).minusSeconds(1);
         }
 
@@ -71,6 +71,7 @@ public class App {
                         sb.append(",");
                     }
                 }
+
                 try (ResultSet rs = st.executeQuery("SELECT s_ds.num_ds FROM `s_ds` WHERE `s_ds`.`Valid`=1;")) {
                     while (rs.next()) {
                         map.put("num_ds", rs.getInt(1));
@@ -166,8 +167,8 @@ public class App {
                     } else {
                         stringBuilder.append(" ORDER BY bi.date_ot;");
                     }
-
                 }
+
                 log.info("Query: " + stringBuilder);
                 ResultSet rsTest = st.executeQuery(stringBuilder.toString());
                 log.info("rsTest");
