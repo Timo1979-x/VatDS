@@ -535,7 +535,7 @@ public class MainController implements Initializable {
                     "Программа будет закрыта");
             System.exit(-1);
         }
-
+        log.warn("Started btoReportNG v" + Version.getVERSION() + " on jre " + System.getProperty("java.runtime.version") );
         if (!AvestHelpers.initAvest()) {
             String errMsg = "Не установлен криптопровайдер Avest! Работа со счет-фактурами будет невозможна";
             log.error(errMsg);
@@ -654,8 +654,8 @@ public class MainController implements Initializable {
         int ver;
         try {
             ver = checkDBVersion();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             ver = -1;
         }
         if (ver < 0) {

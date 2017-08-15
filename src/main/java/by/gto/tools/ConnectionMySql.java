@@ -67,7 +67,7 @@ public class ConnectionMySql {
                     log.error("RuntimeException ", ex);
                 } catch (SQLException ex) {
                     //JOptionPane.showMessageDialog(null, "Ошибка подключения к серверу.", "Ошибка", 0);
-                    MainController.showInfoMessage("Ошибка", "Ошибка подключения к серверу.");
+                    MainController.showErrorMessage("Ошибка", "Ошибка подключения к серверу.");
                     log.fatal("SQLException", ex);
                 }
             }

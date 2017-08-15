@@ -40,7 +40,7 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(Main.class.getClassLoader().getResource("fxml/main.fxml"));
         Parent root = loader.load();
         MainController controller = loader.<MainController>getController();
-        primaryStage.setTitle("Отчеты для ДС");
+        primaryStage.setTitle("Отчеты для ДС + выставление ЭСЧФ");
         final Scene rootScene = new Scene(root);
         primaryStage.setScene(rootScene);
         controller.setScene(rootScene);
@@ -60,19 +60,19 @@ public class Main extends Application {
 //            throw e;
 //        }
 
-            //поддерживаемые настройки (можно задавать через ком. строку)
-            // все отладочные сообщения java security (см. http://docs.oracle.com/javase/7/docs/technotes/guides/security/troubleshooting-security.html):
-            // -Djava.security.debug=none
-            // пароль по умолчанию
-            // -Dby.gto.btoreport.avest.password="..."
-            // название ключа по умолчанию:
-            // -Dby.gto.btoreport.avest.alias="Республиканское унитарное сервисное предприятие \"БЕЛТЕХОСМОТР\"_02_06_16_17_17"
-            // можно задать тестовую площадку:
-            // -Dby.gto.btoreport.avest.url="https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl"
+        //поддерживаемые настройки (можно задавать через ком. строку)
+        // все отладочные сообщения java security (см. http://docs.oracle.com/javase/7/docs/technotes/guides/security/troubleshooting-security.html):
+        // -Djava.security.debug=none
+        // пароль по умолчанию
+        // -Dby.gto.btoreport.avest.password="..."
+        // название ключа по умолчанию:
+        // -Dby.gto.btoreport.avest.alias="Республиканское унитарное сервисное предприятие \"БЕЛТЕХОСМОТР\"_02_06_16_17_17"
+        // можно задать тестовую площадку:
+        // -Dby.gto.btoreport.avest.url="https://185.32.226.170:4443/InvoicesWS/services/InvoicesPort?wsdl"
 //            initAvest();
 
-            launch(args);
-        }
+        launch(args);
+    }
 
     public static void initLogger() throws IOException {
         File logDir = new File(PathHelpers.getDataDirectory() + "\\log");
@@ -81,6 +81,7 @@ public class Main extends Application {
                 new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"),
                 logDir.getAbsolutePath() + "\\btoReportNG.log", true);
         rfAppender.setThreshold(Level.WARN);
+        rfAppender.setMaximumFileSize(1024 * 1024);
         Logger.getRootLogger().addAppender(rfAppender);
     }
 

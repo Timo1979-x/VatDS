@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>by.gto</groupId>
     <artifactId>btoReportNG</artifactId>
-    <version>0.3.9</version>
+    <version>0.3.10</version>
     <packaging>jar</packaging>
     <name>btoReportNG</name>
     <url>http://maven.apache.org</url>
@@ -633,9 +633,6 @@
             <version>4.2.2</version>
         </dependency>-->
     </dependencies>
-    <description>Обновления под новую версию БелТО 2.9.4; 0.0.7 - в журнал добавлен заказчик если он отличается от
-        собственника; 0.0.8 - обновленные библиотеки и переход на jre8; 0.0.9 - обновленные библиотеки; 0.0.10 -
-        Нал/Безнал; 0.0.11 - Нал/Безнал исправлены отчеты; 0.0.12-16 - Нал и Безнал/Нал/Безнал исправлены отчеты. Отчет
-        по тарифам; 0.0.17 - проверка обновлений
+    <description>
     </description>
 </project>

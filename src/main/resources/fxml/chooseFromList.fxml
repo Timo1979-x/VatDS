@@ -8,7 +8,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="278.0" prefWidth="586.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.ChooseFromListController">
    <children>
-      <Button fx:id="bCancel" cancelButton="true" layoutX="433.0" layoutY="170.0" mnemonicParsing="false" onAction="#bCancelAction" prefHeight="31.0" prefWidth="118.0" text="Отмена" AnchorPane.bottomAnchor="6.0" AnchorPane.rightAnchor="6.0" />
+      <Button fx:id="bCancel" cancelButton="true" layoutX="462.0" layoutY="241.0" mnemonicParsing="false" onAction="#bCancelAction" prefHeight="31.0" prefWidth="118.0" text="Отмена" AnchorPane.bottomAnchor="6.0" AnchorPane.rightAnchor="6.0" />
       <Button fx:id="bOk" defaultButton="true" layoutX="385.0" layoutY="241.0" mnemonicParsing="false" onAction="#bOkAction" prefHeight="25.0" prefWidth="118.0" text="ОК" AnchorPane.bottomAnchor="6.0" AnchorPane.rightAnchor="132.0" />
       <ListView fx:id="lList" onMouseClicked="#lListOnMouseClicked" prefHeight="193.0" prefWidth="586.0" AnchorPane.bottomAnchor="85.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <Label layoutX="1.0" layoutY="207.0" prefHeight="21.0" prefWidth="70.0" text="Пароль" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="1.0" />
