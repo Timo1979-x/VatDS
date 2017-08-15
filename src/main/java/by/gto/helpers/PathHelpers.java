@@ -1,11 +1,14 @@
 package by.gto.helpers;
 
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
 public class PathHelpers {
     private static String dataDirectory = "d:\\";
+    private static final Logger log = Logger.getLogger(PathHelpers.class);
 
     static {
         dataDirectory = System.getenv("APPDATA") + "\\Beltehosmotr\\btoReportNG";
@@ -26,7 +29,7 @@ public class PathHelpers {
             }
             return baseLocation.getAbsolutePath();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
             return "";
         }
     }

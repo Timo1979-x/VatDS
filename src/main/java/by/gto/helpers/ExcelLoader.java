@@ -63,7 +63,7 @@ public class ExcelLoader {
 //            try {
 //                wb.close();
 //            } catch (IOException e) {
-//                e.printStackTrace();
+//                log.error(e.getMessage(), e);
 //            }
 //        }
 //    }
@@ -113,7 +113,7 @@ public class ExcelLoader {
             try {
                 wb.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
     }

@@ -222,7 +222,7 @@ public class MainController implements Initializable {
                 System.out.println(a);
             }
         } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
         Stage newStage = new Stage();
         FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/chooseFromList.fxml"));
@@ -1431,7 +1431,7 @@ public class MainController implements Initializable {
             newStage.getIcons().add(i);
             newStage.show();
         } catch (Throwable t) {
-            t.printStackTrace();
+            log.error(t.getMessage(), t);
         }
     }
 
