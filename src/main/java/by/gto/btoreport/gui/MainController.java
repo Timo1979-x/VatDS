@@ -123,6 +123,7 @@ public class MainController implements Initializable {
     public AnchorPane apMain;
     @FXML
     public GridPane gpMessage;
+    @FXML
     public StackPane spRoot;
     @FXML
     public TableColumn<VatData, String> colAgrNumber;
@@ -1350,16 +1351,16 @@ public class MainController implements Initializable {
         }
 
         final ConfigReader configReader = ConfigReader.getInstance();
-        if (vd.getBranch() == null) {
-            template = template.replace("<branchCode>{branchCode}</branchCode>", "");
-        }
+//        if (vd.getBranch() == null) {
+//            template = template.replace("<branchCode>{branchCode}</branchCode>", "");
+//        }
         return template
                 .replace("{number}", VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
                 .replace("{dateIssuance}", sDate)
                 .replace("{dateTransaction}", sDate)
                 .replace("{actDate}", sDate)
                 .replace("{customerUnp}", customerUnp)
-                .replace("{branchCode}", String.valueOf(vd.getBranch()))
+                .replace("{branchCode}", vd.getBranch() != null ? String.format("%04d", vd.getBranch()) : "")
                 .replace("{customerName}", XmlHelper.replaceXmlSymbols(customerName))
 //                .replace("{customerName}", XmlHelper.replaceXmlSymbols(vd.getContractorName()))
                 .replace("{customerAddress}", XmlHelper.replaceXmlSymbols(customerAddress))
@@ -1572,6 +1573,9 @@ public class MainController implements Initializable {
 
         FileChooser fc = new FileChooser();
         fc.setTitle("Выберите файл с реестром договоров ");
+        fc.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xls", "*.xlsx"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
         final String lastImportDir = prefs.get("lastImportDir", null);
         if (lastImportDir != null) {
             fc.setInitialDirectory(new File(lastImportDir));

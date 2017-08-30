@@ -151,7 +151,7 @@
                                           <TableColumn fx:id="colAgrDate" prefWidth="75.0" text="Дата" />
                                        </columns>
                                     </TableColumn>
-                                    <TableColumn fx:id="colBranch" prefWidth="75.0" text="Подразделение" />
+                                    <TableColumn fx:id="colBranch" prefWidth="75.0" sortable="false" text="Подразделение" />
                                                 <TableColumn fx:id="colVatState" editable="false" prefWidth="75.0" text="Состояние" />
                                                 <TableColumn editable="false" maxWidth="10.0" prefWidth="10.0" />
                                             </columns>

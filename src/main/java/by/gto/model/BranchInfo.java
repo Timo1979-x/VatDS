@@ -1702,7 +1702,7 @@ public class BranchInfo {
 
     @Override
     public String toString() {
-        return branchCode + " " + shortName;
+        return String.format("%04d", branchCode) + " " + shortName;
     }
 }
 

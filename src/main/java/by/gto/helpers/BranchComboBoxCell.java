@@ -74,28 +74,9 @@ public class BranchComboBoxCell extends TableCell<VatData, Integer> {
             BranchInfo selectedItem = comboBox.getSelectionModel().getSelectedItem();
             commitEdit(selectedItem.getBranchCode());
         });
-        comboBox.setOnHidden(event -> {
-            System.out.println("onHidden, selectedIndex " + comboBox.getSelectionModel().getSelectedIndex() +
-            " selectedItem = " + comboBox.getSelectionModel().getSelectedItem());
-
-        }
-        );
-//        comboBox.setOnKeyPressed(new EventHandler<KeyEvent>() {
-//
-//            @Override
-//            public void handle(KeyEvent t) {
-//                if (t.getCode() == KeyCode.ENTER) {
-//                    commitEdit(comboBox.getSelectionModel().getSelectedItem());
-//                    System.out.println("KeyCode.ENTER");
-//                } else if (t.getCode() == KeyCode.ESCAPE) {
-//                    System.out.println("KeyCode.ESCAPE");
-//                    cancelEdit();
-//                }
-//            }
-//        });
     }
 
     private String getString() {
-        return getItem() == null ? "" : getItem().toString();
+        return getItem() == null ? "" : String.format("%04d",(Integer) getItem());
     }
 }

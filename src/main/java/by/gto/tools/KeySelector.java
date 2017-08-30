@@ -63,6 +63,4 @@ public class KeySelector extends PersonalKeyManager2 {
         log.info("end chooseAlias");
         return "";
     }
-
-
 }

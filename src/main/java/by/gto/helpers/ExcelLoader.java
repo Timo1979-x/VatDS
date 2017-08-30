@@ -1,8 +1,6 @@
 package by.gto.helpers;
 
 import by.gto.model.AgreementData;
-import by.gto.model.BranchInfo;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.format.CellFormat;
@@ -11,7 +9,6 @@ import org.apache.poi.ss.usermodel.*;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,11 +18,11 @@ import java.util.Locale;
 
 public class ExcelLoader {
 
-    private static SimpleDateFormat df1 = new SimpleDateFormat("M/d/yy");
-    private static SimpleDateFormat[] dateFormats = new SimpleDateFormat[]{
-            new SimpleDateFormat("dd.MM.yyyy"),
-            new SimpleDateFormat("yyyy-MM-dd")
-    };
+//    private static SimpleDateFormat df1 = new SimpleDateFormat("M/d/yy");
+//    private static SimpleDateFormat[] dateFormats = new SimpleDateFormat[]{
+//            new SimpleDateFormat("dd.MM.yyyy"),
+//            new SimpleDateFormat("yyyy-MM-dd")
+//    };
 
     private static final Logger log = Logger.getLogger(ExcelLoader.class);
     private static DataFormatter excelDataFormatter = new DataFormatter(Locale.US);
@@ -69,14 +66,17 @@ public class ExcelLoader {
 //    }
 
     public synchronized static List<AgreementData> loadRegistryFile(File file, StringBuilder errorList) {
+        FormulaEvaluator evaluator;
         Workbook wb = null;
         boolean wasErrors = false;
         try {
             wb = WorkbookFactory.create(file);
+            evaluator = wb.getCreationHelper().createFormulaEvaluator();
         } catch (InvalidFormatException | IOException e) {
             errorList.append("ошибка открытия файла Excel").append(e.getMessage());
             return null;
         }
+
         int rowNum = 0;
         try {
             List<AgreementData> result = new ArrayList<>();
@@ -88,15 +88,15 @@ public class ExcelLoader {
                     if(row==null) {
                         break;
                     }
-                    Integer customerUnp = getExcelInteger(row, 6);
+                    Integer customerUnp = getExcelInteger(row, 6, evaluator);
                     if (customerUnp == null || customerUnp < 10) {
                         continue;
                     }
                     if (customerUnp < 100000000) {
                         errorList.append("\n").append("Неправильный УНП: ").append(customerUnp);
                     }
-                    String agrNumber = getExcelString(row, 2);
-                    Date agrDate = getExcelDate2(row, 3);
+                    String agrNumber = getExcelString(row, 2, evaluator);
+                    Date agrDate = getExcelDate2(row, 3, evaluator);
 
                     if (agrDate != null) {
                         result.add(
@@ -130,23 +130,36 @@ public class ExcelLoader {
         }
     }
 
-    private static Integer getExcelInteger(Row row, int colNum) {
+    private static Integer getExcelInteger(Row row, int colNum, FormulaEvaluator evaluator) {
         final org.apache.poi.ss.usermodel.Cell cell = row.getCell(colNum);
         if (cell == null) {
             return null;
         }
-        switch (cell.getCellTypeEnum()) {
-            case NUMERIC:
-                return (int) (cell.getNumericCellValue());
-            case STRING:
-                String stringCellValue = cell.getStringCellValue();
-                if (stringCellValue == null) {
-                    return null;
-                }
-                return Double.valueOf(StringUtils.trim(stringCellValue)).intValue();
-            default:
-                return null;
+        CellValue cellValue = evaluator.evaluate(cell);
+        try {
+            return (int) cellValue.getNumberValue();
+        } catch (Exception e) {
+            return null;
         }
+
+//        switch (cell.getCellTypeEnum()) {
+//            case NUMERIC:
+//                return (int) (cell.getNumericCellValue());
+//            case STRING:
+//                String stringCellValue = cell.getStringCellValue();
+//                if (stringCellValue == null) {
+//                    return null;
+//                }
+//                return Double.valueOf(StringUtils.trim(stringCellValue)).intValue();
+//            case FORMULA:
+//                try {
+//                    return (int)cellValue.getNumberValue();
+//                } catch (Exception e) {
+//                    return null;
+//                }
+//            default:
+//                return null;
+//        }
     }
 
 //    private static Date getExcelDate(Row row, int colNum) {
@@ -170,24 +183,36 @@ public class ExcelLoader {
 //        }
 //    }
 
-    private static String getExcelString(Row row, int colNum) {
+    private static String getExcelString(Row row, int colNum, FormulaEvaluator evaluator) {
         final org.apache.poi.ss.usermodel.Cell cell = row.getCell(colNum);
         if (null == cell) {
             return "";
         }
-        String result;
-        switch (cell.getCellTypeEnum()) {
-            case STRING:
-                result = cell.getStringCellValue();
-                break;
-            default:
-                CellStyle style = cell.getCellStyle();
-                CellFormat cf = CellFormat.getInstance(
-                        style.getDataFormatString());
-                result = cf.apply(cell).text;
-                break;
+        CellValue cellValue = evaluator.evaluate(cell);
+        try {
+            return cellValue.getStringValue();
+        } catch (Exception ignored) {
+            return null;
         }
-        return result;
+//        String result;
+//        switch (cell.getCellTypeEnum()) {
+//            case STRING:
+//                result = cell.getStringCellValue();
+//                break;
+//            case FORMULA:
+//                try {
+//                    return cellValue.getStringValue();
+//                } catch (Exception e) {
+//                    return null;
+//                }
+//            default:
+//                CellStyle style = cell.getCellStyle();
+//                CellFormat cf = CellFormat.getInstance(
+//                        style.getDataFormatString());
+//                result = cf.apply(cell).text;
+//                break;
+//        }
+//        return result;
     }
 
     private static BigDecimal getExcelCurrency2(Row row, int colNum) {
@@ -209,32 +234,45 @@ public class ExcelLoader {
         }
     }
 
-    private static Date getExcelDate2(Row row, int colNum) {
+    private static Date getExcelDate2(Row row, int colNum, FormulaEvaluator evaluator) {
         final org.apache.poi.ss.usermodel.Cell cell = row.getCell(colNum);
         if (cell == null) {
             return null;
         }
-        final String formattedCellValue = excelDataFormatter.formatCellValue(cell);
-        switch (cell.getCellTypeEnum()) {
-            case NUMERIC:
-                try {
-                    CellStyle style = cell.getCellStyle();
-                    final String dataFormatString = style.getDataFormatString().split(";")[0].replace('m', 'M');
-                    return new SimpleDateFormat(dataFormatString).parse(formattedCellValue);
-                } catch (Exception e) {
-                    return null;
-                }
-            case STRING:
-                for (SimpleDateFormat sdf : dateFormats) {
-                    try {
-                        return sdf.parse(formattedCellValue);
-                    } catch (Exception e) {
-                    }
-
-                }
-                return null;
+        CellValue cellValue = evaluator.evaluate(cell);
+        try {
+            return DateUtil.getJavaDate(cellValue.getNumberValue());
+        } catch (Exception ignored) {
+            return null;
         }
-        return null;
+//        final String formattedCellValue = excelDataFormatter.formatCellValue(cell);
+//        switch (cell.getCellTypeEnum()) {
+//            case NUMERIC:
+//                try {
+//                    CellStyle style = cell.getCellStyle();
+//                    final String dataFormatString = style.getDataFormatString().split(";")[0].replace('m', 'M');
+//                    return new SimpleDateFormat(dataFormatString).parse(formattedCellValue);
+//                } catch (Exception e) {
+//                    return null;
+//                }
+//            case STRING:
+//                for (SimpleDateFormat sdf : dateFormats) {
+//                    try {
+//                        return sdf.parse(formattedCellValue);
+//                    } catch (Exception e) {
+//                    }
+//
+//                }
+//                return null;
+//            case FORMULA:
+//                try {
+//                    Date javaDate = DateUtil.getJavaDate(cellValue.getNumberValue());
+//                    return javaDate;
+//                } catch (Exception e) {
+//                    return null;
+//                }
+//        }
+//        return null;
     }
 
     private static String getExcelString2(Row row, int colNum) {

@@ -29,22 +29,15 @@ public class VatTool implements Closeable {
     private EVatService2 service;
     //private static String xsddirname = VatTool.class.getClassLoader().getResource("xsd").getPath();
     private final File outdir;
-    private boolean delete = false;
 
     private static AvestProvider avestProvider;
     private static AvTLSProvider avTlsProvider;
     private static AvCertStoreProvider avCertStoreProvider;
-    private long numberBegin;
-    private long numberEnd;
-    private String keyAlias;
-    private String password;
     private List<Long> numbersUsed = new ArrayList<>();
 
     public VatTool(String keyAlias, String password) throws UnrecoverableKeyException, CertificateException,
             NoSuchAlgorithmException, KeyStoreException, IOException, AvDocException,
             InvalidAlgorithmParameterException, KeyManagementException {
-        this.keyAlias = keyAlias;
-        this.password = password;
         outdir = new File(ConfigReader.getInstance().getVatPath() + "\\out");
         AvestProvider avProv = null;
         AvTLSProvider tlsProv = null;
