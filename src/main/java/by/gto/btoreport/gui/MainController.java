@@ -536,7 +536,7 @@ public class MainController implements Initializable {
                     "Программа будет закрыта");
             System.exit(-1);
         }
-        log.warn("Started btoReportNG v" + Version.getVERSION() + " on jre " + System.getProperty("java.runtime.version") );
+        log.warn("Started btoReportNG v" + Version.getVERSION() + " on jre " + System.getProperty("java.runtime.version"));
         if (!AvestHelpers.initAvest()) {
             String errMsg = "Не установлен криптопровайдер Avest! Работа со счет-фактурами будет невозможна";
             log.error(errMsg);
@@ -565,7 +565,8 @@ public class MainController implements Initializable {
                         setGraphic(null);
                         TableRow<VatData> currentRow = getTableRow();
                         String style = "";
-                        if (currentRow.getItem().isVatIssued()) {
+                        VatData currentItem = currentRow.getItem();
+                        if (currentItem != null && currentItem.isVatIssued()) {
                             style = "-fx-font-style: italic; -fx-font-weight: bold";
                         }
 //                        if (currentRow.getItem().isHasBranches()) {
@@ -900,7 +901,7 @@ public class MainController implements Initializable {
                 default:
                     ad = l.get(0);
                     vd.setAgreementOptions(l);
-                    if(vd.getAgreementNumber() == null) {
+                    if (vd.getAgreementNumber() == null) {
                         vd.setAgreementNumber(ad.getNumber());
                         vd.setAgreementDate(ad.getDate());
                     }
@@ -980,14 +981,7 @@ public class MainController implements Initializable {
 
         List<VatData> selectedRows = selectedIndices.stream().map(ind -> vatData.get(ind)).collect(Collectors.toList());
 
-        List<VatData> insufficientInputData = selectedRows.stream().filter(item -> item.isHasBranches() && item.getBranch() == null).collect(Collectors.toList());
-        if (!insufficientInputData.isEmpty()) {
-            sb.append("<h3>В выделенных строках присутствуют организации с обособленными подразделениями, " +
-                    "для которых не указано подразделение:</h3>");
-            for (VatData record : insufficientInputData) {
-                sb.append("<p>").append(record.getContractorUnp()).append(" ").append(record.getDate()).append("</p>");
-            }
-        }
+        List<VatData> insufficientInputData;
 
         insufficientInputData = selectedRows.stream().filter(item -> StringUtils.isEmpty(item.getAgreementNumber()) || item.getAgreementDate() == null).collect(Collectors.toList());
         if (!insufficientInputData.isEmpty()) {
@@ -997,11 +991,28 @@ public class MainController implements Initializable {
                 sb.append("<p>").append(record.getContractorUnp()).append(" ").append(record.getDate()).append("</p>");
             }
         }
-
         if (sb.length() > 0) {
             MainController.showLargeMessageBox("Незаполненные данные", sb.toString(), Modality.NONE);
             return;
         }
+
+        insufficientInputData = selectedRows.stream().filter(item -> item.isHasBranches() && item.getBranch() == null).collect(Collectors.toList());
+        if (!insufficientInputData.isEmpty()) {
+            sb.setLength(0);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Подтвердите");
+            alert.setHeaderText("В выделенных строках присутствуют организации с обособленными подразделениями,\n" +
+                    "для которых не указан код подразделения. Вы уверены, что хотите выставить ЭСЧФ с пустыми кодами?");
+            for (VatData record : insufficientInputData) {
+                sb.append(record.getContractorUnp()).append(" ").append(record.getDate()).append("\n");
+            }
+            alert.setContentText(sb.toString());
+            alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+            if (!alert.showAndWait().get().equals(ButtonType.YES)) {
+                return;
+            }
+        }
+
         short year = (short) Calendar.getInstance().get(Calendar.YEAR);
 
         Object[] credentials = chooseCredentialsFromList("Выберите ключ и введите пароль");

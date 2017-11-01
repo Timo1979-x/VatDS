@@ -60,12 +60,14 @@ public class AgreementComboBoxCell extends TableCell<VatData, String> {
                 setContentDisplay(ContentDisplay.TEXT_ONLY);
                 TableRow<VatData> currentRow = getTableRow();
                 VatData vd = currentRow.getItem();
-                if (vd.getAgreementOptions() != null) {
-                    this.setStyle("-fx-background-color:#CAFFA8;");
-                } else if (vd.getAgreementNumber() == null || vd.getAgreementDate() == null) {
-                    this.setStyle("-fx-background-color:#FFB3BA;");
-                } else {
-                    this.setStyle("");
+                if(vd != null) {
+                    if (vd.getAgreementOptions() != null) {
+                        this.setStyle("-fx-background-color:#CAFFA8;");
+                    } else if (vd.getAgreementNumber() == null || vd.getAgreementDate() == null) {
+                        this.setStyle("-fx-background-color:#FFB3BA;");
+                    } else {
+                        this.setStyle("");
+                    }
                 }
             }
         }

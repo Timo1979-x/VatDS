@@ -58,7 +58,7 @@ public class BranchComboBoxCell extends TableCell<VatData, Integer> {
                 setContentDisplay(ContentDisplay.TEXT_ONLY);
                 TableRow<VatData> currentRow = getTableRow();
                 VatData vd = currentRow.getItem();
-                if(vd.getBranch()==null && vd.getBranches() != null) {
+                if(vd != null && vd.getBranch()==null && vd.getBranches() != null) {
                     this.setStyle("-fx-background-color:#FFB3BA;");
                 } else {
                     this.setStyle("");

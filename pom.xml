@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>by.gto</groupId>
     <artifactId>btoReportNG</artifactId>
-    <version>0.3.13</version>
+    <version>0.3.14</version>
     <packaging>jar</packaging>
     <name>btoReportNG</name>
     <url>http://maven.apache.org</url>
@@ -635,4 +635,14 @@
     </dependencies>
     <description>
     </description>
+    <distributionManagement>
+        <repository>
+            <id>bto-releases</id>
+            <url>http://192.168.200.5:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>bto-snapshots</id>
+            <url>http://192.168.200.5:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
