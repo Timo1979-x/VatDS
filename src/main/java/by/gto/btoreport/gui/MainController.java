@@ -35,10 +35,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import javafx.stage.*;
 import javafx.util.Callback;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -56,6 +53,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
@@ -137,6 +135,8 @@ public class MainController implements Initializable {
     public Menu menuVAT;
     @FXML
     public Tab tabVAT;
+    @FXML
+    public Button bExportDC;
 
     private String report = "recordBook";
     private byte bankTransfer = 2;
@@ -382,39 +382,48 @@ public class MainController implements Initializable {
         cbCorporate.setSelected(true);
         cbIndividual.setSelected(true);
         report = "forSlutsk";
+        bExportDC.setVisible(false);
+        bShowReport.setVisible(true);
     }
 
     public void rbOrderbyTariffAction(ActionEvent actionEvent) {
         report = "OrderByTariff";
         cbCorporate.setSelected(true);
         cbIndividual.setSelected(true);
+        bExportDC.setVisible(false);
+        bShowReport.setVisible(true);
     }
 
     public void rbRecordBookAction(ActionEvent actionEvent) {
         cbCorporate.setSelected(true);
         cbIndividual.setSelected(true);
         report = "recordBook";
+        bExportDC.setVisible(false);
+        bShowReport.setVisible(true);
     }
 
     public void rbIndividualAction(ActionEvent actionEvent) {
         cbCorporate.setSelected(false);
         cbIndividual.setSelected(true);
         report = "listIndividual";
-
+        bExportDC.setVisible(false);
+        bShowReport.setVisible(true);
     }
 
     public void rbCorporateAction(ActionEvent actionEvent) {
         cbIndividual.setSelected(false);
         cbCorporate.setSelected(true);
         report = "corporatePerson";
-
+        bExportDC.setVisible(false);
+        bShowReport.setVisible(true);
     }
 
     public void rbActiveAction(ActionEvent actionEvent) {
         report = "forDS210";
         cbCorporate.setSelected(true);
         cbIndividual.setSelected(true);
-
+        bExportDC.setVisible(false);
+        bShowReport.setVisible(true);
     }
 
     public void rbBankTransferAllAction(ActionEvent actionEvent) {
@@ -436,6 +445,7 @@ public class MainController implements Initializable {
 
     public void bShowReportClick(ActionEvent actionEvent) {
         bShowReport.setDisable(true);
+        bExportDC.setDisable(true);
 
         List<Integer> ownerType = new ArrayList<>();
         if (cbCorporate.isSelected()) {
@@ -467,8 +477,8 @@ public class MainController implements Initializable {
             }
         }
 
-        LocalDateTime localDateStart = LocalDateTime.of(dtpStart.getValue(), LocalTime.of(0, 0, 0, 0));
-        LocalDateTime localDateStop = LocalDateTime.of(dtpEnd.getValue(), LocalTime.of(23, 59, 59, 999999999));
+        LocalDateTime localDateStart = dtpStart.getValue().atStartOfDay();// LocalDateTime.of(dtpStart.getValue(), LocalTime.of(0, 0, 0, 0));
+        LocalDateTime localDateStop = dtpEnd.getValue().atTime(LocalTime.MAX);// LocalDateTime.of(dtpEnd.getValue(), LocalTime.of(23, 59, 59, 999999999));
         try {
 
             if (!dtpEnd.isDisable()) {
@@ -477,11 +487,12 @@ public class MainController implements Initializable {
                 App.print(localDateStart, localDateStart, report, ownerType, owner, ownerUNP, bankTransfer);
             }
         } catch (Exception e) {
-            log.fatal(e.getMessage());
+            log.error(e.getMessage());
 
             showErrorMessage("Ошибка", e.getMessage());
         }
         bShowReport.setDisable(false);
+        bExportDC.setDisable(false);
     }
 
 //    private ScrollBar findScrollBar(TableView<?> table, Orientation orientation) {
@@ -504,6 +515,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         String javaVersion = System.getProperty("java.runtime.version");
         String message = null;
         try {
@@ -543,9 +555,9 @@ public class MainController implements Initializable {
             showErrorMessage("Ошибка", errMsg);
         }
 
-        dtpEnd.setValue(LocalDate.now());
-        dtpStart.setValue(LocalDate.now());
-
+        LocalDate lm = LocalDate.now().minusMonths(1);
+        dtpStart.setValue(lm.withDayOfMonth(1));
+        dtpEnd.setValue(LocalDate.now().withDayOfMonth(1).minusDays(1));
 
         comboBoxMonth.setItems(months);
         comboBoxYear.setItems(years);
@@ -1632,6 +1644,43 @@ public class MainController implements Initializable {
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             MainController.showErrorMessage("", e.toString());
+        }
+    }
+
+    public void rbExportDCfor1cAction(ActionEvent actionEvent) {
+        bExportDC.setVisible(true);
+        bShowReport.setVisible(false);
+        cbCorporate.setSelected(true);
+        cbIndividual.setSelected(false);
+    }
+
+    public void bExportDCClick(ActionEvent actionEvent) {
+
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Выберите, куда сохранить выгрузку для 1С:Бухгалтерии");
+        Preferences prefs = Preferences.userNodeForPackage(Main.class);
+        final String lastImportDir = prefs.get("lastExportDir", null);
+        if (lastImportDir != null) {
+            dc.setInitialDirectory(new File(lastImportDir));
+        }
+
+        File dir = dc.showDialog(Main.getStage());
+        if (dir == null) {
+            return;
+        }
+        prefs.put("lastExportDir", dir.getAbsolutePath());
+
+        try {
+            String[] r = ExportHelpers.createExportFor1C(dtpStart.getValue(), dtpEnd.getValue());
+
+            ExportHelpers.save2File(
+                    ExportHelpers.createFileName(dir.getAbsolutePath(), r[1], dtpStart.getValue(), dtpEnd.getValue(), "ds1c"),
+                    r[0],
+                    "windows-1251");
+        } catch (Exception e) {
+            log.error(e.getMessage());
+
+            showErrorMessage("Ошибка", e.getMessage());
         }
     }
 }

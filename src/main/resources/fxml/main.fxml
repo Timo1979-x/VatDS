@@ -64,11 +64,11 @@
                                             <content>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="114.0" prefWidth="274.0">
                                                     <children>
-                                                        <CheckBox fx:id="cbPeriod" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" onAction="#cbPeriodAction" text="За период" />
+                                                        <CheckBox fx:id="cbPeriod" layoutX="14.0" layoutY="6.0" mnemonicParsing="false" onAction="#cbPeriodAction" selected="true" text="За период" />
                                                         <DatePicker fx:id="dtpStart" layoutX="57.0" layoutY="27.0" prefHeight="31.0" prefWidth="161.0" />
-                                                        <Label fx:id="lOver" layoutX="14.0" layoutY="31.0" text="за" />
-                                                        <DatePicker fx:id="dtpEnd" disable="true" layoutX="57.0" layoutY="62.0" prefHeight="31.0" prefWidth="161.0" />
-                                                        <Label fx:id="lBefore" disable="true" layoutX="12.0" layoutY="66.0" text="по" />
+                                                        <Label fx:id="lOver" layoutX="14.0" layoutY="31.0" text="с" />
+                                                        <DatePicker fx:id="dtpEnd" layoutX="57.0" layoutY="62.0" prefHeight="31.0" prefWidth="161.0" />
+                                                        <Label fx:id="lBefore" layoutX="12.0" layoutY="66.0" text="по" />
                                                     </children>
                                                 </AnchorPane>
                                             </content>
@@ -90,6 +90,7 @@
                                                         <RadioButton fx:id="rbIndividual" layoutX="137.0" layoutY="29.0" mnemonicParsing="false" onAction="#rbIndividualAction" text="Физ. лица" toggleGroup="$reportType1" />
                                                         <RadioButton fx:id="rbCorporate" layoutX="137.0" layoutY="53.0" mnemonicParsing="false" onAction="#rbCorporateAction" text="Юр. лица" toggleGroup="$reportType1" />
                                                         <RadioButton fx:id="rbActive" layoutX="137.0" layoutY="77.0" mnemonicParsing="false" onAction="#rbActiveAction" text="Активные" toggleGroup="$reportType1" />
+                                          <RadioButton fx:id="rbExportDCfor1c" layoutX="8.0" layoutY="127.0" mnemonicParsing="false" onAction="#rbExportDCfor1cAction" text="Выгрузить ДК в 1с" toggleGroup="$reportType1" />
                                                     </children>
                                                 </AnchorPane>
                                             </content>
@@ -112,6 +113,7 @@
                                                         <ComboBox fx:id="comboBoxUNP" disable="true" editable="true" layoutX="68.0" layoutY="89.0" prefHeight="25.0" prefWidth="366.0" />
                                                         <Label fx:id="lUNP" disable="true" layoutX="15.0" layoutY="94.0" text="УНП" />
                                                         <Button fx:id="bShowReport" layoutY="120.0" mnemonicParsing="false" onAction="#bShowReportClick" text="Просмотр" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" />
+                                          <Button fx:id="bExportDC" layoutX="93.0" layoutY="144.0" mnemonicParsing="false" onAction="#bExportDCClick" text="Выгрузка" visible="false" />
                                                     </children>
                                                 </AnchorPane>
                                             </content>
