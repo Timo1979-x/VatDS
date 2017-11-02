@@ -1,0 +1,178 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
+plugins {
+    id 'java'
+    id 'edu.sc.seis.launch4j' version '2.4.2'
+}
+
+group 'by.gto'
+version '1.0.0'
+
+sourceCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile "by.gto.fonts:by.gto.fonts:0.1"
+    compile("by.gto.library:bto-library-common:1.0.40.41") {
+        exclude group: 'log4j'
+    }
+    compile("log4j:log4j:1.2.15") {
+        exclude group: "javax.jms"
+        exclude group: "com.sun.jdmk"
+        exclude group: "com.sun.jmx"
+        exclude group: "javax.mail"
+    }
+    compile "mysql:mysql-connector-java:5.1.34"
+    compile "commons-configuration:commons-configuration:1.10"
+
+    // библиотеки Avest JCE Prov добавлены как зависимости:
+    compile 'AvJCEProv:avjavaseckit:1.2.9'
+    compile 'AvJCEProv:avjavasecprovintf:1.2.2'
+    compile 'AvJCEProv:avjavasecprov-shared:1.2.2'
+    compile 'AvJCEProv:avjceprovlib-avbign-shared:1.2.2'
+    compile 'AvJCEProv:avjceprovlib-avtoken-shared:1.2.2'
+    compile 'AvJCEProv:avjutils:0.4.14'
+    compile 'AvJCEProv:avkeytool:1.1.1.2572'
+    compile 'AvJCEProv:avldapcertstore:1.0.2.929'
+    compile 'AvJCEProv:avlog:1.5.3.6694'
+    compile 'AvJCEProv:avocspclient:1.2.1.1640'
+    compile 'AvJCEProv:avoids:1.1.8'
+    compile 'AvJCEProv:avpkitools:1.3.9'
+    compile 'AvJCEProv:avscimport:0.1.8.2308'
+    compile 'AvJCEProv:avstores:1.1.7'
+    compile 'AvJCEProv:avtlsjava-bign:1.2.3'
+    compile 'AvJCEProv:avtsc:1.0.1.873'
+    compile 'AvJCEProv:avwss4j:2.2.0'
+    compile 'AvJCEProv:avxmlsecurity:2.2.0'
+    // библиотеки Avest JCE Prov закончились
+
+    // библиотеки Avest
+    compile 'avests:avedocclient:1.0.0.410'
+    compile 'l-apache-cxf:l-apache-cxf:2.7.18'
+    // библиотеки Avest закончились
+
+    compile('org.apache.neethi:neethi:3.0.3') {
+        exclude group: "org.codehaus.woodstox"
+    }
+    compile('org.codehaus.woodstox:woodstox-core-asl:4.4.1') {
+        exclude group: "stax-api"
+    }
+    compile 'wsdl4j:wsdl4j:1.6.3'
+    compile 'xml-resolver:xml-resolver:1.2'
+    compile 'org.apache.santuario:xmlsec:1.5.8'
+    compile 'asm:asm:3.3.1'
+    compile 'org.json:json:20160212'
+    compile('org.apache.poi:poi-ooxml:3.15') {
+        exclude group: "commons-codec"
+    }
+}
+
+ext.versionPropsFile = file('version.properties')
+ext.imageName = "splash_2.gif"
+ext.mainClass = 'by.gto.vatds.gui.Main'
+ext.WIX_DIR = "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "4.3"
+}
+
+//task copyToLib(type: Copy) {
+//    into "$buildDir/libs/lib"
+//    from configurations.runtime
+//}
+
+jar {
+//    dependsOn copyToLib
+    exclude 'win32/**'
+    exclude 'win64/**'
+    exclude "vat_manual.doc"
+    exclude "/*.ico"
+
+    manifest {
+        attributes(
+                "Name": "${project.name}",
+                "Implementation-Title": "Beltechosmotr VAT for diagnostic stations",
+                "Implementation-Version": "${version}",
+                "Implementation-Vendor": "Beltechosmotr",
+                'Main-Class': mainClass,
+                "splashscreen-image": imageName,
+                "Class-Path": configurations.compile.collect { "lib/" + it.getName() }.join(' '))
+    }
+}
+task updateBuildNumber(description: "Читает номер билда из файла и обновляет его в файле") {
+    doLast {
+        if (versionPropsFile.canRead()) {
+            def Properties versionProps = new Properties()
+            versionProps.load(new FileInputStream(versionPropsFile))
+            project.ext.buildNumber = versionProps['BUILD_NUMBER'].toInteger()
+            versionProps['BUILD_NUMBER'] = (project.ext.buildNumber + 1).toString()
+            versionProps.store(versionPropsFile.newWriter(), null)
+        } else {
+            throw new GradleException("Could not read version.properties!")
+        }
+    }
+}
+
+compileJava {
+    dependsOn updateBuildNumber
+}
+
+
+createExe {
+//    outfile="${project.name}-${project.version}.exe"
+    mainClassName = mainClass
+    icon = '../resources/main/piggy-bank2.ico'
+    downloadUrl = "http://gto.by/downloads/vatDS/vatDS-${version}"
+}
+
+task prepareMSIDir(dependsOn: createExe, type: Copy) {
+    from("${project.buildDir}/launch4j") {
+        include '**/*'
+    }
+    from("${project.buildDir}/resources/main") {
+        include 'win32/**'
+        include 'win64/**'
+        include 'vat_manual.doc'
+        include 'changelog.txt'
+    }
+    into "${project.buildDir}/msi"
+}
+
+
+task msi(dependsOn: prepareMSIDir) {
+    doLast {
+        def wixPrjDir = prepareMSIDir.outputs.files[0].getAbsolutePath()
+        System.setProperty("wixPrjDir", wixPrjDir)
+        def tempDir = Paths.get(wixPrjDir, "temp")
+        Files.createDirectories(tempDir)
+        tempDir = tempDir.toString()
+        def cmdLine = ["${WIX_DIR}\\candle.exe"]
+        ["lib", "win32", "win64"].each { subPath ->
+            exec {
+                workingDir project.projectDir
+                commandLine "${WIX_DIR}\\heat.exe", "dir", "$wixPrjDir\\$subPath", "-dr", "PROGRAMDIR", "-cg", "compGroup${subPath}",
+                        "-ag", "-sfrag", "-var", "var.dir${subPath}", "-out", "${tempDir}\\${subPath}.wxs"
+            }
+            cmdLine.add("-ddir${subPath}=\"${wixPrjDir}\\${subPath}\"")
+        }
+        cmdLine.addAll("-nologo", "src\\main\\wix\\*.wxs", "${tempDir}\\*.wxs", "-out", "${wixPrjDir}\\temp\\", "-dwixPrjDir=\"${wixPrjDir}\"")
+        println cmdLine
+        exec {
+            workingDir project.projectDir
+            commandLine (cmdLine)
+        }
+        exec {
+            workingDir project.projectDir
+            commandLine "${WIX_DIR}\\light.exe", "-sval", "-nologo", "-out",
+                    "${wixPrjDir}\\${project.name}-${project.version}.msi", "${tempDir}\\*.wixobj"
+        }
+//        Files.delete(Paths.get(wixPrjDir, "${project.name}-${project.version}.wixpdb"))
+    }
+}

@@ -1,4 +1,12 @@
-/target
+/build
+/out
 /logs
 /.idea
 *.iml
+
+/.gradle
+/gradle
+gradlew
+gradlew.bat
+
+**/version.properties

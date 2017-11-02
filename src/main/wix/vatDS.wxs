@@ -16,15 +16,15 @@
                 <Directory Id="BTODIR" Name="$(var.ManufacturerShortName)">
                     <Directory Id="PROGRAMDIR" Name="$(var.ProductShortName)">
                         <Component Guid="*" Id="VATDS_COMP.EXE">
-                            <File Id="VATDS.EXE" Name="VATDS.exe" Source="$(env.wixPrjDir)\VATDS.exe">
+                            <File Id="VATDS.EXE" Name="VATDS.exe" Source="$(var.wixPrjDir)\VATDS.exe">
                             <Shortcut Id="desktopShortcutVATDS.EXE" Directory="DesktopFolder" Name="vatDS" Icon="DesktopIcon.ico" IconIndex="0"/>
                             <Shortcut Id="programShortcutVATDS.EXE" Directory="ProgramMenuDir" Name="vatDS" Icon="DesktopIcon.ico" IconIndex="0"/> 
                             </File>
                             <!-- <Shortcut Id="programShortcutVATDS.EXE" Directory="ProgramMenuDir" Name="vatDS" Icon="DesktopIcon.ico" IconIndex="0"/> -->
                         </Component>
                         <Component Guid="*" Id="VAT_MANUAL_COMP.DOC">
-                            <File Id="VAT_MANUAL.DOC" Name="vat_manual.doc" Source="$(env.wixPrjDir)\vat_manual.doc">
-                            <Shortcut Id="programShortcutVAT_MANUAL.DOC" Directory="ProgramMenuDir" Name="Инструкция по работе с ЭСЧФ по НДС" Worki Directory="INSTALLDIR" Icon="WordIcon.ico" IconIndex="0"/>
+                            <File Id="VAT_MANUAL.DOC" Name="vat_manual.doc" Source="$(var.wixPrjDir)\vat_manual.doc">
+                            <Shortcut Id="programShortcutVAT_MANUAL.DOC" Directory="ProgramMenuDir" Name="Инструкция по работе с ЭСЧФ по НДС" WorkingDirectory="INSTALLDIR" Icon="WordIcon.ico" IconIndex="0"/>
                             </File>
                         </Component>
                     </Directory>
