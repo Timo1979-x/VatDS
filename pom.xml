@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>by.gto.vatds.gui.Main</mainClass>
-        <exeFileName>btoReportNG</exeFileName>
+        <exeFileName>vatDS</exeFileName>
         <product.title>Статистические отчеты</product.title>
         <product.company>УП "Белтехосмотр"</product.company>
         <product.year>2017</product.year>

@@ -107,8 +107,6 @@ public class MainController implements Initializable {
     @FXML
     public Menu menuVAT;
 
-    private String report = "recordBook";
-    private byte bankTransfer = 2;
     private Scene thisScene;
 
     private ObservableList<VatData> vatData = FXCollections.observableArrayList();
