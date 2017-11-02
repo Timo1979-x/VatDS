@@ -1,6 +1,6 @@
 package by.gto.tools;
 
-import by.gto.btoreport.gui.MainController;
+import by.gto.vatds.gui.MainController;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import org.apache.log4j.Logger;

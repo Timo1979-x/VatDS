@@ -18,9 +18,6 @@ public class ConfigReader {
     private static volatile ConfigReader instance;
     private String host = "127.0.0.1";
     private String port = "33060";
-    private String chiefDS = "ФИО";
-    private String position = "Должность";
-    private int NDS = 20;
     private int UNP = 0;
     private String orgName = "Организация";
     private String orgAddress = "Адрес";
@@ -111,7 +108,7 @@ public class ConfigReader {
         }
         try {
             config = new XMLConfiguration(configXml);
-        } catch (ConfigurationException ex) {
+        } catch (Exception ex) {
             log.error(ex);
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
         }
@@ -129,9 +126,6 @@ public class ConfigReader {
             wFile.write("    <config>\n");
             wFile.write(String.format("        <host>%s</host>\n", getHost()));
             wFile.write(String.format("        <port>%s</port>\n", getPort()));
-            wFile.write(String.format("        <position>%s</position>\n", getPosition()));
-            wFile.write(String.format("        <chiefDS>%s</chiefDS>\n", getChiefDS()));
-            wFile.write(String.format("        <NDS>%s</NDS>\n", getNDS()));
             wFile.write(String.format("        <UNP>%s</UNP>\n", getUNP()));
             wFile.write(String.format("        <orgName>%s</orgName>\n", getOrgName()));
             wFile.write(String.format("        <orgAddress>%s</orgAddress>\n", getOrgAddress()));
@@ -157,9 +151,6 @@ public class ConfigReader {
             config.load();
             host = "localhost".equals(config.getString("config.host", host).trim()) ? "127.0.0.1" : config.getString("config.host", host).trim();
             port = config.getString("config.port", port).trim();
-            position = config.getString("config.position", position).trim();
-            chiefDS = config.getString("config.chiefDS", chiefDS).trim();
-            NDS = config.getInt("config.NDS", NDS);
             UNP = config.getInt("config.UNP", UNP);
             orgName = config.getString("config.orgName", orgName).trim();
             orgAddress = config.getString("config.orgAddress", orgAddress).trim();
@@ -186,32 +177,8 @@ public class ConfigReader {
         return port;
     }
 
-    public String getChiefDS() {
-        return chiefDS;
-    }
-
-    public int getNDS() {
-        return NDS;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
     public void setHost(String host) {
         this.host = host;
-    }
-
-    public void setChiefDS(String chiefDS) {
-        this.chiefDS = chiefDS;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public void setNDS(int NDS) {
-        this.NDS = NDS;
     }
 
     public void save() {

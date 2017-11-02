@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>by.gto</groupId>
-    <artifactId>btoReportNG</artifactId>
-    <version>0.4.0</version>
+    <artifactId>vatDS</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>btoReportNG</name>
+    <name>vatDS</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>by.gto.btoreport.gui.Main</mainClass>
+        <mainClass>by.gto.vatds.gui.Main</mainClass>
         <exeFileName>btoReportNG</exeFileName>
         <product.title>Статистические отчеты</product.title>
         <product.company>УП "Белтехосмотр"</product.company>
@@ -73,7 +73,6 @@
                         <include>**/*.png</include>
                         <include>**/*.xml</include>
                         <include>**/*.properties</include>
-                        <include>**/*.jasper</include>
                         <include>**/*.class</include>
                         <include>**/*.fxml</include>
                         <include>**/*.xsd</include>
@@ -94,7 +93,7 @@
                         <configuration>
                             <sourceDirectory>${basedir}/src/main/java-templates</sourceDirectory>
                             <!--<outputDirectory>${project.build.directory}/generated-sources/java-templates</outputDirectory>-->
-                            <outputDirectory>${basedir}/src/main/java/by/gto/jasperprintmysql</outputDirectory>
+                            <outputDirectory>${basedir}/src/main/java/by/gto/vatds</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -309,107 +308,6 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.56</version>
         </dependency>-->
-
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-            <version>6.3.0</version>
-            <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-aop</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-asm</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-beans</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-context</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>bouncycastle</groupId>
-                    <artifactId>bcmail-jdk14</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcmail-jdk14</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>bouncycastle</groupId>
-                    <artifactId>bcprov-jdk14</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk14</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bctsp-jdk14</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.castor</groupId>
-                    <artifactId>castor-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.castor</groupId>
-                    <artifactId>castor-xml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jfree</groupId>
-                    <artifactId>jfreechart</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.olap4j</groupId>
-                    <artifactId>olap4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-sandbox</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-queryparser</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-analyzers-common</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.jfree</groupId>
-                    <artifactId>jcommon</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.eclipse.jdt.core.compiler</groupId>
-                    <artifactId>ecj</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.zxing</groupId>
-                    <artifactId>core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
 
         <dependency>
             <groupId>commons-configuration</groupId>

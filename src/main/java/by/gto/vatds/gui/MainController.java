@@ -1,15 +1,13 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
 import by.gto.helpers.*;
-import by.gto.jasperprintmysql.App;
-import by.gto.jasperprintmysql.Version;
-import by.gto.jasperprintmysql.data.OwnerDataSW2;
 import by.gto.library.db.NamedParameterStatement;
 import by.gto.model.*;
 import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.Util;
 import by.gto.tools.VatTool;
+import by.gto.vatds.Version;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -53,7 +51,6 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
@@ -66,30 +63,6 @@ public class MainController implements Initializable {
     private static final Logger log = Logger.getLogger(MainController.class);
     private static final int REQUIRED_DB_VERSION = 190;
 
-    @FXML
-    public CheckBox cbPeriod;
-    @FXML
-    public Label lOver;
-    @FXML
-    public DatePicker dtpEnd;
-    @FXML
-    public DatePicker dtpStart;
-    @FXML
-    public Label lBefore;
-    @FXML
-    public CheckBox cbCorporate;
-    @FXML
-    public CheckBox cbIndividual;
-    @FXML
-    public ComboBox<String> comboBoxOwner;
-    @FXML
-    public ComboBox<String> comboBoxUNP;
-    @FXML
-    public Label lUNP;
-    @FXML
-    public CheckBox cbOwner;
-    @FXML
-    public Button bShowReport;
     @FXML
     public ComboBox comboBoxYear;
     @FXML
@@ -133,10 +106,6 @@ public class MainController implements Initializable {
     public TableColumn<VatData, Integer> colBranch;
     @FXML
     public Menu menuVAT;
-    @FXML
-    public Tab tabVAT;
-    @FXML
-    public Button bExportDC;
 
     private String report = "recordBook";
     private byte bankTransfer = 2;
@@ -239,12 +208,12 @@ public class MainController implements Initializable {
             controller = loader.getController();
             controller.setListItems(items);
 
-            final String alias = System.getProperty("by.gto.btoreport.avest.alias");
+            final String alias = System.getProperty("by.gto.vatds.avest.alias");
             if (alias != null) {
                 int i = items.indexOf(alias);
                 if (i != -1) {
                     controller.lList.getSelectionModel().select(i);
-                    final String pass = System.getProperty("by.gto.btoreport.avest.password");
+                    final String pass = System.getProperty("by.gto.vatds.avest.password");
                     if (pass != null) {
                         controller.setPassword(pass);
                     }
@@ -300,7 +269,7 @@ public class MainController implements Initializable {
 
     private void CheckUpdate(boolean showMessage) {
         try {
-            URL url = new URL("http://gto.by/api/check.updates.php?name=btoReportNG");
+            URL url = new URL("http://gto.by/api/check.updates.php?name=vatDS");
             ConfigReader config = ConfigReader.getInstance();
 
             InputStream is = null;
@@ -346,7 +315,7 @@ public class MainController implements Initializable {
 
 
                 } else if (showMessage) {
-                    showInfoMessage("", "Установлена последняя версия btoReportNG");
+                    showInfoMessage("", "Установлена последняя версия vatDS");
                 }
                 log.info(strTemp);
             }
@@ -358,160 +327,6 @@ public class MainController implements Initializable {
             log.error(ex.getMessage(), ex);
         }
     }
-
-    public void cbPeriodAction(ActionEvent actionEvent) {
-        if (cbPeriod.isSelected()) {
-            lOver.setText("c");
-            dtpEnd.setDisable(false);
-            lBefore.setDisable(false);
-
-        } else {
-            lOver.setText("за");
-            dtpEnd.setDisable(true);
-            lBefore.setDisable(true);
-        }
-    }
-
-    public void rbForBtoAction(ActionEvent actionEvent) {
-        cbCorporate.setSelected(true);
-        cbIndividual.setSelected(true);
-        report = "forBTO";
-    }
-
-    public void rbForSlutskAction(ActionEvent actionEvent) {
-        cbCorporate.setSelected(true);
-        cbIndividual.setSelected(true);
-        report = "forSlutsk";
-        bExportDC.setVisible(false);
-        bShowReport.setVisible(true);
-    }
-
-    public void rbOrderbyTariffAction(ActionEvent actionEvent) {
-        report = "OrderByTariff";
-        cbCorporate.setSelected(true);
-        cbIndividual.setSelected(true);
-        bExportDC.setVisible(false);
-        bShowReport.setVisible(true);
-    }
-
-    public void rbRecordBookAction(ActionEvent actionEvent) {
-        cbCorporate.setSelected(true);
-        cbIndividual.setSelected(true);
-        report = "recordBook";
-        bExportDC.setVisible(false);
-        bShowReport.setVisible(true);
-    }
-
-    public void rbIndividualAction(ActionEvent actionEvent) {
-        cbCorporate.setSelected(false);
-        cbIndividual.setSelected(true);
-        report = "listIndividual";
-        bExportDC.setVisible(false);
-        bShowReport.setVisible(true);
-    }
-
-    public void rbCorporateAction(ActionEvent actionEvent) {
-        cbIndividual.setSelected(false);
-        cbCorporate.setSelected(true);
-        report = "corporatePerson";
-        bExportDC.setVisible(false);
-        bShowReport.setVisible(true);
-    }
-
-    public void rbActiveAction(ActionEvent actionEvent) {
-        report = "forDS210";
-        cbCorporate.setSelected(true);
-        cbIndividual.setSelected(true);
-        bExportDC.setVisible(false);
-        bShowReport.setVisible(true);
-    }
-
-    public void rbBankTransferAllAction(ActionEvent actionEvent) {
-        bankTransfer = 2;
-    }
-
-    public void rbBankTransferFalseAction(ActionEvent actionEvent) {
-        bankTransfer = 0;
-    }
-
-    public void rbBankTransferTrueAction(ActionEvent actionEvent) {
-        bankTransfer = 1;
-    }
-
-    public void cbOwnerAction(ActionEvent actionEvent) {
-        OwnerDataSW2 ownerDataSW2 = new OwnerDataSW2(comboBoxOwner, comboBoxUNP, cbOwner.isSelected(), lUNP);
-        ownerDataSW2.execute();
-    }
-
-    public void bShowReportClick(ActionEvent actionEvent) {
-        bShowReport.setDisable(true);
-        bExportDC.setDisable(true);
-
-        List<Integer> ownerType = new ArrayList<>();
-        if (cbCorporate.isSelected()) {
-            ownerType.add(2);
-            ownerType.add(3);
-        }
-        if (cbIndividual.isSelected()) {
-            ownerType.add(1);
-        }
-        if (ownerType.isEmpty()) {
-            ownerType.add(1);
-            ownerType.add(2);
-            ownerType.add(3);
-        }
-        String owner = null;
-        String ownerUNP = null;
-        if (cbOwner.isSelected()) {
-            owner = (String) comboBoxOwner.getSelectionModel().getSelectedItem();
-            if (!StringUtils.isEmpty(owner)) {
-                owner = owner.trim().replaceAll("(^.*\")(.+)(\".*$)", "$2");
-                owner = owner.replaceAll("\"", "_");
-                owner = owner.replaceAll("\\s+", "%");
-                log.info(String.format("----------owner--------%s", owner));
-            }
-            ownerUNP = (String) comboBoxUNP.getSelectionModel().getSelectedItem();
-            if (!StringUtils.isEmpty(ownerUNP)) {
-                ownerUNP = ownerUNP.trim();
-                log.info(String.format("--------ownerUNP----------%s", ownerUNP));
-            }
-        }
-
-        LocalDateTime localDateStart = dtpStart.getValue().atStartOfDay();// LocalDateTime.of(dtpStart.getValue(), LocalTime.of(0, 0, 0, 0));
-        LocalDateTime localDateStop = dtpEnd.getValue().atTime(LocalTime.MAX);// LocalDateTime.of(dtpEnd.getValue(), LocalTime.of(23, 59, 59, 999999999));
-        try {
-
-            if (!dtpEnd.isDisable()) {
-                App.print(localDateStart, localDateStop, report, ownerType, owner, ownerUNP, bankTransfer);
-            } else {
-                App.print(localDateStart, localDateStart, report, ownerType, owner, ownerUNP, bankTransfer);
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-
-            showErrorMessage("Ошибка", e.getMessage());
-        }
-        bShowReport.setDisable(false);
-        bExportDC.setDisable(false);
-    }
-
-//    private ScrollBar findScrollBar(TableView<?> table, Orientation orientation) {
-//
-//        // this would be the preferred solution, but it doesn't work. it always gives back the vertical scrollbar
-//        //      return (ScrollBar) table.lookup(".scroll-bar:horizontal");
-//        //
-//        // => we have to search all scrollbars and return the one with the proper orientation
-//
-//        Set<Node> set = table.lookupAll(".scroll-bar");
-//        for (Node node : set) {
-//            ScrollBar bar = (ScrollBar) node;
-//            if (bar.getOrientation() == orientation) {
-//                return bar;
-//            }
-//        }
-//        return null;
-//    }
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -548,16 +363,12 @@ public class MainController implements Initializable {
                     "Программа будет закрыта");
             System.exit(-1);
         }
-        log.warn("Started btoReportNG v" + Version.getVERSION() + " on jre " + System.getProperty("java.runtime.version"));
+        log.warn("Started vatDS v" + Version.getVERSION() + " on jre " + System.getProperty("java.runtime.version"));
         if (!AvestHelpers.initAvest()) {
             String errMsg = "Не установлен криптопровайдер Avest! Работа со счет-фактурами будет невозможна";
             log.error(errMsg);
             showErrorMessage("Ошибка", errMsg);
         }
-
-        LocalDate lm = LocalDate.now().minusMonths(1);
-        dtpStart.setValue(lm.withDayOfMonth(1));
-        dtpEnd.setValue(LocalDate.now().withDayOfMonth(1).minusDays(1));
 
         comboBoxMonth.setItems(months);
         comboBoxYear.setItems(years);
@@ -684,7 +495,7 @@ public class MainController implements Initializable {
                             "Версия Вашей БД - %d", REQUIRED_DB_VERSION, ver));
         }
         if (ver != 0) {
-            disableVATControls(true);
+            Platform.exit();
         } else {
             try {
                 refreshVats();
@@ -692,9 +503,6 @@ public class MainController implements Initializable {
                 // тут не нужна никакая обработка и сообщения, чтобы не смущать пользователей при старте программы
             }
         }
-
-        new AutoCompleteComboBoxListener<>(comboBoxOwner);
-        new AutoCompleteComboBoxListener<>(comboBoxUNP);
 
 
         apMain.prefWidthProperty().bind(spRoot.widthProperty());
@@ -704,11 +512,6 @@ public class MainController implements Initializable {
         lMessage.textProperty().bind(messageText);
         lMessage1.textProperty().bind(messageText);
         lMessage1.prefWidthProperty().bind(gpMessage.widthProperty());
-    }
-
-    private void disableVATControls(boolean disable) {
-        menuVAT.setDisable(disable);
-        tabVAT.setDisable(disable);
     }
 
     public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
@@ -1647,40 +1450,4 @@ public class MainController implements Initializable {
         }
     }
 
-    public void rbExportDCfor1cAction(ActionEvent actionEvent) {
-        bExportDC.setVisible(true);
-        bShowReport.setVisible(false);
-        cbCorporate.setSelected(true);
-        cbIndividual.setSelected(false);
-    }
-
-    public void bExportDCClick(ActionEvent actionEvent) {
-
-        DirectoryChooser dc = new DirectoryChooser();
-        dc.setTitle("Выберите, куда сохранить выгрузку для 1С:Бухгалтерии");
-        Preferences prefs = Preferences.userNodeForPackage(Main.class);
-        final String lastImportDir = prefs.get("lastExportDir", null);
-        if (lastImportDir != null) {
-            dc.setInitialDirectory(new File(lastImportDir));
-        }
-
-        File dir = dc.showDialog(Main.getStage());
-        if (dir == null) {
-            return;
-        }
-        prefs.put("lastExportDir", dir.getAbsolutePath());
-
-        try {
-            String[] r = ExportHelpers.createExportFor1C(dtpStart.getValue(), dtpEnd.getValue());
-
-            ExportHelpers.save2File(
-                    ExportHelpers.createFileName(dir.getAbsolutePath(), r[1], dtpStart.getValue(), dtpEnd.getValue(), "ds1c"),
-                    r[0],
-                    "windows-1251");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-
-            showErrorMessage("Ошибка", e.getMessage());
-        }
-    }
 }

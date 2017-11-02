@@ -1,6 +1,6 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
-import by.gto.jasperprintmysql.Version;
+import by.gto.vatds.Version;
 import javafx.scene.web.WebView;
 
 import java.net.URL;

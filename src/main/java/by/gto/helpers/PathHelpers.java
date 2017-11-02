@@ -11,8 +11,7 @@ public class PathHelpers {
     private static final Logger log = Logger.getLogger(PathHelpers.class);
 
     static {
-        dataDirectory = System.getenv("APPDATA") + "\\Beltehosmotr\\btoReportNG";
-//        dataDirectory = System.getenv("ALLUSERSPROFILE") + "\\Beltehosmotr\\vatMSTO";
+        dataDirectory = System.getenv("APPDATA") + "\\Beltehosmotr\\vatDS";
     }
 
     /**

@@ -1,4 +1,4 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;

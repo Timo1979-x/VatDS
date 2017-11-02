@@ -1,4 +1,4 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
 import by.gto.tools.ConfigReader;
 import javafx.event.ActionEvent;
@@ -54,9 +54,6 @@ public final class SettingsController implements javafx.fxml.Initializable {
         final ConfigReader instance = ConfigReader.getInstance();
 
         eServerIP.setText(instance.getHost());
-        ePosition.setText(instance.getPosition());
-        eFIO.setText(instance.getChiefDS());
-        eVAT.setText(String.valueOf(instance.getNDS()));
 
         eUNP.setText(String.valueOf(instance.getUNP()));
         eOrgName.setText(instance.getOrgName());
@@ -115,9 +112,6 @@ public final class SettingsController implements javafx.fxml.Initializable {
         }
 
         instance.setHost(ip);
-        instance.setPosition(ePosition.getText().trim());
-        instance.setChiefDS(eFIO.getText().trim());
-        instance.setNDS(Integer.valueOf(vat));
         instance.setUNP(Integer.valueOf(unp));
         instance.setOrgName(eOrgName.getText());
         instance.setOrgAddress(eOrgAddress.getText());

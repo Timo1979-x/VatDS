@@ -1,4 +1,4 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
 import java.util.stream.Stream;
 

@@ -1,7 +1,5 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
-import by.gto.jasperprintmysql.Version;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -13,8 +11,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public final class UpdateMessageController {
     private final static Logger log = Logger.getLogger(UpdateMessageController.class);

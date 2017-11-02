@@ -65,7 +65,7 @@ public class VatTool implements Closeable {
     }
 
     private String getVatServiceUrl() {
-        String url = System.getProperty("by.gto.btoreport.avest.url");
+        String url = System.getProperty("by.gto.vatds.avest.url");
         if (url == null) {
             url = ConfigReader.getInstance().getVatServiceUrl();
         }

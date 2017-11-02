@@ -1,14 +1,13 @@
 package by.gto.tools;
 
 import by.avest.edoc.client.PersonalKeyManager2;
-import by.gto.btoreport.gui.MainController;
+import by.gto.vatds.gui.MainController;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ public class KeySelector extends PersonalKeyManager2 {
 
     public char[] promptPassword(String alias) throws IOException {
         log.info("start promptPassword " + alias);
-        final String pass = System.getProperty("by.gto.btoreport.avest.password");
+        final String pass = System.getProperty("by.gto.vatds.avest.password");
         if (pass != null) {
             log.info("promptPassword: use pass from environment");
             return pass.toCharArray();

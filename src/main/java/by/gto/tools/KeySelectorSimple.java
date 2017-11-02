@@ -1,7 +1,6 @@
 package by.gto.tools;
 
 import by.avest.edoc.client.PersonalKeyManager2;
-import by.gto.btoreport.gui.MainController;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

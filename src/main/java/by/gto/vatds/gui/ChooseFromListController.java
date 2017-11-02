@@ -1,4 +1,4 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -83,7 +83,7 @@ public final class ChooseFromListController implements Initializable {
         lList.getSelectionModel().clearSelection();
 //        lList.getSelectionModel().select((items.size() == 1) ? 0 : -1);
 
-//        final String alias = System.getProperty("by.gto.btoreport.avest.alias");
+//        final String alias = System.getProperty("by.gto.vatds.avest.alias");
 //        if (alias != null) {
 //            for (int i = 0; i < items.size(); i++) {
 //                if (alias.equals(items[i])) {

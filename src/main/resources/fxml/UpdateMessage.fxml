@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.web.WebView?>
 
-<AnchorPane maxHeight="300.0" maxWidth="600.0" minHeight="202.0" minWidth="476.0" prefHeight="202.0" prefWidth="476.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.btoreport.gui.UpdateMessageController">
+<AnchorPane maxHeight="300.0" maxWidth="600.0" minHeight="202.0" minWidth="476.0" prefHeight="202.0" prefWidth="476.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="by.gto.vatds.gui.UpdateMessageController">
    <children>
       <WebView fx:id="webContent" layoutX="-1.0" layoutY="-1.0" prefHeight="202.0" prefWidth="476.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="-1.0" />
    </children>

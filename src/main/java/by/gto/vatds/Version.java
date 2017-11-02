@@ -1,4 +1,4 @@
-package by.gto.jasperprintmysql;
+package by.gto.vatds;
 
 public final class Version {
 

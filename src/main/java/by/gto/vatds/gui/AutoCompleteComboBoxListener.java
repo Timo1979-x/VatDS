@@ -1,4 +1,4 @@
-package by.gto.btoreport.gui;
+package by.gto.vatds.gui;
 
 import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.beans.value.ChangeListener;
