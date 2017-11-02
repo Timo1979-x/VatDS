@@ -7,7 +7,6 @@ import by.gto.tools.ConfigReader;
 import by.gto.tools.ConnectionMySql;
 import by.gto.tools.Util;
 import by.gto.tools.VatTool;
-import by.gto.vatds.Version;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -22,9 +21,9 @@ import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.Effect;
@@ -48,9 +47,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
@@ -106,6 +102,10 @@ public class MainController implements Initializable {
     public TableColumn<VatData, Integer> colBranch;
     @FXML
     public Menu menuVAT;
+    @FXML
+    public AnchorPane apVAT;
+    @FXML
+    public MenuItem miVATSettings;
 
     private Scene thisScene;
 
@@ -232,29 +232,11 @@ public class MainController implements Initializable {
     }
 
     public void miAboutClick(ActionEvent actionEvent) throws IOException {
-        Stage newStage = new Stage();
-        FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/about.fxml"));
-        newStage.initModality(Modality.APPLICATION_MODAL);
-        newStage.setTitle("О программе");
-        newStage.setScene(new Scene(root));
-        newStage.setResizable(false);
-        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
-        newStage.getIcons().add(i);
-        newStage.show();
+        FXHelpers.INSTANCE.openChildWindow("", "fxml/about.fxml", "piggy-bank-icon.png", "О программе");
     }
 
     public void miSettingsClick(ActionEvent actionEvent) throws IOException {
-        Stage newStage = new Stage();
-        FXMLLoader loader = new FXMLLoader();
-        Parent root = loader.load(Main.class.getClassLoader().getResource("fxml/settings.fxml"));
-        newStage.initModality(Modality.APPLICATION_MODAL);
-        newStage.setTitle("Настройки");
-        newStage.setScene(new Scene(root));
-        newStage.setResizable(false);
-        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
-        newStage.getIcons().add(i);
-        newStage.show();
+        FXHelpers.INSTANCE.openChildWindow("", "fxml/settings.fxml", "piggy-bank-icon.png", "Настройки");
     }
 
     public void miQuitClick(ActionEvent actionEvent) {
@@ -286,11 +268,12 @@ public class MainController implements Initializable {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String strTemp = "";
             while (null != (strTemp = br.readLine())) {
+                ApplicationInfo appInfo = ApplicationInfo.getInstance();
                 JSONObject obj = new JSONObject(strTemp);
                 String name = obj.getString("name");
                 String version = obj.getString("version");
                 String url_ = obj.getString("url");
-                int verCompere = Util.versionCompare(Version.getVERSION(), version);
+                int verCompere = Util.versionCompare(appInfo.getVersion(), version);
                 if (verCompere < 0) {
                     Stage newStage = new Stage();
                     FXMLLoader loader = new FXMLLoader(Main.class.getClassLoader().getResource("fxml/UpdateMessage.fxml"));
@@ -306,7 +289,7 @@ public class MainController implements Initializable {
                     controller = (UpdateMessageController) loader.getController();
                     controller.loadContent("<html><body>Доступно обновление для  "
                             + name + ".<br />Установлена версия: "
-                            + Version.getVERSION() + "<br />Версия обновления: "
+                            + appInfo.getVersion() + "<br />Версия обновления: "
                             + version + "<br /><a href=\"" + url_
                             + "\" target=\"_blank\"><strong>Загрузить</strong></a></body></html>");
                     newStage.show();
@@ -361,7 +344,8 @@ public class MainController implements Initializable {
                     "Программа будет закрыта");
             System.exit(-1);
         }
-        log.warn("Started vatDS v" + Version.getVERSION() + " on jre " + System.getProperty("java.runtime.version"));
+        ApplicationInfo appInfo = ApplicationInfo.getInstance();
+        log.warn("Started " + appInfo.getName() + " + v" + appInfo.getVersion() + " on jre " + System.getProperty("java.runtime.version"));
         if (!AvestHelpers.initAvest()) {
             String errMsg = "Не установлен криптопровайдер Avest! Работа со счет-фактурами будет невозможна";
             log.error(errMsg);
@@ -493,7 +477,7 @@ public class MainController implements Initializable {
                             "Версия Вашей БД - %d", REQUIRED_DB_VERSION, ver));
         }
         if (ver != 0) {
-            Platform.exit();
+            disableVATControls(true);
         } else {
             try {
                 refreshVats();
@@ -512,35 +496,14 @@ public class MainController implements Initializable {
         lMessage1.prefWidthProperty().bind(gpMessage.widthProperty());
     }
 
-    public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
-        Stage newStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(MainController.class.getClassLoader().getResource("fxml/settingsVAT.fxml"));
-        Parent root = loader.load();
-        final SettingsVATController controller = loader.<SettingsVATController>getController();
-        //controller = (SettingsVATController) loader.getController();
-        newStage.initModality(Modality.APPLICATION_MODAL);
-        newStage.setTitle("Настройка диапазонов номеров ЭСЧФ");
-        newStage.setScene(new Scene(root));
-        newStage.setResizable(false);
-        Image i = new Image(Main.class.getClassLoader().getResourceAsStream("piggy-bank-icon.png"));
-        newStage.getIcons().add(i);
-        newStage.show();
-        newStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                if (controller.isModified()) {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Подтвердите");
-                    alert.setHeaderText("Подтвердите");
-                    alert.setContentText("Настройки были изменены. Действительно хотите закрыть окно без сохранения настроек?");
+    private void disableVATControls(boolean b) {
+        apVAT.setDisable(b);
+        menuVAT.setDisable(b);
+        miVATSettings.setDisable(b);
+    }
 
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.get() != ButtonType.OK) {
-                        event.consume();
-                    }
-                }
-            }
-        });
+    public void miVATSettingsAction(ActionEvent actionEvent) throws IOException {
+        FXHelpers.INSTANCE.openChildWindow("", "fxml/settingsVAT.fxml", "piggy-bank-icon.png", "Настройка диапазонов номеров ЭСЧФ");
     }
 
     private void refreshVats() throws SQLException {

@@ -1,5 +1,6 @@
 package by.gto.vatds.gui;
 
+import by.gto.controllers.BaseController;
 import by.gto.tools.ConnectionMySql;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -11,6 +12,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -18,10 +21,11 @@ import org.apache.log4j.Logger;
 import java.net.URL;
 import java.sql.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public final class SettingsVATController implements javafx.fxml.Initializable {
+public final class SettingsVATController extends BaseController<Void, Void> implements javafx.fxml.Initializable {
     private static final Logger log = Logger.getLogger(SettingsVATController.class);
 
     private final ObservableList<VatSetting> data = FXCollections.observableArrayList();
@@ -45,7 +49,29 @@ public final class SettingsVATController implements javafx.fxml.Initializable {
     private boolean modified;
 
     @Override
+    public void setInitialData(Void main, Stage stage) {
+        super.setInitialData(main, stage);
+        if (null == stage) {
+            return;
+        }
+        stage.setOnCloseRequest(event -> {
+            if (isModified()) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Подтвердите");
+                alert.setHeaderText("Подтвердите");
+                alert.setContentText("Настройки были изменены. Действительно хотите закрыть окно без сохранения настроек?");
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() != ButtonType.OK) {
+                    event.consume();
+                }
+            }
+        });
+    }
+
+    @Override
     public void initialize(URL location, ResourceBundle resources) {
+
         table.setEditable(true);
 
 

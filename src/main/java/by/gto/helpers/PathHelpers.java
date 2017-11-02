@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 public class PathHelpers {
     private static String dataDirectory = "d:\\";
@@ -26,7 +27,8 @@ public class PathHelpers {
             if (baseLocation.isFile()) {
                 return baseLocation.getParent();
             }
-            return baseLocation.getAbsolutePath();
+            return Paths.get(baseLocation.getParent(),"resources").toString();
+//            return baseLocation.getAbsolutePath();
         } catch (URISyntaxException e) {
             log.error(e.getMessage(), e);
             return "";

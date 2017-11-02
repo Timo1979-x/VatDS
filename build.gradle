@@ -1,13 +1,24 @@
 import java.nio.file.Files
 import java.nio.file.Paths
 
+buildscript {
+    ext.kotlin_version = '1.1.51'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 plugins {
     id 'java'
     id 'edu.sc.seis.launch4j' version '2.4.2'
 }
+apply plugin: 'kotlin'
 
 group 'by.gto'
-version '1.0.0'
+version '1.1.0'
 
 sourceCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
@@ -31,6 +42,9 @@ dependencies {
     }
     compile "mysql:mysql-connector-java:5.1.34"
     compile "commons-configuration:commons-configuration:1.10"
+    // https://mvnrepository.com/artifact/commons-collections/commons-collections
+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+
 
     // библиотеки Avest JCE Prov добавлены как зависимости:
     compile 'AvJCEProv:avjavaseckit:1.2.9'
@@ -72,6 +86,7 @@ dependencies {
     compile('org.apache.poi:poi-ooxml:3.15') {
         exclude group: "commons-codec"
     }
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
 ext.versionPropsFile = file('version.properties')
@@ -98,11 +113,12 @@ jar {
     manifest {
         attributes(
                 "Name": "${project.name}",
-                "Implementation-Title": "Beltechosmotr VAT for diagnostic stations",
+                "Implementation-Title": "Электронные счета-фактуры для диагностических станций",
                 "Implementation-Version": "${version}",
-                "Implementation-Vendor": "Beltechosmotr",
+                "Implementation-Vendor": "УП «Белтехосмотр»",
                 'Main-Class': mainClass,
-                "splashscreen-image": imageName,
+//                "splashscreen-image": imageName,
+                "build-time": String.format('%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS', new Date()),
                 "Class-Path": configurations.compile.collect { "lib/" + it.getName() }.join(' '))
     }
 }
@@ -174,5 +190,16 @@ task msi(dependsOn: prepareMSIDir) {
                     "${wixPrjDir}\\${project.name}-${project.version}.msi", "${tempDir}\\*.wixobj"
         }
 //        Files.delete(Paths.get(wixPrjDir, "${project.name}-${project.version}.wixpdb"))
+    }
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }

@@ -1,5 +1,6 @@
 package by.gto.vatds.gui;
 
+import by.gto.controllers.BaseController;
 import by.gto.tools.ConfigReader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,14 +15,10 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class SettingsController implements javafx.fxml.Initializable {
+public final class SettingsController extends BaseController<Void, Void> implements javafx.fxml.Initializable {
 
     @FXML
     public TextField eServerIP;
-    @FXML
-    public TextField ePosition;
-    @FXML
-    public TextField eFIO;
     @FXML
     public TextField eVAT;
     @FXML
@@ -70,6 +67,7 @@ public final class SettingsController implements javafx.fxml.Initializable {
     }
 
     public void bSaveClick(ActionEvent actionEvent) {
+        lResult.setText(null);
         final ConfigReader instance = ConfigReader.getInstance();
         String ip = eServerIP.getText().trim();
         if (!validateIP(ip)) {
@@ -82,13 +80,6 @@ public final class SettingsController implements javafx.fxml.Initializable {
             lResult.setText("УНП обязан состоять ровно из 9 цифр");
             return;
         }
-
-        String vat = eVAT.getText();
-        if (!verifyVAT(vat)) {
-            lResult.setText("Неверная ставка НДС");
-            return;
-        }
-
 
         File dir = new File(eVatPath.getText());
         dir.mkdirs();
@@ -123,7 +114,7 @@ public final class SettingsController implements javafx.fxml.Initializable {
         instance.setProxyPass(eProxyPass.getText());
 
         instance.save();
-        lResult.setText("Успешно сохранено");
+        stage.close();
     }
 
     private boolean verifyVAT(String vat) {
@@ -230,4 +221,5 @@ public final class SettingsController implements javafx.fxml.Initializable {
         eProxyPass.setDisable(!selected);
         eProxyUser.setDisable(!selected);
     }
+
 }

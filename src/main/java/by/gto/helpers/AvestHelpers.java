@@ -33,6 +33,7 @@ public class AvestHelpers {
         //System.setProperty("java.util.logging.config.file", "OFF"); //?????
 
         String f = getAvestJCPPath();
+        log.info("Avest JCP path: " + f);
         if (StringUtils.isEmpty(f)) {
             return false;
         }

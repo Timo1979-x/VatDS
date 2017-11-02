@@ -48,48 +48,52 @@
                     </menus>
                 </MenuBar>
                 <Label fx:id="lMessage" layoutY="430.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-                      <ComboBox fx:id="comboBoxYear" layoutX="4.0" layoutY="27.0" onAction="#comboBoxYearAction" prefHeight="25.0" prefWidth="108.0" promptText="год" />
-                      <ComboBox fx:id="comboBoxMonth" layoutX="114.0" layoutY="27.0" onAction="#comboBoxMonthAction" prefHeight="25.0" prefWidth="107.0" promptText="месяц" />
-                      <Button fx:id="bIssueUpload" layoutX="582.0" layoutY="24.0" mnemonicParsing="false" onAction="#bUploadAction" styleClass="bUpload" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="24.0">
-                          <tooltip>
-                              <Tooltip text="Сформировать и отправить выделенные ЭСЧФ" />
-                          </tooltip>
-                      </Button>
-                      <Button fx:id="bCheckStates" layoutX="542.0" layoutY="24.0" mnemonicParsing="false" onAction="#bCheckStatesAction" styleClass="bCheckStates" AnchorPane.rightAnchor="54.0" AnchorPane.topAnchor="24.0">
-                          <tooltip>
-                              <Tooltip text="Получить состояние выделенных ЭСЧФ с портала" />
-                          </tooltip>
-                      </Button>
-                      <TableView fx:id="vatTableView" editable="true" layoutX="4.0" layoutY="56.0" prefHeight="523.0" prefWidth="636.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="22.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="56.0">
-                          <columns>
-                              <TableColumn fx:id="colContractorName" editable="false" prefWidth="239.0" text="Наименование ЗАКАЗЧИКА" />
-                              <TableColumn fx:id="colContractorUNP" editable="false" prefWidth="78.0" text="УНП" />
-                              <TableColumn fx:id="colDate" editable="false" prefWidth="75.0" text="Дата" />
-                              <TableColumn fx:id="colVATFullNumber" editable="false" prefWidth="200.0" text="№ ЭСЧФ" />
-                              <TableColumn editable="false" prefWidth="75.0" text="Сумма">
-                                  <columns>
-                                      <TableColumn fx:id="colWithoutVAT" editable="false" prefWidth="75.0" text="Без НДС" />
-                                      <TableColumn fx:id="colVAT" editable="false" prefWidth="75.0" text="НДС" />
-                                      <TableColumn fx:id="colWithVAT" editable="false" prefWidth="75.0" text="Сумма" />
-                                  </columns>
-                              </TableColumn>
-                              <TableColumn editable="false" prefWidth="75.0" text="карта">
-                                  <columns>
-                                      <TableColumn fx:id="colBlankSeries" editable="false" prefWidth="75.0" text="Серия" />
-                                      <TableColumn fx:id="colBlankNumber" editable="false" prefWidth="75.0" text="Номер" />
-                                  </columns>
-                              </TableColumn>
-                  <TableColumn editable="false" prefWidth="75.0" text="Договор">
-                     <columns>
-                        <TableColumn fx:id="colAgrNumber" prefWidth="75.0" text="№" />
-                        <TableColumn fx:id="colAgrDate" prefWidth="75.0" text="Дата" />
-                     </columns>
-                  </TableColumn>
-                  <TableColumn fx:id="colBranch" prefWidth="75.0" sortable="false" text="Подразделение" />
-                              <TableColumn fx:id="colVatState" editable="false" prefWidth="75.0" text="Состояние" />
-                              <TableColumn editable="false" maxWidth="10.0" prefWidth="10.0" />
-                          </columns>
-                      </TableView>
+            <AnchorPane fx:id="apVAT" layoutY="27.0" prefHeight="552.0" prefWidth="636.0" AnchorPane.bottomAnchor="22.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
+               <children>
+                            <TableView fx:id="vatTableView" editable="true" layoutY="33.0" prefHeight="422.0" prefWidth="636.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="33.0">
+                                <columns>
+                                    <TableColumn fx:id="colContractorName" editable="false" prefWidth="239.0" text="Наименование ЗАКАЗЧИКА" />
+                                    <TableColumn fx:id="colContractorUNP" editable="false" prefWidth="78.0" text="УНП" />
+                                    <TableColumn fx:id="colDate" editable="false" prefWidth="75.0" text="Дата" />
+                                    <TableColumn fx:id="colVATFullNumber" editable="false" prefWidth="200.0" text="№ ЭСЧФ" />
+                                    <TableColumn editable="false" prefWidth="75.0" text="Сумма">
+                                        <columns>
+                                            <TableColumn fx:id="colWithoutVAT" editable="false" prefWidth="75.0" text="Без НДС" />
+                                            <TableColumn fx:id="colVAT" editable="false" prefWidth="75.0" text="НДС" />
+                                            <TableColumn fx:id="colWithVAT" editable="false" prefWidth="75.0" text="Сумма" />
+                                        </columns>
+                                    </TableColumn>
+                                    <TableColumn editable="false" prefWidth="75.0" text="карта">
+                                        <columns>
+                                            <TableColumn fx:id="colBlankSeries" editable="false" prefWidth="75.0" text="Серия" />
+                                            <TableColumn fx:id="colBlankNumber" editable="false" prefWidth="75.0" text="Номер" />
+                                        </columns>
+                                    </TableColumn>
+                        <TableColumn editable="false" prefWidth="75.0" text="Договор">
+                           <columns>
+                              <TableColumn fx:id="colAgrNumber" prefWidth="75.0" text="№" />
+                              <TableColumn fx:id="colAgrDate" prefWidth="75.0" text="Дата" />
+                           </columns>
+                        </TableColumn>
+                        <TableColumn fx:id="colBranch" prefWidth="75.0" sortable="false" text="Подразделение" />
+                                    <TableColumn fx:id="colVatState" editable="false" prefWidth="75.0" text="Состояние" />
+                                    <TableColumn editable="false" maxWidth="10.0" prefWidth="10.0" />
+                                </columns>
+                            </TableView>
+                            <ComboBox fx:id="comboBoxYear" layoutY="1.0" onAction="#comboBoxYearAction" prefHeight="25.0" prefWidth="108.0" promptText="год" AnchorPane.leftAnchor="1.0" AnchorPane.topAnchor="1.0" />
+                            <ComboBox fx:id="comboBoxMonth" layoutX="114.0" layoutY="1.0" onAction="#comboBoxMonthAction" prefHeight="25.0" prefWidth="107.0" promptText="месяц" AnchorPane.leftAnchor="114.0" AnchorPane.topAnchor="1.0" />
+                            <Button fx:id="bCheckStates" layoutX="595.0" layoutY="-2.0" mnemonicParsing="false" onAction="#bCheckStatesAction" styleClass="bCheckStates" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="0.0">
+                                <tooltip>
+                                    <Tooltip text="Получить состояние выделенных ЭСЧФ с портала" />
+                                </tooltip>
+                            </Button>
+                            <Button fx:id="bIssueUpload" layoutX="554.0" layoutY="-2.0" mnemonicParsing="false" onAction="#bUploadAction" styleClass="bUpload" AnchorPane.rightAnchor="42.0" AnchorPane.topAnchor="0.0">
+                                <tooltip>
+                                    <Tooltip text="Сформировать и отправить выделенные ЭСЧФ" />
+                                </tooltip>
+                            </Button>
+               </children>
+            </AnchorPane>
             </children>
         </AnchorPane>
         <GridPane fx:id="gpMessage" disable="true" stylesheets="@fx.css" visible="false">
