@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?define Version = 0.2.29.0 ?>
-<?define UpgradeCode = '{00402D40-B0E5-49BA-AA12-3D783B6226E5}' ?>
+<?define UpgradeCode = '{e548622f-1d6e-403f-a200-a5830e2b2c66}' ?>
 <?define Manufacturer = 'УП «Белтехосмотр»' ?>
 <?define ManufacturerShortName = 'Beltehosmotr' ?>
-<?define ProductName = 'Статистические отчеты ДС + ЭСЧФ (btoReportNG)' ?>
-<?define ProductShortName = 'btoReportNG' ?>
+<?define ProductName = 'ЭСЧФ для диагностических станций (vatDS)' ?>
+<?define ProductShortName = 'vatDS' ?>
 <?define Comment = 'Инсталляционный пакет "$(var.ProductName)"' ?>
 <?define Description = 'Инсталляционный пакет "$(var.ProductName)"' ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
@@ -15,16 +15,16 @@
             <Directory Id="ProgramFilesFolder" Name="PFiles">
                 <Directory Id="BTODIR" Name="$(var.ManufacturerShortName)">
                     <Directory Id="PROGRAMDIR" Name="$(var.ProductShortName)">
-                        <Component Guid="*" Id="BTOREPORTNG_COMP.EXE">
-                            <File Id="BTOREPORTNG.EXE" Name="btoReportNG.exe" Source="$(env.wixPrjDir)\btoReportNG.exe">
-                            <Shortcut Id="desktopShortcutBTOREPORTNG.EXE" Directory="DesktopFolder" Name="btoReportNG" Icon="DesktopIcon.ico" IconIndex="0"/>
-                            <Shortcut Id="programShortcutBTOREPORTNG.EXE" Directory="ProgramMenuDir" Name="btoReportNG" Icon="DesktopIcon.ico" IconIndex="0"/> 
+                        <Component Guid="*" Id="VATDS_COMP.EXE">
+                            <File Id="VATDS.EXE" Name="VATDS.exe" Source="$(env.wixPrjDir)\VATDS.exe">
+                            <Shortcut Id="desktopShortcutVATDS.EXE" Directory="DesktopFolder" Name="vatDS" Icon="DesktopIcon.ico" IconIndex="0"/>
+                            <Shortcut Id="programShortcutVATDS.EXE" Directory="ProgramMenuDir" Name="vatDS" Icon="DesktopIcon.ico" IconIndex="0"/> 
                             </File>
-                            <!-- <Shortcut Id="programShortcutBTOREPORTNG.EXE" Directory="ProgramMenuDir" Name="btoReportNG" Icon="DesktopIcon.ico" IconIndex="0"/> -->
+                            <!-- <Shortcut Id="programShortcutVATDS.EXE" Directory="ProgramMenuDir" Name="vatDS" Icon="DesktopIcon.ico" IconIndex="0"/> -->
                         </Component>
                         <Component Guid="*" Id="VAT_MANUAL_COMP.DOC">
                             <File Id="VAT_MANUAL.DOC" Name="vat_manual.doc" Source="$(env.wixPrjDir)\vat_manual.doc">
-                            <Shortcut Id="programShortcutVAT_MANUAL.DOC" Directory="ProgramMenuDir" Name="Инструкция по работе с ЭСЧФ по НДС" WorkingDirectory="INSTALLDIR" Icon="WordIcon.ico" IconIndex="0"/>
+                            <Shortcut Id="programShortcutVAT_MANUAL.DOC" Directory="ProgramMenuDir" Name="Инструкция по работе с ЭСЧФ по НДС" Worki Directory="INSTALLDIR" Icon="WordIcon.ico" IconIndex="0"/>
                             </File>
                         </Component>
                     </Directory>
@@ -33,7 +33,7 @@
             <Directory Id="DesktopFolder"/>
             <Directory Id="ProgramMenuFolder">
                 <Directory Id="ProgramMenuDir" Name="$(var.ProductName)">
-                    <Component Guid="E2D5227B-9A57-47EE-B7A7-0BB02BF055C8" Id="StartMenuShortcutUninstall">
+                    <Component Guid="72b041c3-71e5-49c6-bb51-5caec9ed679e" Id="StartMenuShortcutUninstall">
                         <RemoveFolder Id="ProgramMenuDir" On="uninstall"/>
                         <!-- <RemoveFolder Id="ProgramMenuSubDir" On="uninstall"/> -->
                         <RegistryValue Key="Software\$(var.ManufacturerShortName)\$(var.ProductShortName)" Root="HKCU" Type="string" Value=""/>
@@ -43,7 +43,7 @@
             </Directory>
         </Directory>
         <Feature Id="DefaultFeature" Level="1" Title="Main Feature">
-            <ComponentRef Id="BTOREPORTNG_COMP.EXE"/>
+            <ComponentRef Id="VATDS_COMP.EXE"/>
             <ComponentRef Id="VAT_MANUAL_COMP.DOC"/>
             <ComponentGroupRef Id="compGrouplib"/>
             <ComponentGroupRef Id="compGroupwin32"/>
