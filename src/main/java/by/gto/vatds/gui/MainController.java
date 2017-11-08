@@ -950,6 +950,9 @@ public class MainController implements Initializable {
                         log.error(e.getMessage(), e);
                         conn.rollback();
                         throw e;
+                    } finally {
+                        // TODO убрать после проверки
+//                        System.out.println("xxxxx");
                     }
 
                     final String resultMessage = "Загрузка на портал ЭСЧФ завершена успешно";
@@ -963,6 +966,9 @@ public class MainController implements Initializable {
                         log.error("[ОШИБКА] " + e.getMessage());
                     }
                     Platform.runLater(() -> afterFinishLongTask("Возникла ошибка"));
+                } finally {
+                    // TODO убрать после проверки
+//                    System.out.println("yyy");
                 }
                 try {
                     refreshVats();

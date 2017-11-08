@@ -60,11 +60,7 @@ public class VatTool implements Closeable {
         this.service.login("");
         log.info("[OK] Авторизация успешна");
         this.printConnectionInfo();
-        try {
-            this.service.connect();
-        } catch (Throwable t) {
-            System.out.println(t.getMessage());
-        }
+        this.service.connect();
         log.info("[OK] Подключение успешно");
     }
 
