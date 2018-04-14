@@ -190,7 +190,19 @@ public class ExcelLoader {
         }
         CellValue cellValue = evaluator.evaluate(cell);
         try {
-            return cellValue.getStringValue();
+            switch (cellValue.getCellTypeEnum()) {
+                case NUMERIC:
+                    double val = cellValue.getNumberValue();
+                    if(Math.floor(val) == val) {
+                        return String.format("%.0f", val);
+                    } else {
+                        return String.valueOf(val);
+                    }
+                case BOOLEAN:
+                    return String.valueOf(cellValue.getBooleanValue());
+                default:
+                    return cellValue.getStringValue();
+            }
         } catch (Exception ignored) {
             return null;
         }
