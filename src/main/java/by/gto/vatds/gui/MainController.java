@@ -1085,7 +1085,7 @@ public class MainController implements Initializable {
                 "        <bigCompany>false</bigCompany>\n" +
                 "        <countryCode>112</countryCode>\n" +
                 "        <unp>{customerUnp}</unp>\n" +
-                "        <branchCode>{branchCode}</branchCode>\n" +
+                (null == vd.getBranch() ? "" : "        <branchCode>{branchCode}</branchCode>\n") +
                 "        <name>{customerName}</name>\n" +
                 "        <address>{customerAddress}</address>\n" +
                 "    </recipient>\n" +
@@ -1111,16 +1111,16 @@ public class MainController implements Initializable {
                 "            </documents>\n" +
                 "        </contract>\n" +
                 "    </deliveryCondition>\n" +
-                "    <roster totalCostVat='{totalCostVat}' totalExcise='0' totalVat='{totalVat}' totalCost='{totalCost}'>\n" +
+                "    <roster totalCostVat='{totalCostVat}' totalExcise='0.00' totalVat='{totalVat}' totalCost='{totalCost}'>\n" +
                 "        <rosterItem>\n" +
-                "            <number>0</number>\n" +
+                "            <number>1</number>\n" +
                 "            <name>{serviceName}</name>\n" +
                 "            <code></code>\n" +
                 "            <units>796</units>\n" +
                 "            <count>1</count>\n" +
                 "            <price>{totalCost}</price>\n" +
                 "            <cost>{totalCost}</cost>\n" +
-                "            <summaExcise>0</summaExcise>\n" +
+                "            <summaExcise>0.00</summaExcise>\n" +
                 "            <vat>\n" +
                 "                <rate>20</rate>\n" +
                 "                <rateType>DECIMAL</rateType>\n" +
@@ -1144,9 +1144,6 @@ public class MainController implements Initializable {
         }
 
         final ConfigReader configReader = ConfigReader.getInstance();
-//        if (vd.getBranch() == null) {
-//            template = template.replace("<branchCode>{branchCode}</branchCode>", "");
-//        }
         return template
                 .replace("{number}", VatHelpers.vatNumber(vd.getVatUnp(), vd.getVatYear(), vd.getVatNumber()))
                 .replace("{dateIssuance}", sDate)
@@ -1159,9 +1156,9 @@ public class MainController implements Initializable {
                 .replace("{customerAddress}", XmlHelper.replaceXmlSymbols(customerAddress))
                 .replace("{agrDate}", sAgrDate)
                 .replace("{agrNum}", XmlHelper.replaceXmlSymbols(vd.getAgreementNumber()))
-                .replace("{totalCostVat}", vd.getWithVAT().toPlainString())
-                .replace("{totalVat}", vd.getVAT().toPlainString())
-                .replace("{totalCost}", vd.getWithoutVAT().toPlainString())
+                .replace("{totalCostVat}", vd.getWithVAT().setScale(2).toPlainString())
+                .replace("{totalVat}", vd.getVAT().setScale(2).toPlainString())
+                .replace("{totalCost}", vd.getWithoutVAT().setScale(2).toPlainString())
                 .replace("{actSeries}", vd.getBlankSeries())
                 .replace("{actNumber}", StringUtils.leftPad(vd.getBlankNumber(), 7, '0'))
                 .replace("{serviceName}", configReader.getServiceName())
