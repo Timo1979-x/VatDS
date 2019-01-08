@@ -1,13 +1,10 @@
 package by.gto.model;
 
-import by.gto.library.App;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 
 public class ApplicationInfo {
     private static final Logger logger = Logger.getLogger(ApplicationInfo.class);

@@ -1359,26 +1359,32 @@ public class MainController implements Initializable {
     }
 
     public void miImportRegistryAction(ActionEvent actionEvent) {
-        Preferences prefs = Preferences.userNodeForPackage(Main.class);
-
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Выберите файл с реестром договоров ");
-        fc.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Excel Files", "*.xls", "*.xlsx"),
-                new FileChooser.ExtensionFilter("All Files", "*.*"));
-        final String lastImportDir = prefs.get("lastImportDir", null);
-        if (lastImportDir != null) {
-            fc.setInitialDirectory(new File(lastImportDir));
-        }
-        File file = fc.showOpenDialog(Main.getStage());
-        if (file == null) {
-            return;
-        }
-
-        prefs.put("lastImportDir", file.getParentFile().getAbsolutePath());
         try {
+            Preferences prefs = Preferences.userNodeForPackage(Main.class);
+
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Выберите файл с реестром договоров ");
+            fc.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Excel Files", "*.xls", "*.xlsx"),
+                    new FileChooser.ExtensionFilter("All Files", "*.*"));
+            String lastImportDir = prefs.get("lastImportDir", null);
+
+            if (lastImportDir != null) {
+                File d = new File(lastImportDir);
+                if (d.exists() && d.isDirectory()) {
+                    fc.setInitialDirectory(d);
+                }
+            }
+            File file = fc.showOpenDialog(Main.getStage());
+            if (file == null) {
+                return;
+            }
+
+            prefs.put("lastImportDir", file.getParentFile().getAbsolutePath());
+
             importIntoDB(file);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             showErrorMessage("Ошибка", e.getMessage());
         }
     }

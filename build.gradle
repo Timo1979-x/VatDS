@@ -2,7 +2,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.3.11'
     repositories {
         mavenCentral()
     }
@@ -18,7 +18,7 @@ plugins {
 apply plugin: 'kotlin'
 
 group 'by.gto'
-version '1.1.3'
+version '1.1.4'
 archivesBaseName = 'vatDS'
 sourceCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
@@ -26,12 +26,16 @@ compileJava.options.encoding = 'UTF-8'
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        url uri("file://d:/timo_personal/MegaSync/repo")
+    }
+
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "by.gto.fonts:by.gto.fonts:0.1"
-    compile("by.gto.library:bto-library-common:1.0.40.41") {
+    compile("by.gto.library:bto-library-common:1.1.22") {
         exclude group: 'log4j'
     }
     compile("log4j:log4j:1.2.15") {
@@ -86,7 +90,7 @@ dependencies {
     compile('org.apache.poi:poi-ooxml:3.15') {
         exclude group: "commons-codec"
     }
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 ext.versionPropsFile = file('version.properties')
@@ -94,8 +98,9 @@ ext.imageName = "splash_2.gif"
 ext.mainClass = 'by.gto.vatds.gui.Main'
 ext.WIX_DIR = "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin"
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "4.3"
+wrapper {
+    gradleVersion = "5.0"
+    distributionType = Wrapper.DistributionType.ALL
 }
 
 //task copyToLib(type: Copy) {
