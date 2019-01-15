@@ -34,7 +34,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.*;
 import javafx.util.Callback;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -1164,10 +1164,10 @@ public class MainController implements Initializable {
                 .replace("{serviceName}", configReader.getServiceName())
                 .replace("{ourUNP}", String.format("%09d", configReader.getUNP()))
                 .replace("{ourName}", configReader.getOrgName())
-                .replace("{ourAddress}", ((ConfigReader) configReader).getOrgAddress());
+                .replace("{ourAddress}", configReader.getOrgAddress());
     }
 
-    public void bUploadAction(ActionEvent actionEvent) {
+    public void bUploadAction(ActionEvent ignored) {
         issueVATS();
     }
 

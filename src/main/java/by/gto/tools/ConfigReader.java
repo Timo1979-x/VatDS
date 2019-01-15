@@ -1,16 +1,17 @@
 package by.gto.tools;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.builder.fluent.Configurations;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Aleks
+ * @author ltv
  */
 public class ConfigReader {
 
@@ -81,10 +82,11 @@ public class ConfigReader {
         this.orgAddress = orgAddress;
     }
 
-    private static File configXml = null;
+    private static File configFile = null;
+
 
     public static void setFilePath(String path) {
-        configXml = new File(path);
+        configFile = new File(path);
     }
 
 
@@ -99,31 +101,31 @@ public class ConfigReader {
         return instance;
     }
 
-    private XMLConfiguration config;
+//    private XMLConfiguration xmlConfig;
 
     private ConfigReader() {
         // org.apache.commons.collections.CollectionUtils
-        if (!configXml.exists()) {
-            _save(configXml);
-        }
-        try {
-            config = new XMLConfiguration(configXml);
-        } catch (Exception ex) {
-            log.error(ex);
-            JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
-        }
+//        if (!configFile.exists()) {
+//            _save(configFile);
+//        }
+//        try {
+//            xmlConfig = new XMLConfiguration(configFile);
+//        } catch (Exception ex) {
+//            log.error(ex);
+//            JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
+//        }
         read();
     }
 
     private void _save(File configXml) {
         configXml.getParentFile().mkdirs();
         try (FileOutputStream fos = new FileOutputStream(configXml);
-             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF8");
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
              Writer wFile = new BufferedWriter(osw)) {
 
             wFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
             wFile.write("<configuration>\n");
-            wFile.write("    <config>\n");
+            wFile.write("    <xmlConfig>\n");
             wFile.write(String.format("        <host>%s</host>\n", getHost()));
             wFile.write(String.format("        <port>%s</port>\n", getPort()));
             wFile.write(String.format("        <UNP>%s</UNP>\n", getUNP()));
@@ -137,7 +139,7 @@ public class ConfigReader {
             wFile.write(String.format("        <proxyPort>%d</proxyPort>\n", getProxyPort()));
             wFile.write(String.format("        <proxyUser>%s</proxyUser>\n", getProxyUser()));
             wFile.write(String.format("        <proxyPass>%s</proxyPass>\n", getProxyPass()));
-            wFile.write("    </config>\n");
+            wFile.write("    </xmlConfig>\n");
             wFile.write("</configuration>\n");
             wFile.flush();
         } catch (Exception ex) {
@@ -147,23 +149,24 @@ public class ConfigReader {
     }
 
     private void read() {
+        Configurations configs = new Configurations();
         try {
-            config.load();
-            host = "localhost".equals(config.getString("config.host", host).trim()) ? "127.0.0.1" : config.getString("config.host", host).trim();
-            port = config.getString("config.port", port).trim();
-            UNP = config.getInt("config.UNP", UNP);
-            orgName = config.getString("config.orgName", orgName).trim();
-            orgAddress = config.getString("config.orgAddress", orgAddress).trim();
-            serviceName = config.getString("config.serviceName", serviceName).trim();
-            vatServiceUrl = config.getString("config.vatServiceUrl", vatServiceUrl).trim();
-            vatPath = config.getString("config.vatPath", vatPath).trim();
+            XMLConfiguration xmlConfig = configs.xml(configFile);
+            host = "localhost".equals(xmlConfig.getString("xmlConfig.host", host).trim()) ? "127.0.0.1" : xmlConfig.getString("xmlConfig.host", host).trim();
+            port = xmlConfig.getString("xmlConfig.port", port).trim();
+            UNP = xmlConfig.getInt("xmlConfig.UNP", UNP);
+            orgName = xmlConfig.getString("xmlConfig.orgName", orgName).trim();
+            orgAddress = xmlConfig.getString("xmlConfig.orgAddress", orgAddress).trim();
+            serviceName = xmlConfig.getString("xmlConfig.serviceName", serviceName).trim();
+            vatServiceUrl = xmlConfig.getString("xmlConfig.vatServiceUrl", vatServiceUrl).trim();
+            vatPath = xmlConfig.getString("xmlConfig.vatPath", vatPath).trim();
 
-            useProxy = config.getBoolean("config.useProxy", false);
-            proxyHost = config.getString("config.proxyHost", proxyHost).trim();
-            proxyPort = NumberUtils.toInt(config.getString("config.proxyPort", "8080").trim(), 8080);
-            proxyUser = config.getString("config.proxyUser", proxyUser).trim();
-            proxyPass = config.getString("config.proxyPass", proxyPass).trim();
-        } catch (Exception ex) {
+            useProxy = xmlConfig.getBoolean("xmlConfig.useProxy", false);
+            proxyHost = xmlConfig.getString("xmlConfig.proxyHost", proxyHost).trim();
+            proxyPort = NumberUtils.toInt(xmlConfig.getString("xmlConfig.proxyPort", "8080").trim(), 8080);
+            proxyUser = xmlConfig.getString("xmlConfig.proxyUser", proxyUser).trim();
+            proxyPass = xmlConfig.getString("xmlConfig.proxyPass", proxyPass).trim();
+        } catch (Throwable ex) {
             log.error(ex.getMessage());
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Ошибка!", JOptionPane.ERROR_MESSAGE);
         }
@@ -182,7 +185,7 @@ public class ConfigReader {
     }
 
     public void save() {
-        _save(configXml);
+        _save(configFile);
     }
 
 

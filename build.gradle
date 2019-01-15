@@ -18,7 +18,7 @@ plugins {
 apply plugin: 'kotlin'
 
 group 'by.gto'
-version '1.1.4'
+version '1.1.5'
 archivesBaseName = 'vatDS'
 sourceCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
@@ -37,6 +37,7 @@ dependencies {
     compile "by.gto.fonts:by.gto.fonts:0.1"
     compile("by.gto.library:bto-library-common:1.1.22") {
         exclude group: 'log4j'
+        exclude group: 'commons-configuration'
     }
     compile("log4j:log4j:1.2.15") {
         exclude group: "javax.jms"
@@ -45,9 +46,11 @@ dependencies {
         exclude group: "javax.mail"
     }
     compile "mysql:mysql-connector-java:5.1.34"
-    compile "commons-configuration:commons-configuration:1.10"
+    compile "org.apache.commons:commons-configuration2:2.4"
     // https://mvnrepository.com/artifact/commons-collections/commons-collections
-    compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+//    compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+// https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils
+    compile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
 
     // библиотеки Avest JCE Prov добавлены как зависимости:
     compile 'AvJCEProv:avjavaseckit:1.2.9'
