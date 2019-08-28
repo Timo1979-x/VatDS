@@ -461,6 +461,7 @@ public class MainController implements Initializable {
         int ver;
         try {
             ver = checkDBVersion();
+            cleanUrlsCache();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             ver = -1;
@@ -687,6 +688,16 @@ public class MainController implements Initializable {
         vatTableView.refresh();
     }
 
+    /**
+     *
+     */
+    private void cleanUrlsCache()  throws SQLException {
+        try (Connection conn = ConnectionMySql.getInstance().getConn();
+             Statement st = conn.createStatement()) {
+            boolean r =st.execute("delete FROM ei_checked_unps WHERE last_check < ADDDATE(NOW(), interval -2 month)");
+            System.out.println(r);
+        }
+    }
     /**
      * Проверяет, что версия структуры БД подходит этой версии программы
      * Также при необходимости обновляет В БД список организаций с подразделениями
@@ -950,9 +961,6 @@ public class MainController implements Initializable {
                         log.error(e.getMessage(), e);
                         conn.rollback();
                         throw e;
-                    } finally {
-                        // TODO убрать после проверки
-//                        System.out.println("xxxxx");
                     }
 
                     final String resultMessage = "Загрузка на портал ЭСЧФ завершена успешно";
@@ -966,9 +974,6 @@ public class MainController implements Initializable {
                         log.error("[ОШИБКА] " + e.getMessage());
                     }
                     Platform.runLater(() -> afterFinishLongTask("Возникла ошибка"));
-                } finally {
-                    // TODO убрать после проверки
-//                    System.out.println("yyy");
                 }
                 try {
                     refreshVats();

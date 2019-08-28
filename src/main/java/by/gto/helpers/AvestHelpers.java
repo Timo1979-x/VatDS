@@ -37,22 +37,29 @@ public class AvestHelpers {
         if (StringUtils.isEmpty(f)) {
             return false;
         }
-//            String f = new File(AvestHelpers.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
 
         String dllPath = null;
-//            String dllPath = f + "\\win" + (is64bit ? "64" : "32");
-//            String dllPath = f + "\\win" + (!is64bit ? "64" : "32");
-//            System.setProperty("java.library.path", dllPath);
         avestCSPPresent = false;
-        for (String p : is64bit ? (new String[]{"64", "32"}) : (new String[]{"32", "64"})) {
-            dllPath = f + "\\win" + p;
+        dllPath = System.getProperty("AVEST_PATH");
+        if(StringUtils.isBlank(dllPath)) {
+            for (String p : is64bit ? (new String[]{"64", "32"}) : (new String[]{"32", "64"})) {
+                dllPath = f + "\\win" + p;
+                System.setProperty("java.library.path", dllPath);
+                try {
+                    ProviderFactory.addAvUniversalProvider();
+                    avestCSPPresent = true;
+                    break;
+                } catch (Exception ex) {
+                    System.err.println(ex);
+                }
+            }
+        } else {
             System.setProperty("java.library.path", dllPath);
             try {
                 ProviderFactory.addAvUniversalProvider();
                 avestCSPPresent = true;
-                break;
-            } catch (Exception e) {
-                System.out.println(e);
+            } catch (Exception ex) {
+                System.err.println(ex);
             }
         }
         log.info("java.library.path" + dllPath);
@@ -62,26 +69,6 @@ public class AvestHelpers {
 
     public static String getAvestJCPPath() {
         return PathHelpers.getBaseLocation();
-//        try {
-//            URI uri = AvestHelpers.class.getProtectionDomain().getCodeSource().getLocation().toURI();
-//            return new File(uri).getAbsolutePath();
-////            return new File(uri).getParent();
-//        } catch (URISyntaxException e) {
-//            log.error("cannot find path to our executable", e);
-//            return "";
-//        }
-//        for (String location : REG_PATHS_AVEST_JCP_LOCATION) {
-//            try {
-//                String path = Advapi32Util.registryGetStringValue(
-//                        WinReg.HKEY_LOCAL_MACHINE, location, "InstallLocation");
-//                path = StringUtils.stripEnd(path, "\\/");
-//                log.info("AVEST JCP PATH: " + path);
-//                return path;
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage());
-//            }
-//        }
-//        return null;
     }
 
     /**
