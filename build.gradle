@@ -1,5 +1,6 @@
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.text.SimpleDateFormat
 
 buildscript {
     ext.kotlin_version = '1.3.11'
@@ -13,14 +14,15 @@ buildscript {
 
 plugins {
     id 'java'
-    id 'edu.sc.seis.launch4j' version '2.4.2'
+    id 'edu.sc.seis.launch4j' version '2.4.6'
 }
 apply plugin: 'kotlin'
 
 group 'by.gto'
-version '1.1.6'
+version '1.1.7'
 archivesBaseName = 'vatDS'
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 compileJava.options.encoding = 'UTF-8'
 
 repositories {
@@ -100,9 +102,10 @@ ext.versionPropsFile = file('version.properties')
 ext.imageName = "splash_2.gif"
 ext.mainClass = 'by.gto.vatds.gui.Main'
 ext.WIX_DIR = "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin"
+ext.buildNumber = new SimpleDateFormat("yyMMddHHmm").format(new Date())
 
 wrapper {
-    gradleVersion = "5.0"
+    gradleVersion = "5.6.1"
     distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -113,6 +116,7 @@ wrapper {
 
 jar {
 //    dependsOn copyToLib
+    inputs.property('buildNumber', project.ext.buildNumber)
     exclude 'win32/**'
     exclude 'win64/**'
     exclude "vat_manual.doc"
@@ -122,7 +126,7 @@ jar {
         attributes(
                 "Name": "${archivesBaseName}",
                 "Implementation-Title": "Электронные счета-фактуры для диагностических станций",
-                "Implementation-Version": "${version}",
+                "Implementation-Version": "${project.version}.${project.ext.buildNumber}",
                 "Implementation-Vendor": "УП «Белтехосмотр»",
                 'Main-Class': mainClass,
 //                "splashscreen-image": imageName,
@@ -130,28 +134,11 @@ jar {
                 "Class-Path": configurations.compile.collect { "lib/" + it.getName() }.join(' '))
     }
 }
-task updateBuildNumber(description: "Читает номер билда из файла и обновляет его в файле") {
-    doLast {
-        if (versionPropsFile.canRead()) {
-            def Properties versionProps = new Properties()
-            versionProps.load(new FileInputStream(versionPropsFile))
-            project.ext.buildNumber = versionProps['BUILD_NUMBER'].toInteger()
-            versionProps['BUILD_NUMBER'] = (project.ext.buildNumber + 1).toString()
-            versionProps.store(versionPropsFile.newWriter(), null)
-        } else {
-            throw new GradleException("Could not read version.properties!")
-        }
-    }
-}
-
-compileJava {
-    dependsOn updateBuildNumber
-}
 
 createExe {
     mainClassName = mainClass
     icon = '../resources/main/piggy-bank2.ico'
-    downloadUrl = "http://gto.by/downloads/vatDS/vatDS-${version}"
+    downloadUrl = "http://gto.by/downloads/vatDS/vatDS-${project.version}"
 }
 
 task prepareMSIDir(dependsOn: createExe, type: Copy) {
@@ -167,8 +154,24 @@ task prepareMSIDir(dependsOn: createExe, type: Copy) {
     into "${project.buildDir}/msi"
 }
 
+task prepareMSIVersion(description: "Создает файл с версией ПО для упаковщика msi") {
+    def msiVersionFile = "${project.buildDir}/msi/temp/version.wxi"
+    inputs.property('version', version)
+    outputs.file(msiVersionFile)
+    doLast {
+        def f = new File(msiVersionFile)
+        f.withWriter { writer ->
+            writer.write("""<?xml version="1.0" encoding="utf-8"?>
+                            |<?define Version = ${version} ?>
+                            |<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"/>""".stripMargin()
+            )
+        }
+    }
+}
 
-task msi(dependsOn: prepareMSIDir) {
+
+task msi() {
+    dependsOn prepareMSIDir, prepareMSIVersion
     doLast {
         def wixPrjDir = prepareMSIDir.outputs.files[0].getAbsolutePath()
         System.setProperty("wixPrjDir", wixPrjDir)

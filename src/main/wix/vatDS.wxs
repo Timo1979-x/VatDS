@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?define Version = 0.2.29.0 ?>
+<?include ..\..\..\build\msi\temp\version.wxi ?>
 <?define UpgradeCode = '{e548622f-1d6e-403f-a200-a5830e2b2c66}' ?>
 <?define Manufacturer = 'УП «Белтехосмотр»' ?>
 <?define ManufacturerShortName = 'Beltehosmotr' ?>
@@ -10,6 +10,23 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Product Codepage="1251" Id="*" Language="1049" Manufacturer="$(var.Manufacturer)" Name="$(var.ProductName)" UpgradeCode="$(var.UpgradeCode)" Version="$(var.Version)">
         <Package Comments="$(var.Comment)" Compressed="yes" Description="$(var.Description)" InstallScope="perMachine" InstallerVersion="200"/>
+        <CustomAction Id="PreventDowngrading" Error="Newer version already installed." />
+        <InstallUISequence>
+		  <FindRelatedProducts Sequence="200" />
+		  <Custom Action="PreventDowngrading" After="FindRelatedProducts"><![CDATA[NEWPRODUCTFOUND]]></Custom>
+		</InstallUISequence>
+		<InstallExecuteSequence>
+		  <Custom Action="PreventDowngrading" After="FindRelatedProducts"><![CDATA[NEWPRODUCTFOUND]]></Custom>
+          <RemoveExistingProducts After="InstallInitialize" />
+		</InstallExecuteSequence>
+        <Upgrade Id="$(var.UpgradeCode)">
+		  <UpgradeVersion Minimum="$(var.Version)" Property="NEWERVERSIONDETECTED" OnlyDetect="yes" IncludeMinimum="no"
+						  Language="1049" />
+		  <UpgradeVersion Minimum="0.0.1" Maximum="$(var.Version)" Property="OLDERVERSIONBEINGUPGRADED" OnlyDetect="no"
+						  IncludeMinimum="yes" IncludeMaximum="no" Language="1049" />
+		  <UpgradeVersion Maximum="$(var.Version)" Property="OLDPRODUCTFOUND" OnlyDetect="no" IncludeMinimum="yes"
+						  IncludeMaximum="no" Language="1049" />
+		</Upgrade>
         <Media Cabinet="simple.cab" EmbedCab="yes" Id="1"/>
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="PFiles">
